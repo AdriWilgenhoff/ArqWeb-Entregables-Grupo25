@@ -1,6 +1,5 @@
 package edu.tudai.arq;
 
-import edu.tudai.arq.dto.CarreraDTO;
 import edu.tudai.arq.dto.CarreraDTOCant;
 import edu.tudai.arq.dto.EstudianteDTO;
 import edu.tudai.arq.dto.ReporteCarreraDTO;
@@ -33,7 +32,7 @@ public class App
 
         //a) Dar de alta un estudiante
         System.out.println("\n***************** CONSIGNA 2-A *****************");
-        estudianteRepository.create(new Estudiante("Adrian","Wilgenhoff", LocalDate.of(1988,07,01), Genero.MASCULINO,33356953L,"Tandil",123456L));
+        estudianteRepository.create(new Estudiante("Adrian","Wilgenhoff", LocalDate.of(1988,07,01), Genero.MALE,33356953L,"Tandil",123456L));
         EstudianteDTO e = estudianteRepository.findByNroLibreta(123456L);
         if (e != null) {
             System.out.println(e);
@@ -42,7 +41,7 @@ public class App
         //b) Matricular un estudiante en una carrera
         System.out.println("\n***************** CONSIGNA 2-B *****************");
         Carrera carrera = carreraRepository.getCarreraByName("TUDAI");
-        Estudiante estudiante = estudianteRepository.findById(21L);
+        Estudiante estudiante = estudianteRepository.findById(105L);
         Inscripcion inscripcion = new Inscripcion(estudiante, carrera);
         inscripcionRepository.create(inscripcion);
 
@@ -54,14 +53,14 @@ public class App
 
         //d) Recuperar un estudiante, en base a su número de libreta universitaria.
         System.out.println("\n***************** CONSIGNA 2-D *****************");
-        e = estudianteRepository.findByNroLibreta(11005L);
+        e = estudianteRepository.findByNroLibreta(105L);
         if (e != null) {
             System.out.println(e);
         }
 
         //e) Recuperar todos los estudiantes, en base a su género.
         System.out.println("\n***************** CONSIGNA 2-E *****************");
-        List<EstudianteDTO> estudiantesSegunGenero = estudianteRepository.findAllByGenero(Genero.MASCULINO);
+        List<EstudianteDTO> estudiantesSegunGenero = estudianteRepository.findAllByGenero(Genero.NON_BINARY);
         estudiantesSegunGenero.forEach(System.out::println);
 
 

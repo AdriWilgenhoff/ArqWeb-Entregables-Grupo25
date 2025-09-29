@@ -1,5 +1,6 @@
 package edu.tudai.arq.entity;
 
 public enum Genero {
-    MASCULINO,FEMENINO;
+    MALE,POLYGENDER,AGENDER,FEMALE,NON_BINARY,GENDERFLUID,BIGENDER
+
 }
