@@ -1,0 +1,161 @@
+@startuml integrador2_clases
+' Orientación y estilo general
+top to bottom direction
+skinparam classAttributeIconSize 0
+skinparam packageStyle rect
+skinparam shadowing false
+
+
+
+
+' ==== Paquete Entidades ====
+package "Entity" #LightBlue {
+    class Estudiante {
+        -Long idEstudiante
+        -List<Inscripcion> inscripciones
+        -String nombre
+        -String apellido
+        -LocalDate fechaNacimiento
+        -Genero genero
+        -Long dni
+        -String ciudadResidencia
+        -Long lu
+
+
+        ' ------- Constructor -------
+        +Estudiante()
+        +Estudiante(String nombre, String apellido, LocalDate fechaNacimiento, Genero genero, Long dni, String ciudadResidencia, Long lu)
+
+        ' ------- Métodos -------
+        +getInscripciones(): List<Inscripcion>
+        +addInscripciones(Inscripcion e): void
+        +getEdad(): int
+
+    }
+
+    class Carrera {
+        -Long idCarrera
+        -String nombre
+        -List<Inscripcion> inscriptos
+        ' ------- Constructor -------
+        +Carrera()
+        +Carrera(Long idCarrera, String nombre)
+
+        ' ------- Métodos -------
+        +getEstudiantes():List <Inscripcion>
+        +addEstudiante(Inscripcion e): void
+    }
+
+    class Inscripcion {
+        -InscripcionId idInscripcion
+        -Carrera carrera
+        -Estudiante estudiante
+        -LocalDate fecha_inscripcion
+        -LocalDate fecha_egreso
+
+        ' ------- Constructor -------
+        +Inscripcion()
+        +Inscripcion( Estudiante estudiante, Carrera carrera)
+
+        ' ------- Métodos -------
+        + setFechaEgreso(LocalDate fecha):void
+        + setFechaEgresoNow():void
+        + setFechaInscripcion(LocalDate fecha_inscripcion):void
+        + imprimirAntiguedad():void
+        + isGraduo():boolean
+        + toString():String
+
+    }
+
+    class InscripcionId {
+        -Long idEstudiante
+        -Long idCarrera
+    }
+
+    enum Genero {
+        MALE
+        FEMALE
+        POLYGENDER
+        AGENDER
+        NON_BINARY
+        GENDERFLUID
+        BIGENDER
+    }
+}
+
+' ==== Paquete DTOs ====
+package "DTOs" #LightGreen {
+
+    class EstudianteDTO {
+        -String nombre;
+        -String apellido;
+        -Integer edad;
+        -Genero genero;
+        -String ciudadResidencia;
+        -Long lu;
+    }
+
+    class CarreraDTO {
+        -Long idCarrera
+        -String nombre
+    }
+
+    class CarreraDTOCant {
+        -Long cantInscriptos
+    }
+
+    class ReporteCarreraDTO {
+        -String nombreCarrera;
+        -int anio;
+        -long cantGraduados;
+        -long cantInscriptos;
+    }
+}
+
+' ==== Paquete Repositorio ====
+package "Repository" #LightYellow {
+    interface CrudRepository {
+        +findById(Long id): Entity
+        +findAll(): List<Entity>
+        +create(Entity entity): void
+        +update(Entity entity): void
+        +delete(Entity entity): void
+    }
+
+    interface EstudianteRepository {
+        +buscarPorDni(dni): Estudiante
+    }
+
+    interface CarreraRepository {
+        +getCarrerasConInscriptosOrdenadas(): List<CarreraDTOCant>
+        +getCarreraByName(name: String): Carrera
+        +generarReporteCarreras(): List<ReporteCarreraDTO>
+    }
+
+    interface InscripcionRepository {
+    }
+}
+
+' ==== Relaciones Entidades ====
+Estudiante "1" -- "*" Inscripcion : inscripciones
+Carrera "1" -- "*" Inscripcion : inscripciones
+Inscripcion o-- InscripcionId : id
+Inscripcion --> Estudiante : estudiante
+Inscripcion --> Carrera : carrera
+
+' ==== Relaciones DTOs ====
+EstudianteDTO --> Estudiante
+CarreraDTO --> Carrera
+CarreraDTOCant --> Carrera
+ReporteCarreraDTO --> Carrera
+CarreraDTOCant --|> CarreraDTO
+
+' ==== Dependencias Repositorios hacia Entidades ====
+EstudianteRepository ..> Estudiante
+CarreraRepository ..> Carrera
+InscripcionRepository ..> Inscripcion
+CrudRepository ..> Estudiante
+CrudRepository ..> Carrera
+CrudRepository ..> Inscripcion
+
+@enduml
