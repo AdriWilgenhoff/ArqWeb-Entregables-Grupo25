@@ -1,5 +1,4 @@
 @startuml integrador2_clases
-' Orientación y estilo general
 top to bottom direction
 skinparam classAttributeIconSize 0
 skinparam packageStyle rect
@@ -7,6 +6,41 @@ skinparam shadowing false
 
 
 
+' ==== Paquete DTOs ====
+package "DTOs" #LightGreen {
+    class EstudianteDTO {
+        -String nombre
+        -String apellido
+        -Integer edad
+        -Genero genero
+        -String ciudadResidencia
+        -Long lu
+        +EstudianteDTO(Estudiante estudiante)
+        +EstudianteDTO(String nombre, String apellido, Genero genero, LocalDate fechaNacimiento, String ciudadResidencia, Long lu)
+    }
+
+    class CarreraDTO {
+        -Long idCarrera
+        -String nombre
+        +CarreraDTO(Carrera c)
+    }
+
+    class CarreraDTOCant {
+        -Long cantInscriptos
+        +CarreraDTOCant(Carrera carrera, Long cantInscriptos)
+    }
+
+    class ReporteCarreraDTO {
+        -String nombreCarrera
+        -int anio
+        -long cantGraduados
+        -long cantInscriptos
+        +ReporteCarreraDTO(String nombreCarrera, int anio, long cantGraduados, long cantInscriptos)
+    }
+}
+
+' herencia DTO
+CarreraDTOCant --|> CarreraDTO
 
 ' ==== Paquete Entidades ====
 package "Entity" #LightBlue {
@@ -20,29 +54,20 @@ package "Entity" #LightBlue {
         -Long dni
         -String ciudadResidencia
         -Long lu
-
-
-        ' ------- Constructor -------
         +Estudiante()
         +Estudiante(String nombre, String apellido, LocalDate fechaNacimiento, Genero genero, Long dni, String ciudadResidencia, Long lu)
-
-        ' ------- Métodos -------
         +getInscripciones(): List<Inscripcion>
         +addInscripciones(Inscripcion e): void
         +getEdad(): int
-
     }
 
     class Carrera {
         -Long idCarrera
         -String nombre
         -List<Inscripcion> inscriptos
-        ' ------- Constructor -------
         +Carrera()
         +Carrera(Long idCarrera, String nombre)
-
-        ' ------- Métodos -------
-        +getEstudiantes():List <Inscripcion>
+        +getEstudiantes(): List<Inscripcion>
         +addEstudiante(Inscripcion e): void
     }
 
@@ -52,19 +77,13 @@ package "Entity" #LightBlue {
         -Estudiante estudiante
         -LocalDate fecha_inscripcion
         -LocalDate fecha_egreso
-
-        ' ------- Constructor -------
         +Inscripcion()
-        +Inscripcion( Estudiante estudiante, Carrera carrera)
-
-        ' ------- Métodos -------
-        + setFechaEgreso(LocalDate fecha):void
-        + setFechaEgresoNow():void
-        + setFechaInscripcion(LocalDate fecha_inscripcion):void
-        + imprimirAntiguedad():void
-        + isGraduo():boolean
-        + toString():String
-
+        +Inscripcion(Estudiante estudiante, Carrera carrera)
+        +setFechaEgreso(LocalDate fecha): void
+        +setFechaEgresoNow(): void
+        +setFechaInscripcion(LocalDate fecha_inscripcion): void
+        +imprimirAntiguedad(): void
+        +isGraduo(): boolean
     }
 
     class InscripcionId {
@@ -83,74 +102,44 @@ package "Entity" #LightBlue {
     }
 }
 
-' ==== Paquete DTOs ====
-package "DTOs" #LightGreen {
-
-    class EstudianteDTO {
-        -String nombre;
-        -String apellido;
-        -Integer edad;
-        -Genero genero;
-        -String ciudadResidencia;
-        -Long lu;
-    }
-
-    class CarreraDTO {
-        -Long idCarrera
-        -String nombre
-    }
-
-    class CarreraDTOCant {
-        -Long cantInscriptos
-    }
-
-    class ReporteCarreraDTO {
-        -String nombreCarrera;
-        -int anio;
-        -long cantGraduados;
-        -long cantInscriptos;
-    }
-}
-
 ' ==== Paquete Repositorio ====
 package "Repository" #LightYellow {
-    interface CrudRepository {
-        +findById(Long id): Entity
-        +findAll(): List<Entity>
-        +create(Entity entity): void
-        +update(Entity entity): void
-        +delete(Entity entity): void
+    interface CrudRepository<T, ID extends Serializable> {
+        +T findById(ID id)
+        +List<T> findAll()
+        +void create(T entity)
+        +void update(T entity)
+        +void delete(T entity)
     }
 
     interface EstudianteRepository {
-        +buscarPorDni(dni): Estudiante
+        +List<EstudianteDTO> getEstudiantesOrderByApellido()
+        +List<EstudianteDTO> findAllByGenero(Genero genero)
+        +EstudianteDTO findByNroLibreta(Long nroLibreta)
+        +List<EstudianteDTO> getEstudiantesByCarreraAndCiudadResidencia(Long idCarrera, String ciudadResidencia)
     }
 
     interface CarreraRepository {
-        +getCarrerasConInscriptosOrdenadas(): List<CarreraDTOCant>
-        +getCarreraByName(name: String): Carrera
-        +generarReporteCarreras(): List<ReporteCarreraDTO>
+        +List<CarreraDTOCant> getCarrerasConInscriptosOrdenadas()
+        +Carrera getCarreraByName(String name)
+        +List<ReporteCarreraDTO> generarReporteCarreras()
     }
 
     interface InscripcionRepository {
+        ' vacío en el código fuente
     }
 }
 
 ' ==== Relaciones Entidades ====
-Estudiante "1" -- "*" Inscripcion : inscripciones
-Carrera "1" -- "*" Inscripcion : inscripciones
-Inscripcion o-- InscripcionId : id
-Inscripcion --> Estudiante : estudiante
-Inscripcion --> Carrera : carrera
+Inscripcion "1" o-- "1" InscripcionId : id
+Estudiante "0..*" -- "1" Inscripcion : inscripciones
+Carrera "0..*" -- "1" Inscripcion : inscripciones
 
-' ==== Relaciones DTOs ====
-EstudianteDTO --> Estudiante
-CarreraDTO --> Carrera
-CarreraDTOCant --> Carrera
-ReporteCarreraDTO --> Carrera
-CarreraDTOCant --|> CarreraDTO
+' Dependencias DTOs/repositorios
+EstudianteDTO ..> Estudiante
+CarreraDTO ..> Carrera
+CarreraDTOCant ..> Carrera
 
-' ==== Dependencias Repositorios hacia Entidades ====
 EstudianteRepository ..> Estudiante
 CarreraRepository ..> Carrera
 InscripcionRepository ..> Inscripcion
