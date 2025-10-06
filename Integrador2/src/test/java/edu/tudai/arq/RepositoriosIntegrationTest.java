@@ -85,17 +85,16 @@ public class RepositoriosIntegrationTest {
     @DisplayName("2-A, 2-D: Crear estudiante y buscarlo por LU")
     void testCrearYBuscarEstudiantePorLU() {
 
-        Long luNuevo = 9999L;
-        Long dniNuevo = 4000L;
-        Estudiante nuevo = new Estudiante("Daniel", "Lopez", LocalDate.of(2001, 1, 1), Genero.MALE, dniNuevo, "Olavarría", luNuevo);
+
+        Estudiante nuevo = new Estudiante("Juan","Genova", LocalDate.of(1983,07,27), Genero.MALE,30378913L,"Tandil",123457L);
 
         estudianteRepository.create(nuevo);
 
-        EstudianteDTO encontrado = estudianteRepository.findByNroLibreta(luNuevo);
+        EstudianteDTO encontrado = estudianteRepository.findByNroLibreta(123457L);
 
         assertNotNull(encontrado, "El estudiante no debe ser nulo después de la creación y búsqueda.");
-        assertEquals("Daniel", encontrado.getNombre());
-        assertEquals(luNuevo, encontrado.getLu());
+        assertEquals("Juan", encontrado.getNombre());
+        assertEquals(123457L, encontrado.getLu());
     }
 
     //  2-C

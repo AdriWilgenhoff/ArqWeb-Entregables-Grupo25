@@ -13,7 +13,7 @@ public class CarreraRepositoryImpl extends  CrudRepositoryImpl<Carrera,Long>  im
 
     private static CarreraRepositoryImpl instance;
 
-    private CarreraRepositoryImpl(EntityManager em) {
+    public CarreraRepositoryImpl(EntityManager em) {
         super(Carrera.class, Long.class, em);
     }
 
@@ -46,8 +46,6 @@ public class CarreraRepositoryImpl extends  CrudRepositoryImpl<Carrera,Long>  im
                 .getResultList();
     }
 
-
-   //REVISAR
    @Override
    public List<ReporteCarreraDTO> generarReporteCarreras() {
          String sql =

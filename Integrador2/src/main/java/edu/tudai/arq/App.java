@@ -53,7 +53,7 @@ public class App
 
         //d) Recuperar un estudiante, en base a su número de libreta universitaria.
         System.out.println("\n***************** CONSIGNA 2-D *****************");
-        e = estudianteRepository.findByNroLibreta(105L);
+        e = estudianteRepository.findByNroLibreta(104L);
         if (e != null) {
             System.out.println(e);
         }
@@ -77,7 +77,7 @@ public class App
         /**
          * Generar un reporte de las carreras, que para cada carrera incluya información de los inscriptos y
          * egresados por año. Se deben ordenar las carreras alfabéticamente, y presentar los años de manera cronológica.
-        */
+         */
         System.out.println("\n***************** CONSIGNA 3 *****************");
         List<ReporteCarreraDTO> reporteCarreras = carreraRepository.generarReporteCarreras();
         reporteCarreras.forEach(System.out::println);
@@ -93,4 +93,3 @@ public class App
     }
 
 }
-
