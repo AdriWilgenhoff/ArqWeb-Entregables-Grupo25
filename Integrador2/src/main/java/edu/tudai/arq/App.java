@@ -29,7 +29,6 @@ public class App
         CarreraRepositoryImpl carreraRepository = emf.getCarreraRepository(em);
         InscripcionRepositoryImpl inscripcionRepository = emf.getInscripcionRepository(em);
 
-
         //a) Dar de alta un estudiante
         System.out.println("\n***************** CONSIGNA 2-A *****************");
         estudianteRepository.create(new Estudiante("Adrian","Wilgenhoff", LocalDate.of(1988,07,01), Genero.MALE,33356953L,"Tandil",123456L));
