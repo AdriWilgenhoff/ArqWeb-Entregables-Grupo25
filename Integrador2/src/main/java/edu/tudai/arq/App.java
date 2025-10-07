@@ -82,11 +82,6 @@ public class App
         List<ReporteCarreraDTO> reporteCarreras = carreraRepository.generarReporteCarreras();
         reporteCarreras.forEach(System.out::println);
 
-
-        System.out.println("\n***************** TEST *****************");
-        estudiante = estudianteRepository.findById(20L);
-        estudiante.getInscripciones().forEach(System.out::println);
-
         em.close();
         emf.closeEntityManagerFactory();
 
