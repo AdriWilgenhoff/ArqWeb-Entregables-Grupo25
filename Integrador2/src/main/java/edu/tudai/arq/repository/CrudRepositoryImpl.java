@@ -12,8 +12,7 @@ public class CrudRepositoryImpl <Entity,ID extends Serializable> implements Crud
     private Class<Entity> entityClass;
     protected EntityManager em;
 
-
-    public CrudRepositoryImpl(Class<Entity> entityClass, Class<ID> idClass, EntityManager em) {
+    protected CrudRepositoryImpl(Class<Entity> entityClass, Class<ID> idClass, EntityManager em) {
         this.entityClass=entityClass;
         this.idClass=idClass;
         this.em=em;
@@ -29,7 +28,6 @@ public class CrudRepositoryImpl <Entity,ID extends Serializable> implements Crud
         return em.createQuery("SELECT e FROM " + entityClass.getSimpleName() + " e", entityClass).getResultList();
     }
 
-
     @Override
     public void create(Entity entity) {
         em.getTransaction().begin();
@@ -50,25 +48,5 @@ public class CrudRepositoryImpl <Entity,ID extends Serializable> implements Crud
         em.remove(entity);
         em.getTransaction().commit();
     }
-
-
-
-    //para test
-    /*
-    @Override
-    public void create(Entity entity) {
-        em.persist(entity);
-    }
-
-    @Override
-    public void update(Entity entity) {
-        em.merge(entity);
-    }
-
-    @Override
-    public void delete(Entity entity) {
-        em.remove(entity);
-    }
-    */
 
 }
