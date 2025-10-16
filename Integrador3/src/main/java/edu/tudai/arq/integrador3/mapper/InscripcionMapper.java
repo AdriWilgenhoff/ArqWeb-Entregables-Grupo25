@@ -13,11 +13,7 @@ public class InscripcionMapper {
 
     public Inscripcion toEntity(InscripcionDTO.Create in, Estudiante estudiante, Carrera carrera) {
         Inscripcion ins = new Inscripcion(estudiante, carrera);
-        if (in.fechaInscripcion() != null) {
-            ins.setFechaInscripcion(in.fechaInscripcion());
-        } else {
             ins.setFechaInscripcion(LocalDate.now());
-        }
         return ins;
     }
 
@@ -26,8 +22,7 @@ public class InscripcionMapper {
                 i.getEstudiante().getIdEstudiante(),
                 i.getCarrera().getIdCarrera(),
                 i.getFecha_inscripcion(),
-                i.getFecha_egreso(),
-                i.isGraduo()
+                i.getFecha_egreso()
         );
     }
 }

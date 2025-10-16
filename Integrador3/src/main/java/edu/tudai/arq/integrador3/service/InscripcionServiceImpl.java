@@ -48,7 +48,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 
         inscripcionRepository.save(new Inscripcion(est, car));
 
-        // Respuesta simple (modo TP)
+        // Respuesta simple
         return "Inscripción creada correctamente";
     }
 }

@@ -42,13 +42,13 @@ public class GlobalExceptionHandler {
             MatriculaFoundException ex, HttpServletRequest request) {
 
         ApiError apiError = new ApiError(
-                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.CONFLICT.value(),
                 "Inscription Found (Duplicated)",
                 ex.getMessage(),
                 request.getRequestURI()
         );
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
     }
 
     @ExceptionHandler(CarreraNotFoundException.class)
