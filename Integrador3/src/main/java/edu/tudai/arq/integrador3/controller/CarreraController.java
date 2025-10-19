@@ -54,6 +54,7 @@ public class CarreraController {
     @Operation(summary = "Eliminar una carrera por ID")
     @ApiResponse(responseCode = "204", description = "Carrera eliminada exitosamente")
     @ApiResponse(responseCode = "404", description = "Carrera no encontrada", content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "409", description = "La carrera tiene inscripciones",content = @Content(schema = @Schema(implementation = ApiError.class)))
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         service.delete(id);

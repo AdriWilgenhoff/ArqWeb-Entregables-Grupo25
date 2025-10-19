@@ -1,7 +1,7 @@
 package edu.tudai.arq.integrador3.service;
 
 import edu.tudai.arq.integrador3.dto.EstudianteDTO;
-import edu.tudai.arq.integrador3.dto.ReporteCarreraDTO;
+import edu.tudai.arq.integrador3.exception.CarreraConInscripcionesException;
 import edu.tudai.arq.integrador3.exception.EstudianteNotFoundException;
 import edu.tudai.arq.integrador3.model.Estudiante;
 import edu.tudai.arq.integrador3.model.Genero;
@@ -23,9 +23,7 @@ public class EstudianteServiceImpl implements EstudianteService {
     private final EstudianteRepository estudianteRepo;
     private final EstudianteMapper estudianteMapper;
 
-    public EstudianteServiceImpl(
-            EstudianteRepository estudianteRepo,
-            EstudianteMapper estudianteMapper) {
+    public EstudianteServiceImpl(EstudianteRepository estudianteRepo,  EstudianteMapper estudianteMapper) {
         this.estudianteRepo = estudianteRepo;
         this.estudianteMapper = estudianteMapper;
     }
@@ -50,8 +48,7 @@ public class EstudianteServiceImpl implements EstudianteService {
     @Override
     @Transactional
     public EstudianteDTO.Response update(Long id, EstudianteDTO.Update in) {
-        Estudiante e = estudianteRepo.findById(id)
-                .orElseThrow(() -> new EstudianteNotFoundException("Estudiante no encontrada con ID: " + id));
+        Estudiante e = estudianteRepo.findById(id).orElseThrow(() -> new EstudianteNotFoundException("Estudiante no encontrada con ID: " + id));
 
         estudianteMapper.update(e, in);
         e = estudianteRepo.save(e);
@@ -65,31 +62,32 @@ public class EstudianteServiceImpl implements EstudianteService {
         if (!estudianteRepo.existsById(id)) {
             throw new EstudianteNotFoundException("Estudiante no encontrada con ID: " + id);
         }
-        estudianteRepo.deleteById(id);
+        try {
+            estudianteRepo.deleteById(id);
+            estudianteRepo.flush();
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            throw new CarreraConInscripcionesException("No se puede borrar el estudiante ID " + id + " porque tiene inscripciones.");
+        }
     }
 
     /** Búsqueda por ID. */
     @Override
     public EstudianteDTO.Response findById(Long id) {
-        Estudiante e = estudianteRepo.findById(id)
-                .orElseThrow(() -> new EstudianteNotFoundException("Estudiante no encontrada con ID: " + id));
+        Estudiante e = estudianteRepo.findById(id).orElseThrow(() -> new EstudianteNotFoundException("Estudiante no encontrada con ID: " + id));
         return estudianteMapper.toResponse(e);
     }
 
     /** Búsqueda por Libreta Universitaria (LU). */
     @Override
     public EstudianteDTO.Response findByLu(Long lu) {
-        Estudiante e = estudianteRepo.findByLu(lu)
-                .orElseThrow(() -> new EstudianteNotFoundException("Estudiante no encontrado con LU: " + lu));
+        Estudiante e = estudianteRepo.findByLu(lu).orElseThrow(() -> new EstudianteNotFoundException("Estudiante no encontrado con LU: " + lu));
         return estudianteMapper.toResponse(e);
     }
 
     /** Obtener todos los estudiantes. */
     @Override
     public List<EstudianteDTO.Response> findAll() {
-        return estudianteRepo.findAll().stream()
-                .map(estudianteMapper::toResponse)
-                .collect(Collectors.toList());
+        return estudianteRepo.findAll().stream().map(estudianteMapper::toResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -99,13 +97,8 @@ public class EstudianteServiceImpl implements EstudianteService {
             sortBy = "idEstudiante";
         }
 
-        Sort.Direction dir = "desc".equalsIgnoreCase(direction)
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
-
-        return estudianteRepo.findAll(Sort.by(dir, sortBy)).stream()
-                .map(estudianteMapper::toResponse)
-                .collect(java.util.stream.Collectors.toList());
+        Sort.Direction dir = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return estudianteRepo.findAll(Sort.by(dir, sortBy)).stream().map(estudianteMapper::toResponse).collect(java.util.stream.Collectors.toList());
     }
 
     @Override
@@ -120,8 +113,7 @@ public class EstudianteServiceImpl implements EstudianteService {
 
     @Override
     public List<EstudianteDTO.Response> findByCarreraAndCiudad(Long carreraId, String ciudad) {
-        List<Estudiante> estudiantes = estudianteRepo
-                .getEstudiantesByCarreraAndCiudad(carreraId, ciudad);
+        List<Estudiante> estudiantes = estudianteRepo.getEstudiantesByCarreraAndCiudad(carreraId, ciudad);
 
         if (estudiantes == null || estudiantes.isEmpty()) {
             return new ArrayList<>();

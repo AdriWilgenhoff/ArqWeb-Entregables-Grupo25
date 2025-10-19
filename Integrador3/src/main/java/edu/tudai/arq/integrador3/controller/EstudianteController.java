@@ -52,6 +52,7 @@ public class EstudianteController {
     @Operation(summary = "Eliminar un estudiante por ID")
     @ApiResponse(responseCode = "204", description = "Estudiante eliminado exitosamente")
     @ApiResponse(responseCode = "404", description = "Estudiante no encontrado", content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "409", description = "Estudiante con inscripciones",content = @Content(schema = @Schema(implementation = ApiError.class)))
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         service.delete(id);
@@ -110,6 +111,5 @@ public class EstudianteController {
             @PathVariable String ciudad) {
         return ResponseEntity.ok(service.findByCarreraAndCiudad(carreraId, ciudad.trim()));
     }
-
 
 }

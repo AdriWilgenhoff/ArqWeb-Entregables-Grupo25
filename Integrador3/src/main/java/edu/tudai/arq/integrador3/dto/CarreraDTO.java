@@ -18,7 +18,7 @@ public class CarreraDTO {
             Integer duracionAnios
     ) {}
 
-    /** DTO para actualizar (solo campos editables) */
+    /** DTO para actualizar */
     @Schema(description = "DTO de entrada para actualizar una Carrera" , name = "CarreraUpdate")
     public record Update(
             @NotBlank(message = "El nombre de la carrera es obligatorio")
@@ -43,11 +43,4 @@ public class CarreraDTO {
             Integer duracion
 
     ) {}
-
-    // ---
-
-    // NOTA: Se incluye CarreraDTOCant para referencia, aunque no es un CRUD DTO.
-    // Esta clase probablemente necesita el Constructor Expression para funcionar en @Query.
-    // Ejemplo:
-    // public record CarreraDTOCant(Carrera carrera, Long cantidadInscriptos) {}
 }

@@ -51,6 +51,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
     }
 
+    @ExceptionHandler(CarreraConInscripcionesException.class)
+    public ResponseEntity<ApiError> handleEstudianteNotFound(
+            CarreraConInscripcionesException ex, HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                "Data Integrity Violation",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
+
+    @ExceptionHandler(EstudianteConInscripcionesException.class)
+    public ResponseEntity<ApiError> handleEstudianteNotFound(
+            EstudianteConInscripcionesException ex, HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                "Data Integrity Violation",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
+
     @ExceptionHandler(CarreraNotFoundException.class)
     public ResponseEntity<ApiError> handleCarreraNotFound(
             CarreraNotFoundException ex, HttpServletRequest request) {

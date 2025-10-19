@@ -19,9 +19,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     private final EstudianteRepository estudianteRepository;
     private final CarreraRepository carreraRepository;
 
-    public InscripcionServiceImpl(InscripcionRepository inscripcionRepository,
-                                  EstudianteRepository estudianteRepository,
-                                  CarreraRepository carreraRepository) {
+    public InscripcionServiceImpl(InscripcionRepository inscripcionRepository, EstudianteRepository estudianteRepository,  CarreraRepository carreraRepository) {
         this.inscripcionRepository = inscripcionRepository;
         this.estudianteRepository = estudianteRepository;
         this.carreraRepository = carreraRepository;
@@ -29,26 +27,15 @@ public class InscripcionServiceImpl implements InscripcionService {
 
     @Override
     public String matricularEstudianteEnCarrera(InscripcionDTO.Create in) {
-        var est = estudianteRepository.findById(in.estudianteId())
-                .orElseThrow(() ->
-                        new EstudianteNotFoundException("Estudiante no encontrado con ID: " + in.estudianteId()));
+        var est = estudianteRepository.findById(in.estudianteId()).orElseThrow(() -> new EstudianteNotFoundException("Estudiante no encontrado con ID: " + in.estudianteId()));
+        var car = carreraRepository.findById(in.carreraId()).orElseThrow(() ->  new CarreraNotFoundException("Carrera no encontrada con ID: " + in.carreraId()));
 
-        var car = carreraRepository.findById(in.carreraId())
-                .orElseThrow(() ->
-                        new CarreraNotFoundException("Carrera no encontrada con ID: " + in.carreraId()));
-
-        // Verificar duplicado por PK compuesta
         var id = new InscripcionId(est.getIdEstudiante(), car.getIdCarrera());
         if (inscripcionRepository.existsById(id)) {
-            throw new MatriculaFoundException(
-                    "El estudiante " + est.getIdEstudiante() +
-                            " ya está inscripto en la carrera " + car.getIdCarrera()
-            );
+            throw new MatriculaFoundException("El estudiante " + est.getIdEstudiante() + " ya está inscripto en la carrera " + car.getIdCarrera());
         }
 
         inscripcionRepository.save(new Inscripcion(est, car));
-
-        // Respuesta simple
         return "Inscripción creada correctamente";
     }
 }

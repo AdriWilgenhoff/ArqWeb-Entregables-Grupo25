@@ -3,10 +3,11 @@ package edu.tudai.arq.integrador3.service;
 import edu.tudai.arq.integrador3.dto.CarreraDTO;
 import edu.tudai.arq.integrador3.dto.CarreraDTOCant;
 import edu.tudai.arq.integrador3.dto.ReporteCarreraDTO;
+import edu.tudai.arq.integrador3.exception.CarreraConInscripcionesException;
 import edu.tudai.arq.integrador3.mapper.CarreraMapper;
 import edu.tudai.arq.integrador3.model.Carrera;
 import edu.tudai.arq.integrador3.repository.CarreraRepository;
-import edu.tudai.arq.integrador3.exception.CarreraNotFoundException; // Asumiendo que existe
+import edu.tudai.arq.integrador3.exception.CarreraNotFoundException;
 import edu.tudai.arq.integrador3.service.interfaces.CarreraService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,8 +44,7 @@ public class CarreraServiceImpl implements CarreraService {
     @Override
     @Transactional
     public CarreraDTO.Response update(Long id, CarreraDTO.Update in) {
-        Carrera c = repo.findById(id)
-                .orElseThrow(() -> new CarreraNotFoundException("Carrera no encontrada con ID: " + id));
+        Carrera c = repo.findById(id).orElseThrow(() -> new CarreraNotFoundException("Carrera no encontrada con ID: " + id));
 
         Optional<Carrera> existing = Optional.ofNullable(repo.findByNombreIgnoreCase(in.nombre()));
         if (existing.isPresent() && !existing.get().getIdCarrera().equals(id)) {
@@ -62,23 +62,25 @@ public class CarreraServiceImpl implements CarreraService {
         if (!repo.existsById(id)) {
             throw new CarreraNotFoundException("Carrera no encontrada con ID: " + id);
         }
-        repo.deleteById(id);
+        try {
+            repo.deleteById(id);
+            repo.flush();
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            throw new CarreraConInscripcionesException("No se puede borrar la carrera ID " + id + " porque tiene estudiantes inscriptos.");
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public CarreraDTO.Response findById(Long id) {
-        Carrera c = repo.findById(id)
-                .orElseThrow(() -> new CarreraNotFoundException("Carrera no encontrada con ID: " + id));
+        Carrera c = repo.findById(id).orElseThrow(() -> new CarreraNotFoundException("Carrera no encontrada con ID: " + id));
         return mapper.toResponse(c);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CarreraDTO.Response> findAll() {
-        return repo.findAll().stream()
-                .map(mapper::toResponse)
-                .collect(Collectors.toList());
+        return repo.findAll().stream().map(mapper::toResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -87,8 +89,7 @@ public class CarreraServiceImpl implements CarreraService {
         Carrera c = repo.findByNombreIgnoreCase(nombre);
 
         if (c == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Carrera no encontrada con nombre: " + nombre);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Carrera no encontrada con nombre: " + nombre);
         }
         return mapper.toResponse(c);
     }

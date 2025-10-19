@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public class EstudianteDTO {
 
-    /** DTO para crear Estudiante (todos los campos obligatorios) */
+    /** DTO para crear Estudiante **/
     @Schema(description = "DTO de entrada para crear un nuevo Estudiante" , name = "EstudianteCreate")
     public record Create(
             @NotBlank(message = "El nombre es obligatorio")
@@ -39,7 +39,7 @@ public class EstudianteDTO {
             Long lu
     ) {}
 
-    /** DTO para actualizar (solo campos editables, se excluyen DNI y LU que suelen ser inmutables) */
+    /** DTO para actualizar **/
     @Schema(description = "DTO de entrada para actualizar un Estudiante" , name = "EstudianteUpdate")
     public record Update(
             @NotBlank(message = "El nombre es obligatorio")
@@ -60,7 +60,7 @@ public class EstudianteDTO {
     ) {}
 
 
-    /** DTO de salida (lo que retorna la API, incluyendo campos calculados) */
+    /** DTO de salida **/
     @Schema(description = "DTO de respuesta completa para Estudiantes" , name = "EstudianteResponse")
     public record Response(
             @Schema(description = "ID del estudiante", example = "1")

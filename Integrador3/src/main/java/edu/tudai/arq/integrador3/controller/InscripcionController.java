@@ -1,6 +1,5 @@
 package edu.tudai.arq.integrador3.controller;
 
-import edu.tudai.arq.integrador3.dto.CarreraDTO;
 import edu.tudai.arq.integrador3.dto.InscripcionDTO;
 import edu.tudai.arq.integrador3.exception.ApiError;
 import edu.tudai.arq.integrador3.service.interfaces.InscripcionService;

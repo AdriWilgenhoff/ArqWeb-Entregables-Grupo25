@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public class InscripcionDTO {
 
-    /** DTO para crear Inscripción */
+    /** DTO para crear Inscripción **/
     @Schema(description = "DTO de entrada para crear una nueva Inscripción", name = "InscripcionCreate")
     public record Create(
             @NotNull
@@ -17,7 +17,7 @@ public class InscripcionDTO {
             @NotNull Long carreraId
     ) {}
 
-    /** DTO de salida (lo que retorna la API) */
+    /** DTO de salida **/
     @Schema(description = "DTO de respuesta para Inscripciones", name = "InscripcionResponse")
     public record Response(
             @Schema(description = "ID del estudiante", example = "1")
