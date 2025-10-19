@@ -1,0 +1,1809 @@
+{
+	"info": {
+		"_postman_id": "94dcdb3d-559e-4ce2-8ed9-5291cb09bb62",
+		"name": "OpenAPI definition",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "25548100"
+	},
+	"item": [
+		{
+			"name": "api/v1",
+			"item": [
+				{
+					"name": "estudiantes",
+					"item": [
+						{
+							"name": "{id}",
+							"item": [
+								{
+									"name": "Buscar estudiante por ID",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"estudiantes",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "5437",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Estudiante encontrado",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"estudiantes",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"idEstudiante\": 1,\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez\",\n  \"fechaNacimiento\": \"1995-10-20\",\n  \"edad\": 29,\n  \"genero\": \"FEMALE\",\n  \"dni\": 38123456,\n  \"ciudadResidencia\": \"La Plata\",\n  \"lu\": 12345\n}"
+										},
+										{
+											"name": "Estudiante no encontrado",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"estudiantes",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+										}
+									]
+								},
+								{
+									"name": "Actualizar datos de un estudiante por ID",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"apellido\": \"string\",\n  \"ciudadResidencia\": \"string\",\n  \"fechaNacimiento\": \"2019-05-20\",\n  \"genero\": \"MALE\",\n  \"nombre\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"estudiantes",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "5437",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Estudiante actualizado exitosamente",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"apellido\": \"string\",\n  \"ciudadResidencia\": \"string\",\n  \"fechaNacimiento\": \"2019-05-20\",\n  \"genero\": \"MALE\",\n  \"nombre\": \"string\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"estudiantes",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"idEstudiante\": 1,\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez\",\n  \"fechaNacimiento\": \"1995-10-20\",\n  \"edad\": 29,\n  \"genero\": \"FEMALE\",\n  \"dni\": 38123456,\n  \"ciudadResidencia\": \"La Plata\",\n  \"lu\": 12345\n}"
+										},
+										{
+											"name": "Estudiante no encontrado",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"apellido\": \"string\",\n  \"ciudadResidencia\": \"string\",\n  \"fechaNacimiento\": \"2019-05-20\",\n  \"genero\": \"MALE\",\n  \"nombre\": \"string\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"estudiantes",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+										}
+									]
+								},
+								{
+									"name": "Eliminar un estudiante por ID",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"estudiantes",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "5437",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Estudiante eliminado exitosamente",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"estudiantes",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "No Content",
+											"code": 204,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "text/plain"
+												}
+											],
+											"cookie": [],
+											"body": ""
+										},
+										{
+											"name": "Estudiante no encontrado",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"estudiantes",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+										},
+										{
+											"name": "Estudiante con inscripciones",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/estudiantes/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"estudiantes",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Conflict",
+											"code": 409,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Obtener la lista de todos los estudiantes",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": "{{baseUrl}}/api/v1/estudiantes"
+							},
+							"response": [
+								{
+									"name": "Lista de estudiantes",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": "{{baseUrl}}/api/v1/estudiantes"
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"idEstudiante\": 1,\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez\",\n  \"fechaNacimiento\": \"1995-10-20\",\n  \"edad\": 29,\n  \"genero\": \"FEMALE\",\n  \"dni\": 38123456,\n  \"ciudadResidencia\": \"La Plata\",\n  \"lu\": 12345\n}"
+								}
+							]
+						},
+						{
+							"name": "Da de alta un estudiante",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"apellido\": \"string\",\n  \"ciudadResidencia\": \"string\",\n  \"dni\": 38123456,\n  \"fechaNacimiento\": \"1988-07-31\",\n  \"genero\": \"BIGENDER\",\n  \"lu\": 12345,\n  \"nombre\": \"string\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/api/v1/estudiantes"
+							},
+							"response": [
+								{
+									"name": "Estudiante registrado exitosamente",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"apellido\": \"string\",\n  \"ciudadResidencia\": \"string\",\n  \"dni\": 38123456,\n  \"fechaNacimiento\": \"1988-07-31\",\n  \"genero\": \"BIGENDER\",\n  \"lu\": 12345,\n  \"nombre\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{baseUrl}}/api/v1/estudiantes"
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"apellido\": \"string\",\n  \"ciudadResidencia\": \"string\",\n  \"dni\": 38123456,\n  \"fechaNacimiento\": \"1988-07-31\",\n  \"genero\": \"BIGENDER\",\n  \"lu\": 12345,\n  \"nombre\": \"string\"\n}"
+								},
+								{
+									"name": "Datos de entrada inválidos (ej: DNI o LU ya existentes)",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"apellido\": \"string\",\n  \"ciudadResidencia\": \"string\",\n  \"dni\": 38123456,\n  \"fechaNacimiento\": \"1988-07-31\",\n  \"genero\": \"BIGENDER\",\n  \"lu\": 12345,\n  \"nombre\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{baseUrl}}/api/v1/estudiantes"
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Recupera todos los estudiantes, y especifica algún criterio de ordenamiento simple",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/estudiantes/sorted?sortBy=id&direction=asc",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"estudiantes",
+										"sorted"
+									],
+									"query": [
+										{
+											"key": "sortBy",
+											"value": "id"
+										},
+										{
+											"key": "direction",
+											"value": "asc"
+										}
+									]
+								},
+								"description": "Permite ordenar por un campo simple: \"idEstudiante\", \"apellido\", \"nombre\", \"dni\", \"lu\", \"ciudadResidencia\", \"fechaNacimiento\", \"genero\". Ej: ?sortBy=apellido&direction=asc"
+							},
+							"response": [
+								{
+									"name": "Lista de estudiantes",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/estudiantes/sorted?sortBy=id&direction=asc",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"estudiantes",
+												"sorted"
+											],
+											"query": [
+												{
+													"key": "sortBy",
+													"value": "id"
+												},
+												{
+													"key": "direction",
+													"value": "asc"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"idEstudiante\": 1,\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez\",\n  \"fechaNacimiento\": \"1995-10-20\",\n  \"edad\": 29,\n  \"genero\": \"FEMALE\",\n  \"dni\": 38123456,\n  \"ciudadResidencia\": \"La Plata\",\n  \"lu\": 12345\n}"
+								}
+							]
+						},
+						{
+							"name": "Recupera un estudiante, en base a su número de libreta universitaria (LU)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/estudiantes/lu/:lu",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"estudiantes",
+										"lu",
+										":lu"
+									],
+									"variable": [
+										{
+											"key": "lu",
+											"value": "5437",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Estudiante encontrado",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/estudiantes/lu/:lu",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"estudiantes",
+												"lu",
+												":lu"
+											],
+											"variable": [
+												{
+													"key": "lu",
+													"value": "5437",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"idEstudiante\": 1,\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez\",\n  \"fechaNacimiento\": \"1995-10-20\",\n  \"edad\": 29,\n  \"genero\": \"FEMALE\",\n  \"dni\": 38123456,\n  \"ciudadResidencia\": \"La Plata\",\n  \"lu\": 12345\n}"
+								},
+								{
+									"name": "Estudiante no encontrado",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/estudiantes/lu/:lu",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"estudiantes",
+												"lu",
+												":lu"
+											],
+											"variable": [
+												{
+													"key": "lu",
+													"value": "5437",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Recuperar todos los estudiantes, en base a su género",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/estudiantes/genero/:genero",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"estudiantes",
+										"genero",
+										":genero"
+									],
+									"variable": [
+										{
+											"key": "genero",
+											"value": "BIGENDER",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Lista filtrada de estudiantes",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/estudiantes/genero/:genero",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"estudiantes",
+												"genero",
+												":genero"
+											],
+											"variable": [
+												{
+													"key": "genero",
+													"value": "BIGENDER",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"idEstudiante\": 1,\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez\",\n  \"fechaNacimiento\": \"1995-10-20\",\n  \"edad\": 29,\n  \"genero\": \"FEMALE\",\n  \"dni\": 38123456,\n  \"ciudadResidencia\": \"La Plata\",\n  \"lu\": 12345\n}"
+								}
+							]
+						},
+						{
+							"name": "Recupera los estudiantes de una determinada carrera, filtrado por ciudad de residencia",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/estudiantes/carreras/:carreraId/ciudad/:ciudad",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"estudiantes",
+										"carreras",
+										":carreraId",
+										"ciudad",
+										":ciudad"
+									],
+									"variable": [
+										{
+											"key": "carreraId",
+											"value": "5437",
+											"description": "(Required) "
+										},
+										{
+											"key": "ciudad",
+											"value": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/estudiantes/carreras/:carreraId/ciudad/:ciudad",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"estudiantes",
+												"carreras",
+												":carreraId",
+												"ciudad",
+												":ciudad"
+											],
+											"variable": [
+												{
+													"key": "carreraId",
+													"value": "5437",
+													"description": "(Required) "
+												},
+												{
+													"key": "ciudad",
+													"value": "string",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "[\n  {\n    \"idEstudiante\": 1,\n    \"nombre\": \"Juan\",\n    \"apellido\": \"Pérez\",\n    \"fechaNacimiento\": \"1995-10-20\",\n    \"edad\": 29,\n    \"genero\": \"AGENDER\",\n    \"dni\": 38123456,\n    \"ciudadResidencia\": \"La Plata\",\n    \"lu\": 12345\n  },\n  {\n    \"idEstudiante\": 1,\n    \"nombre\": \"Juan\",\n    \"apellido\": \"Pérez\",\n    \"fechaNacimiento\": \"1995-10-20\",\n    \"edad\": 29,\n    \"genero\": \"BIGENDER\",\n    \"dni\": 38123456,\n    \"ciudadResidencia\": \"La Plata\",\n    \"lu\": 12345\n  }\n]"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "carreras",
+					"item": [
+						{
+							"name": "{id}",
+							"item": [
+								{
+									"name": "Buscar carrera por ID",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/carreras/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"carreras",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "5437",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Carrera encontrada",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/carreras/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"carreras",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"idCarrera\": 10,\n  \"nombre\": \"Ingeniería de Sistemas\",\n  \"duracion\": 5\n}"
+										},
+										{
+											"name": "Carrera no encontrada",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/carreras/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"carreras",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+										}
+									]
+								},
+								{
+									"name": "Actualizar una carrera existente por ID",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"duracion\": 5,\n  \"nombre\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/carreras/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"carreras",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "5437",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Carrera actualizada exitosamente",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"duracion\": 5,\n  \"nombre\": \"string\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/carreras/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"carreras",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"duracion\": 5,\n  \"nombre\": \"string\"\n}"
+										},
+										{
+											"name": "Carrera no encontrada",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"duracion\": 5,\n  \"nombre\": \"string\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/carreras/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"carreras",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+										}
+									]
+								},
+								{
+									"name": "Eliminar una carrera por ID",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/carreras/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"carreras",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "5437",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Carrera eliminada exitosamente",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/carreras/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"carreras",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "No Content",
+											"code": 204,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "text/plain"
+												}
+											],
+											"cookie": [],
+											"body": ""
+										},
+										{
+											"name": "Carrera no encontrada",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/carreras/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"carreras",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+										},
+										{
+											"name": "La carrera tiene inscripciones",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/carreras/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"carreras",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5437",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Conflict",
+											"code": 409,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Obtener todas las carreras",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": "{{baseUrl}}/api/v1/carreras"
+							},
+							"response": [
+								{
+									"name": "Lista de todas las carreras",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": "{{baseUrl}}/api/v1/carreras"
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"idCarrera\": 10,\n  \"nombre\": \"Ingeniería de Sistemas\",\n  \"duracion\": 5\n}"
+								}
+							]
+						},
+						{
+							"name": "Crear una nueva carrera",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"duracionAnios\": 12,\n  \"nombre\": \"string\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/api/v1/carreras"
+							},
+							"response": [
+								{
+									"name": "Carrera creada exitosamente",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"duracionAnios\": 12,\n  \"nombre\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{baseUrl}}/api/v1/carreras"
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"duracionAnios\": 12,\n  \"nombre\": \"string\"\n}"
+								},
+								{
+									"name": "Datos de entrada inválidos (ej: nombre duplicado)",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"duracionAnios\": 12,\n  \"nombre\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{baseUrl}}/api/v1/carreras"
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Carreras con estudiantes inscriptos, ordenadas por cantidad (DESC)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": "{{baseUrl}}/api/v1/carreras/ranking-inscriptos"
+							},
+							"response": [
+								{
+									"name": "Ranking de carreras por inscriptos",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": "{{baseUrl}}/api/v1/carreras/ranking-inscriptos"
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "[\n  {\n    \"idCarrera\": 8650,\n    \"nombre\": \"string\",\n    \"cantInscriptos\": 979\n  },\n  {\n    \"idCarrera\": 3777,\n    \"nombre\": \"string\",\n    \"cantInscriptos\": 3907\n  }\n]"
+								}
+							]
+						},
+						{
+							"name": "Buscar carrera por nombre (ignorando mayúsculas/minúsculas)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/carreras/nombre/:nombre",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"carreras",
+										"nombre",
+										":nombre"
+									],
+									"variable": [
+										{
+											"key": "nombre",
+											"value": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Carrera encontrada",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/carreras/nombre/:nombre",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"carreras",
+												"nombre",
+												":nombre"
+											],
+											"variable": [
+												{
+													"key": "nombre",
+													"value": "string",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"idCarrera\": 10,\n  \"nombre\": \"Ingeniería de Sistemas\",\n  \"duracion\": 5\n}"
+								},
+								{
+									"name": "Carrera no encontrada",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/carreras/nombre/:nombre",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"carreras",
+												"nombre",
+												":nombre"
+											],
+											"variable": [
+												{
+													"key": "nombre",
+													"value": "string",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Reporte de carreras con inscriptos y egresados por año",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": "{{baseUrl}}/api/v1/carreras/carreras/reporte",
+								"description": "Genera un reporte de las carreras, que para cada carrera incluya información de los\ninscriptos y egresados por año. Se deben ordenar las carreras alfabéticamente, y presentar los años de manera cronológica."
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": "{{baseUrl}}/api/v1/carreras/carreras/reporte"
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "[\n  {\n    \"nombreCarrera\": \"string\",\n    \"anio\": 2682,\n    \"cantGraduados\": 2698,\n    \"cantInscriptos\": 6391\n  },\n  {\n    \"nombreCarrera\": \"string\",\n    \"anio\": 1613,\n    \"cantGraduados\": 6367,\n    \"cantInscriptos\": 819\n  }\n]"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Inscribir a un estudiante en una carrera",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"carreraId\": 7,\n  \"estudianteId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/api/v1/inscripciones/matricular"
+					},
+					"response": [
+						{
+							"name": "Estudiante inscripto en la carrera",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"carreraId\": 7,\n  \"estudianteId\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/api/v1/inscripciones/matricular"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"carreraId\": 7,\n  \"estudianteId\": 1\n}"
+						},
+						{
+							"name": "Inscripcion duplicada",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"carreraId\": 7,\n  \"estudianteId\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/api/v1/inscripciones/matricular"
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"timestamp\": \"1981-05-08T07:41:48.789Z\",\n  \"status\": 9184,\n  \"error\": \"string\",\n  \"message\": \"string\",\n  \"path\": \"string\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
