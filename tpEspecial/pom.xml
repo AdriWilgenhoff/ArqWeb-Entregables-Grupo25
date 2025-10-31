@@ -15,6 +15,7 @@
         <module>eureka-service</module>
         <module>mantenimiento-service</module>
         <module>monopatin-service</module>
+        <module>usuario-service</module>
     </modules>
 
     <properties>
