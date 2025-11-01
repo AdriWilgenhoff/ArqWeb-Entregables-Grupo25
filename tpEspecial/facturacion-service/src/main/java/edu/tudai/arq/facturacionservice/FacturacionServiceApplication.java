@@ -1,10 +1,10 @@
-package edu.tudai.arq;
+package edu.tudai.arq.facturacionservice;
 
 /**
  * Hello world!
  *
  */
-public class App 
+public class FacturacionServiceApplication
 {
     public static void main( String[] args )
     {
