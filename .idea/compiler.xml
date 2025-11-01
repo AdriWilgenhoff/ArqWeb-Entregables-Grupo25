@@ -7,9 +7,39 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="eureka-service" />
+        <module name="usuario-service" />
+        <module name="parada-service" />
         <module name="Integrador1" />
         <module name="Integrador2" />
+        <module name="monopatin-service" />
+        <module name="mantenimiento-service" />
+        <module name="facturacion-service" />
+        <module name="viaje-service" />
+        <module name="admin-service" />
+      </profile>
+      <profile name="Annotation profile for Integrador3" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
+        </processorPath>
+        <module name="Integrador3" />
       </profile>
     </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Integrador3" options="-parameters" />
+      <module name="admin-service" options="-parameters" />
+      <module name="eureka-service" options="-parameters" />
+      <module name="facturacion-service" options="-parameters" />
+      <module name="mantenimiento-service" options="-parameters" />
+      <module name="monopatin-service" options="-parameters" />
+      <module name="parada-service" options="-parameters" />
+      <module name="usuario-service" options="-parameters" />
+      <module name="viaje-service" options="-parameters" />
+    </option>
   </component>
 </project>
