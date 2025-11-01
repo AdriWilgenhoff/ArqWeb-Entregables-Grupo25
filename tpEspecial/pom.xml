@@ -16,6 +16,7 @@
         <module>mantenimiento-service</module>
         <module>monopatin-service</module>
         <module>usuario-service</module>
+        <module>viaje-service</module>
     </modules>
 
     <properties>
