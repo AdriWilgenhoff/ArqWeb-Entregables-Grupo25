@@ -17,6 +17,7 @@
         <module>monopatin-service</module>
         <module>usuario-service</module>
         <module>viaje-service</module>
+        <module>facturacion-service</module>
     </modules>
 
     <properties>
