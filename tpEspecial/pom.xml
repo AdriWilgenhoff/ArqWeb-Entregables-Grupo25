@@ -18,6 +18,7 @@
         <module>usuario-service</module>
         <module>viaje-service</module>
         <module>facturacion-service</module>
+        <module>admin-service</module>
     </modules>
 
     <properties>
