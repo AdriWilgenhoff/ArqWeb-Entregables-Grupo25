@@ -1,12 +1,12 @@
-package edu.tudai.arq;
+package edu.tudai.arq.userservice;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class UsuarioServiceApplicationTest {
 
-    @org.junit.jupiter.api.Test
+    @Test
     void contextLoads() {
     }
-
 }

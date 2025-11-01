@@ -3,17 +3,10 @@ package edu.tudai.arq.userservice.mapper;
 import edu.tudai.arq.userservice.dto.UsuarioDTO;
 import edu.tudai.arq.userservice.entity.Rol;
 import edu.tudai.arq.userservice.entity.Usuario;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UsuarioMapper {
-
-    private final PasswordEncoder passwordEncoder;
-
-    public UsuarioMapper(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 
     private static String normalizeString(String s) {
         return s == null ? null : s.trim();
@@ -25,7 +18,7 @@ public class UsuarioMapper {
                 normalizeString(in.apellido()),
                 normalizeString(in.email()).toLowerCase(),
                 normalizeString(in.numeroCelular()),
-                passwordEncoder.encode(in.password()),
+                in.password(),
                 Rol.valueOf(in.rol())
         );
         return u;
@@ -37,7 +30,7 @@ public class UsuarioMapper {
         u.setNumeroCelular(normalizeString(in.numeroCelular()));
 
         if (in.password() != null && !in.password().isBlank()) {
-            u.setPasswordHash(passwordEncoder.encode(in.password()));
+            in.password().trim();
         }
 
         if (in.rol() != null) {
