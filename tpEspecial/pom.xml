@@ -58,9 +58,11 @@
                     <version>3.11.0</version>
                     <configuration>
                         <release>${java.version}</release>
+                        <parameters>true</parameters> <!-- ¡clave! -->
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
     </build>
+
 </project>
