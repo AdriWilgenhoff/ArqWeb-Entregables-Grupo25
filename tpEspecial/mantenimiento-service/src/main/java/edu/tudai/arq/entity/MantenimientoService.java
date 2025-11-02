@@ -19,6 +19,8 @@ public class MantenimientoService implements  Serializable {
     @Column(name = "id_Mantenimiento")
     private Long id;
 
+    @Setter
+    @OneToOne
     private Long idMonopatin;
 
     @Setter

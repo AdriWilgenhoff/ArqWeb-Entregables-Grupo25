@@ -30,11 +30,9 @@ public class MantenimientoServiceDTO {
             @NotNull(message = "El tiempo de uso al iniciar es obligatorio")
             @PositiveOrZero(message = "El tiempo de uso debe ser mayor o igual a 0")
             @Schema(description = "Tiempo total de uso acumulado al iniciar (en minutos)", example = "1830")
-            Long tiempoUsoAlIniniciar,
+            Long tiempoUsoAlIniniciar
 
-            @NotBlank(message = "El ID del encargado es obligatorio")
-            @Schema(description = "Identificador del encargado del mantenimiento", example = "E123")
-            String idEncargado
+
     ) {}
 
     /** DTO para actualizar un mantenimiento existente */
@@ -42,18 +40,7 @@ public class MantenimientoServiceDTO {
     public record Update(
 
             @Schema(description = "Fecha y hora de fin del mantenimiento", example = "2025-11-01T12:00:00")
-            LocalDateTime fechaHoraFin,
-
-            @Size(max = 255, message = "La descripción no puede exceder los 255 caracteres")
-            String descripcion,
-
-            @PositiveOrZero(message = "Los kilómetros deben ser mayores o iguales a 0")
-            @Schema(description = "Cantidad de kilómetros recorridos al iniciar el mantenimiento", example = "1250.5")
-            Double kilometrosAlIniniciar,
-
-            @PositiveOrZero(message = "El tiempo de uso debe ser mayor o igual a 0")
-            @Schema(description = "Tiempo total de uso acumulado al iniciar (en minutos)", example = "1830")
-            Long tiempoUsoAlIniniciar
+            LocalDateTime fechaHoraFin
     ) {}
 
     /** DTO de salida (lo que retorna la API) */
@@ -82,9 +69,9 @@ public class MantenimientoServiceDTO {
             Long tiempoUsoAlIniniciar,
 
             @Schema(description = "Identificador del encargado que realizó el mantenimiento", example = "E123")
-            String idEncargado,
+            String idEncargado
 
-            @Schema(description = "Indica si el monopatín está en mantenimiento o habilitado para uso", example = "en_mantenimiento")
-            String estado
+           // @Schema(description = "Indica si el monopatín está en mantenimiento o habilitado para uso", example = "en_mantenimiento")
+            // String estado
     ) {}
 }
