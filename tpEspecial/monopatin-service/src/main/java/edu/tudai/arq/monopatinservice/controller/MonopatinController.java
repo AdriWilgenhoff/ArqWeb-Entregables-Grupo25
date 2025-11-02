@@ -1,0 +1,117 @@
+package edu.tudai.arq.monopatinservice.controller;
+
+import edu.tudai.arq.monopatinservice.dto.MonopatinDTO;
+import edu.tudai.arq.monopatinservice.service.interfaces.MonopatinService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/monopatines")
+@Tag(name = "Monopatines", description = "Gestión de la entidad Monopatín")
+public class MonopatinController {
+
+    private final MonopatinService service;
+
+    public MonopatinController(MonopatinService service) {
+        this.service = service;
+    }
+
+    @Operation(summary = "Registra un nuevo monopatín",
+            description = "Crea un monopatín con su estado, latitud y longitud iniciales.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Monopatín creado exitosamente",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = MonopatinDTO.Response.class))),
+                    @ApiResponse(responseCode = "400", description = "Solicitud incorrecta o error de validación")
+            })
+    @PostMapping
+    public ResponseEntity<MonopatinDTO.Response> create(@RequestBody @Valid MonopatinDTO.Create request) {
+        MonopatinDTO.Response newMonopatin = service.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newMonopatin);
+    }
+
+    @Operation(summary = "Obtiene un monopatín por ID",
+            description = "Busca y devuelve los detalles de un monopatín específico.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Detalles del monopatín",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = MonopatinDTO.Response.class))),
+                    @ApiResponse(responseCode = "404", description = "Monopatín no encontrado")
+            })
+    @GetMapping("/{id}")
+    public ResponseEntity<MonopatinDTO.Response> getById(@PathVariable Long id) {
+        MonopatinDTO.Response monopatin = service.findById(id);
+        return ResponseEntity.ok(monopatin);
+    }
+
+    @Operation(summary = "Lista todos los monopatines",
+            description = "Devuelve una lista de todos los monopatines registrados.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista de monopatines",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = MonopatinDTO.Response.class)))
+            })
+    @GetMapping
+    public ResponseEntity<List<MonopatinDTO.Response>> getAll() {
+        return ResponseEntity.ok(service.findAll());
+    }
+
+
+    @Operation(summary = "Actualiza un monopatín",
+            description = "Actualiza los datos de un monopatín existente. Permite modificar estado, ubicación y métricas.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Monopatín actualizado",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = MonopatinDTO.Response.class))),
+                    @ApiResponse(responseCode = "404", description = "Monopatín no encontrado"),
+                    @ApiResponse(responseCode = "400", description = "Error de validación o transición de estado inválida")
+            })
+    @PutMapping("/{id}")
+    public ResponseEntity<MonopatinDTO.Response> update(@PathVariable Long id, @RequestBody @Valid MonopatinDTO.Update request) {
+        MonopatinDTO.Response updatedMonopatin = service.update(id, request);
+        return ResponseEntity.ok(updatedMonopatin);
+    }
+
+
+    @Operation(summary = "Elimina un monopatín",
+            description = "Elimina el monopatín con el ID especificado.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Monopatín eliminado (sin contenido de respuesta)"),
+                    @ApiResponse(responseCode = "404", description = "Monopatín no encontrado")
+            })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Cambia el estado del monopatín",
+            description = "Realiza una transición de estado (DISPONIBLE, EN_USO, EN_MANTENIMIENTO).",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Estado actualizado",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = MonopatinDTO.Response.class))),
+                    @ApiResponse(responseCode = "404", description = "Monopatín no encontrado"),
+                    @ApiResponse(responseCode = "400", description = "Transición inválida de estado")
+            })
+    @PatchMapping("/{id}/estado/{nuevoEstado}")
+    public ResponseEntity<MonopatinDTO.Response> cambiarEstado(
+            @PathVariable Long id,
+            @PathVariable String nuevoEstado) {
+
+        MonopatinDTO.Response updatedMonopatin = service.cambiarEstado(id, nuevoEstado);
+        return ResponseEntity.ok(updatedMonopatin);
+    }
+}

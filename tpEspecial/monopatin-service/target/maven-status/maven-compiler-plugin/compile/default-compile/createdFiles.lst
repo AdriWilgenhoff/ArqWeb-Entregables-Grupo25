@@ -1,0 +1,7 @@
+edu\tudai\arq\monopatinservice\mapper\MonopatinMapper.class
+edu\tudai\arq\monopatinservice\service\MonopatinServiceImpl.class
+edu\tudai\arq\monopatinservice\service\interfaces\MonopatinService.class
+edu\tudai\arq\monopatinservice\dto\MonopatinDTO$Update.class
+edu\tudai\arq\monopatinservice\dto\MonopatinDTO$Response.class
+edu\tudai\arq\monopatinservice\dto\MonopatinDTO$Create.class
+edu\tudai\arq\monopatinservice\repository\MonopatinRepository.class
