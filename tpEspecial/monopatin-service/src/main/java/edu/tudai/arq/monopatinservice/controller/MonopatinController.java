@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/monopatines")
-@Tag(name = "Monopatines", description = "Gestión de la entidad Monopatín")
+@RequestMapping("/api/v1/monopatines")
+@Tag(name = "Monopatines", description = "API para gestión de monopatines eléctricos")
 public class MonopatinController {
 
     private final MonopatinService service;
@@ -114,4 +113,23 @@ public class MonopatinController {
         MonopatinDTO.Response updatedMonopatin = service.cambiarEstado(id, nuevoEstado);
         return ResponseEntity.ok(updatedMonopatin);
     }
+
+    @Operation(summary = "Buscar monopatines cercanos (Requerimiento g)",
+            description = "Como usuario quiero un listado de los monopatines cercanos a mi zona, para poder encontrar un monopatín cerca de mi ubicación. " +
+                    "Calcula la distancia usando la fórmula de Haversine y retorna solo monopatines DISPONIBLES.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista de monopatines cercanos disponibles",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = MonopatinDTO.Response.class)))
+            })
+    @GetMapping("/cercanos")
+    public ResponseEntity<List<MonopatinDTO.Response>> findMonopatinesCercanos(
+            @RequestParam Double latitud,
+            @RequestParam Double longitud,
+            @RequestParam(required = false, defaultValue = "1.0") Double radioKm) {
+
+        List<MonopatinDTO.Response> monopatines = service.findMonopatinesCercanos(latitud, longitud, radioKm);
+        return ResponseEntity.ok(monopatines);
+    }
 }
+

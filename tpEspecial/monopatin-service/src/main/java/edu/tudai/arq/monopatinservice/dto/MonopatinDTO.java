@@ -2,81 +2,71 @@ package edu.tudai.arq.monopatinservice.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import edu.tudai.arq.monopatinservice.entity.EstadoMonopatin;
-import edu.tudai.arq.monopatinservice.entity.Monopatin;
 import jakarta.validation.constraints.*;
 
 public class MonopatinDTO {
 
     @Schema(description = "DTO de entrada para crear un nuevo Monopatín", name = "MonopatinCreate")
-    public static class Create {
-        private final EstadoMonopatin estado;
-        private final Double latitud;
-        private final Double longitud;
+    public record Create(
+            @NotNull(message = "El estado es obligatorio")
+            @Schema(description = "Estado inicial del monopatín", example = "DISPONIBLE")
+            EstadoMonopatin estado,
 
-        public Create(
-                EstadoMonopatin estado,
-                Double latitud,
-                Double longitud) {
-            this.estado = estado;
-            this.latitud = latitud;
-            this.longitud = longitud;
-        }
+            @NotNull(message = "La latitud es obligatoria")
+            @DecimalMin(value = "-90.0", message = "La latitud debe ser mayor o igual a -90")
+            @DecimalMax(value = "90.0", message = "La latitud debe ser menor o igual a 90")
+            @Schema(description = "Latitud de la ubicación del monopatín", example = "-37.3214")
+            Double latitud,
 
-        public EstadoMonopatin getEstado() { return estado; }
-        public Double getLatitud() { return latitud; }
-        public Double getLongitud() { return longitud; }
-    }
+            @NotNull(message = "La longitud es obligatoria")
+            @DecimalMin(value = "-180.0", message = "La longitud debe ser mayor o igual a -180")
+            @DecimalMax(value = "180.0", message = "La longitud debe ser menor o igual a 180")
+            @Schema(description = "Longitud de la ubicación del monopatín", example = "-59.1352")
+            Double longitud
+    ) {}
 
     @Schema(description = "DTO de entrada para actualizar un Monopatín existente", name = "MonopatinUpdate")
-    public static class Update {
-        private EstadoMonopatin estado;
-        private Double latitud;
-        private Double longitud;
-        private Double kilometrosTotales;
-        private Long tiempoUsoTotal;
+    public record Update(
+            @Schema(description = "Estado del monopatín", example = "EN_USO")
+            EstadoMonopatin estado,
 
-        public Update() {}
-        public EstadoMonopatin getEstado() { return estado; }
-        public Double getLatitud() { return latitud; }
-        public Double getLongitud() { return longitud; }
-        public Double getKilometrosTotales() { return kilometrosTotales; }
-        public Long getTiempoUsoTotal() { return tiempoUsoTotal; }
-    }
+            @DecimalMin(value = "-90.0", message = "La latitud debe ser mayor o igual a -90")
+            @DecimalMax(value = "90.0", message = "La latitud debe ser menor o igual a 90")
+            @Schema(description = "Latitud de la ubicación del monopatín", example = "-37.3214")
+            Double latitud,
 
-    @Schema(description = "DTO de respuesta que incluye todas las propiedades del Monopatín.", name = "MonopatinResponse")
-    public static class Response {
-        private final Long id;
-        private final EstadoMonopatin estado;
-        private final Double latitud;
-        private final Double longitud;
-        private final Double kilometrosTotales;
-        private final Long tiempoUsoTotal;
+            @DecimalMin(value = "-180.0", message = "La longitud debe ser mayor o igual a -180")
+            @DecimalMax(value = "180.0", message = "La longitud debe ser menor o igual a 180")
+            @Schema(description = "Longitud de la ubicación del monopatín", example = "-59.1352")
+            Double longitud,
 
-        public Response(Long id, EstadoMonopatin estado, Double latitud, Double longitud, Double kilometrosTotales, Long tiempoUsoTotal) {
-            this.id = id;
-            this.estado = estado;
-            this.latitud = latitud;
-            this.longitud = longitud;
-            this.kilometrosTotales = kilometrosTotales;
-            this.tiempoUsoTotal = tiempoUsoTotal;
-        }
+            @PositiveOrZero(message = "Los kilómetros deben ser mayores o iguales a 0")
+            @Schema(description = "Kilómetros totales recorridos", example = "125.5")
+            Double kilometrosTotales,
 
-        public Response(Monopatin entity) {
-            this(
-                    entity.getId(),
-                    entity.getEstado(),
-                    entity.getLatitud(),
-                    entity.getLongitud(),
-                    entity.getKilometrosTotales(),
-                    entity.getTiempoUsoTotal()
-            );
-        }
+            @PositiveOrZero(message = "El tiempo de uso debe ser mayor o igual a 0")
+            @Schema(description = "Tiempo total de uso en minutos", example = "320")
+            Long tiempoUsoTotal
+    ) {}
 
-        public Long getId() { return id; }
-        public EstadoMonopatin getEstado() { return estado; }
-        public Double getLatitud() { return latitud; }
-        public Double getLongitud() { return longitud; }
-        public Double getKilometrosTotales() { return kilometrosTotales; }
-        public Long getTiempoUsoTotal() { return tiempoUsoTotal; }
-    }
+    @Schema(description = "DTO de respuesta que incluye todas las propiedades del Monopatín", name = "MonopatinResponse")
+    public record Response(
+            @Schema(description = "ID del monopatín", example = "1")
+            Long id,
+
+            @Schema(description = "Estado del monopatín", example = "DISPONIBLE")
+            EstadoMonopatin estado,
+
+            @Schema(description = "Latitud de la ubicación", example = "-37.3214")
+            Double latitud,
+
+            @Schema(description = "Longitud de la ubicación", example = "-59.1352")
+            Double longitud,
+
+            @Schema(description = "Kilómetros totales recorridos", example = "125.5")
+            Double kilometrosTotales,
+
+            @Schema(description = "Tiempo total de uso en minutos", example = "320")
+            Long tiempoUsoTotal
+    ) {}
 }

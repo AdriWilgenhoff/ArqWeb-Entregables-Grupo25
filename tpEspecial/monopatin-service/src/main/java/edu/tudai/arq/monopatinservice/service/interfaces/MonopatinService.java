@@ -25,4 +25,6 @@ public interface MonopatinService {
 
     MonopatinDTO.Response cambiarEstado(Long id, String nuevoEstado);
 
+    List<MonopatinDTO.Response> findMonopatinesCercanos(Double latitud, Double longitud, Double radioKm);
+
 }

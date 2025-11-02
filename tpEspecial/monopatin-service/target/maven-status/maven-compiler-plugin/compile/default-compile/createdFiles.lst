@@ -1,7 +1,16 @@
 edu\tudai\arq\monopatinservice\mapper\MonopatinMapper.class
+edu\tudai\arq\monopatinservice\controller\MonopatinController.class
+edu\tudai\arq\monopatinservice\entity\Monopatin.class
+edu\tudai\arq\monopatinservice\MonopatinServiceApplication.class
 edu\tudai\arq\monopatinservice\service\MonopatinServiceImpl.class
+edu\tudai\arq\monopatinservice\exception\GlobalExceptionHandler.class
 edu\tudai\arq\monopatinservice\service\interfaces\MonopatinService.class
 edu\tudai\arq\monopatinservice\dto\MonopatinDTO$Update.class
+edu\tudai\arq\monopatinservice\dto\MonopatinDTO.class
 edu\tudai\arq\monopatinservice\dto\MonopatinDTO$Response.class
+edu\tudai\arq\monopatinservice\exception\MonopatinNotFoundException.class
+edu\tudai\arq\monopatinservice\exception\InvalidStateTransitionException.class
+edu\tudai\arq\monopatinservice\entity\EstadoMonopatin.class
+edu\tudai\arq\monopatinservice\exception\ApiError.class
 edu\tudai\arq\monopatinservice\dto\MonopatinDTO$Create.class
 edu\tudai\arq\monopatinservice\repository\MonopatinRepository.class

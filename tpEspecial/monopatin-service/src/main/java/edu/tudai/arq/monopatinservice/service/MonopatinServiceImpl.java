@@ -94,4 +94,50 @@ public class MonopatinServiceImpl implements MonopatinService {
         Monopatin updatedEntity = repository.save(entity);
         return mapper.toResponse(updatedEntity);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MonopatinDTO.Response> findMonopatinesCercanos(Double latitud, Double longitud, Double radioKm) {
+        // Obtener todos los monopatines disponibles
+        List<Monopatin> monopatinesDisponibles = repository.findAll().stream()
+                .filter(m -> m.getEstado() == EstadoMonopatin.DISPONIBLE)
+                .toList();
+
+        // Filtrar por distancia usando fórmula de Haversine
+        return monopatinesDisponibles.stream()
+                .filter(m -> {
+                    double distancia = calcularDistanciaHaversine(
+                            latitud, longitud,
+                            m.getLatitud(), m.getLongitud()
+                    );
+                    return distancia <= radioKm;
+                })
+                .sorted((m1, m2) -> {
+                    // Ordenar por distancia (más cercano primero)
+                    double dist1 = calcularDistanciaHaversine(latitud, longitud, m1.getLatitud(), m1.getLongitud());
+                    double dist2 = calcularDistanciaHaversine(latitud, longitud, m2.getLatitud(), m2.getLongitud());
+                    return Double.compare(dist1, dist2);
+                })
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Calcula la distancia entre dos puntos GPS usando la fórmula de Haversine.
+     * @return distancia en kilómetros
+     */
+    private double calcularDistanciaHaversine(Double lat1, Double lon1, Double lat2, Double lon2) {
+        final double RADIO_TIERRA_KM = 6371.0;
+
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return RADIO_TIERRA_KM * c;
+    }
 }

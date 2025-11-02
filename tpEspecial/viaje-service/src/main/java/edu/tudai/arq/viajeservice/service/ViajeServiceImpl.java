@@ -8,6 +8,9 @@ import edu.tudai.arq.viajeservice.entity.Viaje;
 import edu.tudai.arq.viajeservice.exception.PausaNotFoundException;
 import edu.tudai.arq.viajeservice.exception.ViajeInvalidoException;
 import edu.tudai.arq.viajeservice.exception.ViajeNotFoundException;
+import edu.tudai.arq.viajeservice.feignclient.MonopatinFeignClient;
+import edu.tudai.arq.viajeservice.feignclient.ParadaFeignClient;
+import edu.tudai.arq.viajeservice.feignclient.UsuarioFeignClient;
 import edu.tudai.arq.viajeservice.mapper.PausaMapper;
 import edu.tudai.arq.viajeservice.mapper.ViajeMapper;
 import edu.tudai.arq.viajeservice.repository.PausaRepository;
@@ -27,27 +30,80 @@ public class ViajeServiceImpl implements ViajeService {
     private final PausaRepository pausaRepo;
     private final ViajeMapper viajeMapper;
     private final PausaMapper pausaMapper;
+    private final ParadaFeignClient paradaClient;
+    private final MonopatinFeignClient monopatinClient;
+    private final UsuarioFeignClient usuarioClient;
 
     private static final int MINUTOS_PAUSA_MAXIMA = 15;
+    private static final double RADIO_VALIDACION_PARADA_KM = 0.05; // 50 metros
 
     public ViajeServiceImpl(ViajeRepository viajeRepo, PausaRepository pausaRepo,
-                            ViajeMapper viajeMapper, PausaMapper pausaMapper) {
+                            ViajeMapper viajeMapper, PausaMapper pausaMapper,
+                            ParadaFeignClient paradaClient, MonopatinFeignClient monopatinClient,
+                            UsuarioFeignClient usuarioClient) {
         this.viajeRepo = viajeRepo;
         this.pausaRepo = pausaRepo;
         this.viajeMapper = viajeMapper;
         this.pausaMapper = pausaMapper;
+        this.paradaClient = paradaClient;
+        this.monopatinClient = monopatinClient;
+        this.usuarioClient = usuarioClient;
     }
 
     @Override
     @Transactional
     public ViajeDTO.Response iniciarViaje(ViajeDTO.Create in) {
-        // Validar que el monopatín no tenga un viaje activo
+        // 1. Validar que la cuenta esté habilitada y tenga saldo
+        try {
+            var cuentaResponse = usuarioClient.getCuentaById(in.idCuenta());
+            if (cuentaResponse.getBody() == null) {
+                throw new ViajeInvalidoException("Cuenta no encontrada con ID: " + in.idCuenta());
+            }
+            var cuenta = cuentaResponse.getBody();
+            if (!cuenta.habilitada()) {
+                throw new ViajeInvalidoException("La cuenta con ID " + in.idCuenta() + " está anulada/deshabilitada");
+            }
+            if (cuenta.saldo() == null || cuenta.saldo() <= 0) {
+                throw new ViajeInvalidoException("La cuenta no tiene saldo suficiente para iniciar un viaje");
+            }
+        } catch (Exception e) {
+            throw new ViajeInvalidoException("Error al validar cuenta: " + e.getMessage());
+        }
+
+        // 2. Validar que el monopatín esté disponible
+        try {
+            var monopatinResponse = monopatinClient.getMonopatinById(in.idMonopatin());
+            if (monopatinResponse.getBody() == null) {
+                throw new ViajeInvalidoException("Monopatín no encontrado con ID: " + in.idMonopatin());
+            }
+            var monopatin = monopatinResponse.getBody();
+            if (!"DISPONIBLE".equals(monopatin.estado())) {
+                throw new ViajeInvalidoException("El monopatín no está disponible (estado: " + monopatin.estado() + ")");
+            }
+        } catch (Exception e) {
+            throw new ViajeInvalidoException("Error al validar monopatín: " + e.getMessage());
+        }
+
+        // 3. Validar que el monopatín no tenga un viaje activo
         viajeRepo.findViajeActivoByMonopatin(in.idMonopatin()).ifPresent(v -> {
             throw new ViajeInvalidoException("El monopatín con ID " + in.idMonopatin() + " ya tiene un viaje activo");
         });
 
+        // 4. Crear el viaje
         Viaje viaje = viajeMapper.toEntity(in);
         viaje = viajeRepo.save(viaje);
+
+        // 5. Actualizar estado del monopatín a EN_USO
+        try {
+            var monopatinUpdate = new MonopatinFeignClient.MonopatinUpdate(
+                    "EN_USO", null, null, null, null
+            );
+            monopatinClient.updateMonopatin(in.idMonopatin(), monopatinUpdate);
+        } catch (Exception e) {
+            // Log warning pero no fallar el viaje
+            System.err.println("Advertencia: No se pudo actualizar estado del monopatín: " + e.getMessage());
+        }
+
         return viajeMapper.toResponse(viaje);
     }
 
@@ -61,15 +117,72 @@ public class ViajeServiceImpl implements ViajeService {
             throw new ViajeInvalidoException("El viaje con ID " + id + " ya está finalizado");
         }
 
-        // Verificar si hay una pausa activa y finalizarla
+        // 1. Obtener ubicación actual del monopatín
+        MonopatinFeignClient.MonopatinResponse monopatin;
+        try {
+            var response = monopatinClient.getMonopatinById(viaje.getIdMonopatin());
+            if (response.getBody() == null) {
+                throw new ViajeInvalidoException("No se pudo obtener información del monopatín");
+            }
+            monopatin = response.getBody();
+        } catch (Exception e) {
+            throw new ViajeInvalidoException("Error al obtener ubicación del monopatín: " + e.getMessage());
+        }
+
+        // 2. Validar que esté cerca de una parada (según enunciado: CONDICIÓN BÁSICA)
+        try {
+            var paradasResponse = paradaClient.findParadasCercanas(
+                    monopatin.latitud(),
+                    monopatin.longitud(),
+                    RADIO_VALIDACION_PARADA_KM
+            );
+
+            if (paradasResponse.getBody() == null || paradasResponse.getBody().isEmpty()) {
+                throw new ViajeInvalidoException(
+                        "No se puede finalizar el viaje. El monopatín debe estar en una parada. " +
+                        "No hay paradas cercanas a la ubicación actual (lat: " + monopatin.latitud() +
+                        ", lng: " + monopatin.longitud() + ")"
+                );
+            }
+
+            // Usar la parada más cercana si no se especificó una
+            if (in.idParadaFin() == null) {
+                var paradaMasCercana = paradasResponse.getBody().get(0);
+                System.out.println("Parada automáticamente seleccionada: " + paradaMasCercana.nombre());
+            }
+
+        } catch (ViajeInvalidoException e) {
+            throw e; // Re-lanzar excepciones de validación
+        } catch (Exception e) {
+            // Si falla la comunicación con parada-service, log pero permitir finalizar
+            System.err.println("Advertencia: No se pudo validar parada: " + e.getMessage());
+        }
+
+        // 3. Verificar si hay una pausa activa y finalizarla
         pausaRepo.findByIdViajeAndHoraFinIsNull(id).ifPresent(pausa -> {
             pausa.finalizarPausa();
             verificarYMarcarPausaExtendida(pausa);
             pausaRepo.save(pausa);
         });
 
+        // 4. Finalizar el viaje
         viaje.finalizarViaje(in.idParadaFin(), in.kilometrosRecorridos(), in.costoTotal());
         viaje = viajeRepo.save(viaje);
+
+        // 5. Actualizar estado y ubicación del monopatín a DISPONIBLE
+        try {
+            var monopatinUpdate = new MonopatinFeignClient.MonopatinUpdate(
+                    "DISPONIBLE",
+                    monopatin.latitud(),
+                    monopatin.longitud(),
+                    monopatin.kilometrosTotales() + (in.kilometrosRecorridos() != null ? in.kilometrosRecorridos() : 0),
+                    monopatin.tiempoUsoTotal() + viaje.calcularTiempoTotal()
+            );
+            monopatinClient.updateMonopatin(viaje.getIdMonopatin(), monopatinUpdate);
+        } catch (Exception e) {
+            System.err.println("Advertencia: No se pudo actualizar monopatín: " + e.getMessage());
+        }
+
         return viajeMapper.toResponse(viaje);
     }
 

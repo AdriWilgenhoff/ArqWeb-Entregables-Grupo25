@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,5 +101,14 @@ public class Viaje {
 
     public void reanudar() {
         this.estado = EstadoViaje.EN_CURSO;
+    }
+
+    /**
+     * Calcula el tiempo total del viaje en minutos.
+     * Si el viaje aún no ha finalizado, calcula hasta el momento actual.
+     */
+    public long calcularTiempoTotal() {
+        LocalDateTime fin = (this.fechaHoraFin != null) ? this.fechaHoraFin : LocalDateTime.now();
+        return Duration.between(this.fechaHoraInicio, fin).toMinutes();
     }
 }

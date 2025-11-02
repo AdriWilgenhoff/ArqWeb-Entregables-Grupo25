@@ -2,28 +2,45 @@ package edu.tudai.arq.monopatinservice.mapper;
 
 import edu.tudai.arq.monopatinservice.dto.MonopatinDTO;
 import edu.tudai.arq.monopatinservice.entity.Monopatin;
-import edu.tudai.arq.monopatinservice.entity.EstadoMonopatin;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MonopatinMapper {
+
     public Monopatin toEntity(MonopatinDTO.Create dto) {
         return new Monopatin(
-                dto.getEstado(),
-                dto.getLatitud(),
-                dto.getLongitud()
+                dto.estado(),
+                dto.latitud(),
+                dto.longitud()
         );
     }
 
     public MonopatinDTO.Response toResponse(Monopatin entity) {
-        return new MonopatinDTO.Response(entity);
+        return new MonopatinDTO.Response(
+                entity.getId(),
+                entity.getEstado(),
+                entity.getLatitud(),
+                entity.getLongitud(),
+                entity.getKilometrosTotales(),
+                entity.getTiempoUsoTotal()
+        );
     }
 
     public void update(Monopatin entity, MonopatinDTO.Update dto) {
-        if (dto.getEstado() != null) { entity.setEstado(dto.getEstado()); }
-        if (dto.getLatitud() != null) { entity.setLatitud(dto.getLatitud()); }
-        if (dto.getLongitud() != null) { entity.setLongitud(dto.getLongitud()); }
-        if (dto.getKilometrosTotales() != null) { entity.setKilometrosTotales(dto.getKilometrosTotales()); }
-        if (dto.getTiempoUsoTotal() != null) { entity.setTiempoUsoTotal(dto.getTiempoUsoTotal()); }
+        if (dto.estado() != null) {
+            entity.setEstado(dto.estado());
+        }
+        if (dto.latitud() != null) {
+            entity.setLatitud(dto.latitud());
+        }
+        if (dto.longitud() != null) {
+            entity.setLongitud(dto.longitud());
+        }
+        if (dto.kilometrosTotales() != null) {
+            entity.setKilometrosTotales(dto.kilometrosTotales());
+        }
+        if (dto.tiempoUsoTotal() != null) {
+            entity.setTiempoUsoTotal(dto.tiempoUsoTotal());
+        }
     }
 }
