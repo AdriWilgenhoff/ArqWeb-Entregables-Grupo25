@@ -40,6 +40,7 @@ public class MantenimientoServiceImpl implements MantenimientoService {
     public MantenimientoDTO.Response create(MantenimientoDTO.Create in) {
         Mantenimiento m = mapper.toEntity(in);
         m = repository.save(m);
+        monopatinClient.cambiarEstado(m.getIdMonopatin(), "EN_MANTENIMIENTO");
         return mapper.toResponse(m);
     }
 
@@ -104,28 +105,64 @@ public class MantenimientoServiceImpl implements MantenimientoService {
     @Override
     @Transactional
     public void marcarEnMantenimiento(Long idMonopatin) {
-        // TODO: Implementar comunicación con monopatin-service para marcar como no disponible
-        // Esta funcionalidad requiere Feign Client para comunicarse con monopatin-service
+        try {
+            // Cambiar el estado del monopatín a EN_MANTENIMIENTO en monopatin-service
+            monopatinClient.cambiarEstado(idMonopatin, "EN_MANTENIMIENTO");
+        } catch (Exception e) {
+            throw new RuntimeException("Error al marcar monopatín " + idMonopatin + " como en mantenimiento: " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional
     public void desmarcarMantenimiento(Long idMonopatin, Long idParadaDestino) {
-        // TODO: Implementar comunicación con monopatin-service para marcar como disponible
-        // y con parada-service para ubicar en parada si se especifica
-        // Esta funcionalidad requiere Feign Client
+        try {
+            // Cambiar el estado del monopatín a DISPONIBLE en monopatin-service
+            monopatinClient.cambiarEstado(idMonopatin, "DISPONIBLE");
+
+            // TODO: Si se especifica idParadaDestino, ubicar el monopatín en esa parada
+            // Esto requiere comunicación con parada-service (futuro)
+            if (idParadaDestino != null) {
+                // Placeholder para futura implementación con parada-service
+                System.out.println("Ubicando monopatín " + idMonopatin + " en parada " + idParadaDestino);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error al desmarcar monopatín " + idMonopatin + " del mantenimiento: " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public Map<String, Long> operativosVsMantenimiento() {
-        // TODO: Implementar comunicación con monopatin-service para obtener estadísticas
-        // Esta funcionalidad requiere Feign Client
-        long enMantenimiento = findActivos().size();
-        return Map.of(
-                "en_mantenimiento", enMantenimiento,
-                "en_operacion", 0L // Placeholder, debe obtenerse del monopatin-service
-        );
+        try {
+            // Obtener todos los monopatines
+            var response = monopatinClient.getAllMonopatines();
+            if (response.getBody() == null) {
+                return Map.of(
+                        "en_mantenimiento", 0L,
+                        "en_operacion", 0L
+                );
+            }
+
+            List<MonopatinFeignClient.MonopatinResponse> monopatines = response.getBody();
+
+            // Contar monopatines en mantenimiento (estado = "EN_MANTENIMIENTO")
+            long enMantenimiento = monopatines.stream()
+                    .filter(m -> "EN_MANTENIMIENTO".equals(m.estado()))
+                    .count();
+
+            // Contar monopatines en operación (estados DISPONIBLE o EN_USO)
+            long enOperacion = monopatines.stream()
+                    .filter(m -> "DISPONIBLE".equals(m.estado()) || "EN_USO".equals(m.estado()))
+                    .count();
+
+            return Map.of(
+                    "en_mantenimiento", enMantenimiento,
+                    "en_operacion", enOperacion
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener estadísticas de monopatines: " + e.getMessage());
+        }
     }
 
     @Override
