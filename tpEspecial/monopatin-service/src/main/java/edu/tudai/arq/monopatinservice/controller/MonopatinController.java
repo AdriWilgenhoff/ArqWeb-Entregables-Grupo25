@@ -115,6 +115,25 @@ public class MonopatinController {
         return ResponseEntity.ok(updatedMonopatin);
     }
 
+    @Operation(summary = "Cambiar estado del monopatín (vía PUT - para FeignClient)",
+            description = "Alternativa con PUT para compatibilidad con FeignClient. Realiza la misma operación que PATCH.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Estado actualizado",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = MonopatinDTO.Response.class))),
+                    @ApiResponse(responseCode = "404", description = "Monopatín no encontrado"),
+                    @ApiResponse(responseCode = "400", description = "Transición inválida de estado")
+            })
+    @PutMapping("/{id}/estado/{nuevoEstado}")
+    public ResponseEntity<MonopatinDTO.Response> cambiarEstadoPut(
+            @PathVariable Long id,
+            @PathVariable String nuevoEstado) {
+
+        // Reutiliza el mismo método del servicio
+        MonopatinDTO.Response updatedMonopatin = service.cambiarEstado(id, nuevoEstado);
+        return ResponseEntity.ok(updatedMonopatin);
+    }
+
     @Operation(summary = "Buscar monopatines cercanos (Requerimiento g)",
             description = "Como usuario quiero un listado de los monopatines cercanos a mi zona, para poder encontrar un monopatín cerca de mi ubicación. " +
                     "Calcula la distancia usando la fórmula de Haversine y retorna solo monopatines DISPONIBLES.",

@@ -3,7 +3,7 @@ package edu.tudai.arq.mantenimientoservice.feignclient;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public interface MonopatinFeignClient {
     @GetMapping("/api/v1/monopatines/{id}")
     ResponseEntity<MonopatinResponse> getMonopatinById(@PathVariable("id") Long id);
 
-    @PatchMapping("/api/v1/monopatines/{id}/estado/{nuevoEstado}")
+    @PutMapping("/api/v1/monopatines/{id}/estado/{nuevoEstado}")
     ResponseEntity<MonopatinResponse> cambiarEstado(
             @PathVariable("id") Long id,
             @PathVariable("nuevoEstado") String nuevoEstado
