@@ -97,7 +97,7 @@ public class MonopatinController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Cambia el estado del monopatín",
+    @Operation(summary = "Cambiar estado del monopatín",
             description = "Realiza una transición de estado (DISPONIBLE, EN_USO, EN_MANTENIMIENTO).",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Estado actualizado",
@@ -106,30 +106,11 @@ public class MonopatinController {
                     @ApiResponse(responseCode = "404", description = "Monopatín no encontrado"),
                     @ApiResponse(responseCode = "400", description = "Transición inválida de estado")
             })
-    @PatchMapping("/{id}/estado/{nuevoEstado}")
+    @PutMapping("/{id}/estado/{nuevoEstado}")
     public ResponseEntity<MonopatinDTO.Response> cambiarEstado(
             @PathVariable Long id,
             @PathVariable String nuevoEstado) {
 
-        MonopatinDTO.Response updatedMonopatin = service.cambiarEstado(id, nuevoEstado);
-        return ResponseEntity.ok(updatedMonopatin);
-    }
-
-    @Operation(summary = "Cambiar estado del monopatín (vía PUT - para FeignClient)",
-            description = "Alternativa con PUT para compatibilidad con FeignClient. Realiza la misma operación que PATCH.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Estado actualizado",
-                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = MonopatinDTO.Response.class))),
-                    @ApiResponse(responseCode = "404", description = "Monopatín no encontrado"),
-                    @ApiResponse(responseCode = "400", description = "Transición inválida de estado")
-            })
-    @PutMapping("/{id}/estado/{nuevoEstado}")
-    public ResponseEntity<MonopatinDTO.Response> cambiarEstadoPut(
-            @PathVariable Long id,
-            @PathVariable String nuevoEstado) {
-
-        // Reutiliza el mismo método del servicio
         MonopatinDTO.Response updatedMonopatin = service.cambiarEstado(id, nuevoEstado);
         return ResponseEntity.ok(updatedMonopatin);
     }
@@ -184,4 +165,3 @@ public class MonopatinController {
         return ResponseEntity.ok(reporte);
     }
 }
-

@@ -102,7 +102,7 @@ public class CuentaController {
         return ResponseEntity.ok(service.cargarSaldo(id, in));
     }
 
-    @PatchMapping("/{id}/anular")
+    @PutMapping("/{id}/anular")
     @Operation(summary = "Anular una cuenta",
             description = "Deshabilita la cuenta para su uso momentáneo (requerimiento del administrador)")
     @ApiResponse(responseCode = "204", description = "Cuenta anulada exitosamente")
@@ -113,7 +113,7 @@ public class CuentaController {
         service.anularCuenta(id);
     }
 
-    @PatchMapping("/{id}/habilitar")
+    @PutMapping("/{id}/habilitar")
     @Operation(summary = "Habilitar una cuenta previamente anulada",
             description = "Rehabilita una cuenta que fue anulada anteriormente")
     @ApiResponse(responseCode = "204", description = "Cuenta habilitada exitosamente")

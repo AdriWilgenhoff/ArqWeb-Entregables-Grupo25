@@ -16,10 +16,10 @@ public interface UsuarioFeignClient {
     @GetMapping("/api/v1/cuentas/{id}")
     ResponseEntity<CuentaModel> getCuentaById(@PathVariable("id") Long id);
 
-    @PatchMapping("/api/v1/cuentas/{id}/anular")
+    @PutMapping("/api/v1/cuentas/{id}/anular")
     ResponseEntity<Void> anularCuenta(@PathVariable("id") Long id);
 
-    @PatchMapping("/api/v1/cuentas/{id}/habilitar")
+    @PutMapping("/api/v1/cuentas/{id}/habilitar")
     ResponseEntity<Void> habilitarCuenta(@PathVariable("id") Long id);
 }
 
