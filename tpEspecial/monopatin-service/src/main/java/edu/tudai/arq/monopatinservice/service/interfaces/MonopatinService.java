@@ -1,6 +1,7 @@
 package edu.tudai.arq.monopatinservice.service.interfaces;
 
 import edu.tudai.arq.monopatinservice.dto.MonopatinDTO;
+import edu.tudai.arq.monopatinservice.dto.ReporteOperacionDTO;
 
 import java.util.List;
 
@@ -26,5 +27,11 @@ public interface MonopatinService {
     MonopatinDTO.Response cambiarEstado(Long id, String nuevoEstado);
 
     List<MonopatinDTO.Response> findMonopatinesCercanos(Double latitud, Double longitud, Double radioKm);
+
+    // Reportes
+
+    List<MonopatinDTO.Response> findMonopatinesConMasDeXViajes(Integer cantidadViajes, Integer anio);
+
+    ReporteOperacionDTO getReporteOperacion();
 
 }

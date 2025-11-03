@@ -1,6 +1,7 @@
 package edu.tudai.arq.monopatinservice.controller;
 
 import edu.tudai.arq.monopatinservice.dto.MonopatinDTO;
+import edu.tudai.arq.monopatinservice.dto.ReporteOperacionDTO;
 import edu.tudai.arq.monopatinservice.service.interfaces.MonopatinService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -130,6 +131,38 @@ public class MonopatinController {
 
         List<MonopatinDTO.Response> monopatines = service.findMonopatinesCercanos(latitud, longitud, radioKm);
         return ResponseEntity.ok(monopatines);
+    }
+
+    // ==================== REPORTES ====================
+
+    @Operation(summary = "Monopatines con más de X viajes en un año (Requerimiento c)",
+            description = "Como administrador quiero consultar los monopatines con más de X viajes en un cierto año",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista de monopatines que cumplen el criterio",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = MonopatinDTO.Response.class)))
+            })
+    @GetMapping("/con-mas-viajes")
+    public ResponseEntity<List<MonopatinDTO.Response>> getMonopatinesConMasViajes(
+            @RequestParam Integer cantidad,
+            @RequestParam Integer anio) {
+
+        List<MonopatinDTO.Response> monopatines = service.findMonopatinesConMasDeXViajes(cantidad, anio);
+        return ResponseEntity.ok(monopatines);
+    }
+
+    @Operation(summary = "Reporte de operación vs mantenimiento (Requerimiento e)",
+            description = "Como administrador quiero consultar la cantidad de monopatines actualmente en operación, " +
+                    "versus la cantidad de monopatines actualmente en mantenimiento",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Reporte de operación generado",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ReporteOperacionDTO.class)))
+            })
+    @GetMapping("/reporte-operacion")
+    public ResponseEntity<ReporteOperacionDTO> getReporteOperacion() {
+        ReporteOperacionDTO reporte = service.getReporteOperacion();
+        return ResponseEntity.ok(reporte);
     }
 }
 

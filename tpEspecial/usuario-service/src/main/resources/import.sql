@@ -16,25 +16,25 @@ INSERT INTO cuenta (numero_identificatorio, fecha_alta, saldo, habilitada, id_cu
 INSERT INTO cuenta (numero_identificatorio, fecha_alta, saldo, habilitada, id_cuenta_mercado_pago) VALUES ('CBU-005-E', '2025-10-30', 100.00, false, 'MP-ID-005');
 
 -- Ana (ID 1) se asocia a Cuenta 'CBU-001-A' (ID 1)
-INSERT INTO usuario_cuenta (id_usuario, id_cuenta, fecha_asociacion) VALUES (1, 1, '2025-10-31 10:00:00');
+INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (1, 1);
 
 -- Carlos (ID 3) se asocia a Cuenta 'CBU-001-A' (ID 1)
-INSERT INTO usuario_cuenta (id_usuario, id_cuenta, fecha_asociacion) VALUES (3, 1, '2025-10-31 10:01:00');
+INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (3, 1);
 
 -- Bruno (ID 2) se asocia a Cuenta 'CBU-002-B' (ID 2)
-INSERT INTO usuario_cuenta (id_usuario, id_cuenta, fecha_asociacion) VALUES (2, 2, '2025-10-31 10:02:00');
+INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (2, 2);
 
 -- Daniela (ID 4) se asocia a Cuenta 'CBU-003-C' (ID 3)
-INSERT INTO usuario_cuenta (id_usuario, id_cuenta, fecha_asociacion) VALUES (4, 3, '2025-10-31 10:03:00');
+INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (4, 3);
 
 -- Esteban (ID 5) se asocia a Cuenta 'CBU-003-C' (ID 3)
-INSERT INTO usuario_cuenta (id_usuario, id_cuenta, fecha_asociacion) VALUES (5, 3, '2025-10-31 10:04:00');
+INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (5, 3);
 
 -- Florencia (ID 6) se asocia a Cuenta 'CBU-004-D' (ID 4)
-INSERT INTO usuario_cuenta (id_usuario, id_cuenta, fecha_asociacion) VALUES (6, 4, '2025-10-31 10:05:00');
+INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (6, 4);
 
 -- Carlos (ID 3) se asocia tambien a Cuenta 'CBU-004-D' (ID 4)
-INSERT INTO usuario_cuenta (id_usuario, id_cuenta, fecha_asociacion) VALUES (3, 4, '2025-10-31 10:07:00');
+INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (3, 4);
 
 -- Gabriel (ID 7) se asocia a Cuenta 'CBU-005-E' (ID 5)
-INSERT INTO usuario_cuenta (id_usuario, id_cuenta, fecha_asociacion) VALUES (7, 5, '2025-10-31 10:06:00');
+INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (7, 5);

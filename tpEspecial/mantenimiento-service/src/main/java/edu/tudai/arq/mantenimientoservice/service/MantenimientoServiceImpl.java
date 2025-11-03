@@ -28,7 +28,7 @@ public class MantenimientoServiceImpl implements MantenimientoService {
     private final ViajeFeignClient viajeClient;
 
     public MantenimientoServiceImpl(MantenimientoRepository repository, MantenimientoMapper mapper,
-                                   MonopatinFeignClient monopatinClient, ViajeFeignClient viajeClient) {
+                                    MonopatinFeignClient monopatinClient, ViajeFeignClient viajeClient) {
         this.repository = repository;
         this.mapper = mapper;
         this.monopatinClient = monopatinClient;

@@ -318,6 +318,14 @@ public class ViajeServiceImpl implements ViajeService {
         return viajeMapper.toResponse(viaje);
     }
 
+    // ==================== REPORTES ====================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getMonopatinesConMasDeXViajes(Integer cantidadViajes, Integer anio) {
+        return viajeRepo.findMonopatinesConMasDeXViajes(cantidadViajes, anio);
+    }
+
     // Método auxiliar para verificar si una pausa excedió los 15 minutos
     private void verificarYMarcarPausaExtendida(Pausa pausa) {
         if (pausa.getHoraFin() != null) {
@@ -328,4 +336,3 @@ public class ViajeServiceImpl implements ViajeService {
         }
     }
 }
-

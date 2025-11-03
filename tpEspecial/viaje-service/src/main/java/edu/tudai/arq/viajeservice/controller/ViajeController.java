@@ -166,6 +166,16 @@ public class ViajeController {
     public ResponseEntity<ViajeDTO.Response> findViajeActivoByMonopatin(@PathVariable Long idMonopatin) {
         return ResponseEntity.ok(service.findViajeActivoByMonopatin(idMonopatin));
     }
+
+    // ==================== REPORTES ====================
+
+    @GetMapping("/monopatines-con-mas-viajes")
+    @Operation(summary = "Obtener IDs de monopatines con más de X viajes (Reporte interno para monopatin-service)",
+            description = "Devuelve una lista de IDs de monopatines que tienen más de X viajes en un año determinado")
+    @ApiResponse(responseCode = "200", description = "Lista de IDs de monopatines")
+    public ResponseEntity<List<Long>> getMonopatinesConMasDeXViajes(
+            @RequestParam Integer cantidadViajes,
+            @RequestParam Integer anio) {
+        return ResponseEntity.ok(service.getMonopatinesConMasDeXViajes(cantidadViajes, anio));
+    }
 }
-
-

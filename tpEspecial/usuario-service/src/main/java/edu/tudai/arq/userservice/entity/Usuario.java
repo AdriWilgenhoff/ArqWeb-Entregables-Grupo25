@@ -48,12 +48,17 @@ public class Usuario {
     @Column(nullable = false, length = 30)
     private Rol rol;
 
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UsuarioCuenta> cuentasAsociadas;
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "usuario_cuenta",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_cuenta")
+    )
+    private List<Cuenta> cuentas;
 
     public Usuario() {
         this.fechaAlta = LocalDate.now();
-        this.cuentasAsociadas = new ArrayList<>();
+        this.cuentas = new ArrayList<>();
     }
 
     public Usuario(String nombre, String apellido, String email, String numeroCelular,
@@ -65,14 +70,24 @@ public class Usuario {
         this.passwordHash = passwordHash;
         this.rol = rol;
         this.fechaAlta = LocalDate.now();
-        this.cuentasAsociadas = new ArrayList<>();
+        this.cuentas = new ArrayList<>();
     }
 
-    public List<UsuarioCuenta> getCuentasAsociadas() {
-        return new ArrayList<>(cuentasAsociadas);
+    public List<Cuenta> getCuentas() {
+        return new ArrayList<>(cuentas);
     }
 
-    public void addCuentaAsociada(UsuarioCuenta usuarioCuenta) {
-        this.cuentasAsociadas.add(usuarioCuenta);
+    public void addCuenta(Cuenta cuenta) {
+        if (!this.cuentas.contains(cuenta)) {
+            this.cuentas.add(cuenta);
+            cuenta.addUsuario(this);
+        }
+    }
+
+    public void removeCuenta(Cuenta cuenta) {
+        if (this.cuentas.contains(cuenta)) {
+            this.cuentas.remove(cuenta);
+            cuenta.removeUsuario(this);
+        }
     }
 }

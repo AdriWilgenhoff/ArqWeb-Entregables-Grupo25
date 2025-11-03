@@ -35,6 +35,7 @@ public interface ViajeService {
     List<ViajeDTO.Resumen> findViajesActivos();
 
     ViajeDTO.Response findViajeActivoByMonopatin(Long idMonopatin);
+
+    // Reportes
+    List<Long> getMonopatinesConMasDeXViajes(Integer cantidadViajes, Integer anio);
 }
-
-

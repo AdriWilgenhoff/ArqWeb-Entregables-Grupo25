@@ -1,14 +1,15 @@
 package edu.tudai.arq.monopatinservice.service;
 
 import edu.tudai.arq.monopatinservice.dto.MonopatinDTO;
+import edu.tudai.arq.monopatinservice.dto.ReporteOperacionDTO;
 import edu.tudai.arq.monopatinservice.exception.InvalidStateTransitionException;
 import edu.tudai.arq.monopatinservice.exception.MonopatinNotFoundException;
+import edu.tudai.arq.monopatinservice.feignclient.ViajeFeignClient;
 import edu.tudai.arq.monopatinservice.mapper.MonopatinMapper;
 import edu.tudai.arq.monopatinservice.entity.EstadoMonopatin;
 import edu.tudai.arq.monopatinservice.entity.Monopatin;
 import edu.tudai.arq.monopatinservice.repository.MonopatinRepository;
 import edu.tudai.arq.monopatinservice.service.interfaces.MonopatinService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +21,12 @@ public class MonopatinServiceImpl implements MonopatinService {
 
     private final MonopatinRepository repository;
     private final MonopatinMapper mapper;
+    private final ViajeFeignClient viajeClient;
 
-    public MonopatinServiceImpl(MonopatinRepository repository, MonopatinMapper mapper) {
+    public MonopatinServiceImpl(MonopatinRepository repository, MonopatinMapper mapper, ViajeFeignClient viajeClient) {
         this.repository = repository;
         this.mapper = mapper;
+        this.viajeClient = viajeClient;
     }
 
     @Override
@@ -139,5 +142,52 @@ public class MonopatinServiceImpl implements MonopatinService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
         return RADIO_TIERRA_KM * c;
+    }
+
+    // ==================== REPORTES ====================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MonopatinDTO.Response> findMonopatinesConMasDeXViajes(Integer cantidadViajes, Integer anio) {
+        // Obtener IDs de monopatines con más de X viajes del servicio de viajes
+        List<Long> idsMonopatines = viajeClient.getMonopatinesConMasDeXViajes(cantidadViajes, anio);
+
+        if (idsMonopatines == null || idsMonopatines.isEmpty()) {
+            return List.of();
+        }
+
+        // Obtener los monopatines completos
+        List<Monopatin> monopatines = repository.findByIdIn(idsMonopatines);
+
+        return monopatines.stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ReporteOperacionDTO getReporteOperacion() {
+        // Contar monopatines en operación (DISPONIBLE + EN_USO)
+        long enDisponible = repository.countByEstado(EstadoMonopatin.DISPONIBLE);
+        long enUso = repository.countByEstado(EstadoMonopatin.EN_USO);
+        long totalEnOperacion = enDisponible + enUso;
+
+        // Contar monopatines en mantenimiento
+        long enMantenimiento = repository.countByEstado(EstadoMonopatin.EN_MANTENIMIENTO);
+
+        // Calcular totales y porcentajes
+        long totalMonopatines = totalEnOperacion + enMantenimiento;
+
+        double porcentajeOperacion = totalMonopatines > 0 ?
+                (totalEnOperacion * 100.0 / totalMonopatines) : 0.0;
+        double porcentajeMantenimiento = totalMonopatines > 0 ?
+                (enMantenimiento * 100.0 / totalMonopatines) : 0.0;
+
+        return new ReporteOperacionDTO(
+                totalEnOperacion,
+                enMantenimiento,
+                porcentajeOperacion,
+                porcentajeMantenimiento
+        );
     }
 }

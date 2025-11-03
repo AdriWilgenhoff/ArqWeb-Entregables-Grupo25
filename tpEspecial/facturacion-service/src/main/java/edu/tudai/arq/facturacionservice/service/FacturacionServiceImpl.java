@@ -108,4 +108,28 @@ public class FacturacionServiceImpl implements FacturacionService {
             Long idCuenta, LocalDateTime fechaDesde, LocalDateTime fechaHasta) {
         return facturacionRepo.calcularTotalFacturadoPorCuenta(idCuenta, fechaDesde, fechaHasta);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Double getTotalFacturadoPorPeriodo(Integer anio, Integer mesDesde, Integer mesHasta) {
+        // Construir fechas de inicio y fin del período
+        LocalDateTime fechaInicio = LocalDateTime.of(anio, mesDesde, 1, 0, 0, 0);
+
+        // Calcular el último día del mes final
+        int ultimoDia;
+        if (mesHasta == 2) {
+            // Febrero - verificar año bisiesto
+            ultimoDia = (anio % 4 == 0 && (anio % 100 != 0 || anio % 400 == 0)) ? 29 : 28;
+        } else if (mesHasta == 4 || mesHasta == 6 || mesHasta == 9 || mesHasta == 11) {
+            ultimoDia = 30;
+        } else {
+            ultimoDia = 31;
+        }
+
+        LocalDateTime fechaFin = LocalDateTime.of(anio, mesHasta, ultimoDia, 23, 59, 59);
+
+        // Usar el método existente para calcular el total
+        Double total = facturacionRepo.calcularTotalFacturado(fechaInicio, fechaFin);
+        return total != null ? total : 0.0;
+    }
 }

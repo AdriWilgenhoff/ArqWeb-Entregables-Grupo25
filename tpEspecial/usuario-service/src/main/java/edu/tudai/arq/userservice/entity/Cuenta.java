@@ -38,14 +38,14 @@ public class Cuenta {
     @Column(name = "id_cuenta_mercado_pago", nullable = false, length = 100)
     private String idCuentaMercadoPago;
 
-    @OneToMany(mappedBy = "cuenta", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UsuarioCuenta> usuariosAsociados;
+    @ManyToMany(mappedBy = "cuentas", fetch = FetchType.LAZY)
+    private List<Usuario> usuarios;
 
     public Cuenta() {
         this.fechaAlta = LocalDate.now();
         this.saldo = 0.0;
         this.habilitada = true;
-        this.usuariosAsociados = new ArrayList<>();
+        this.usuarios = new ArrayList<>();
     }
 
     public Cuenta(String numeroIdentificatorio, String idCuentaMercadoPago) {
@@ -54,15 +54,21 @@ public class Cuenta {
         this.fechaAlta = LocalDate.now();
         this.saldo = 0.0;
         this.habilitada = true;
-        this.usuariosAsociados = new ArrayList<>();
+        this.usuarios = new ArrayList<>();
     }
 
-    public List<UsuarioCuenta> getUsuariosAsociados() {
-        return new ArrayList<>(usuariosAsociados);
+    public List<Usuario> getUsuarios() {
+        return new ArrayList<>(usuarios);
     }
 
-    public void addUsuarioAsociado(UsuarioCuenta usuarioCuenta) {
-        this.usuariosAsociados.add(usuarioCuenta);
+    public void addUsuario(Usuario usuario) {
+        if (!this.usuarios.contains(usuario)) {
+            this.usuarios.add(usuario);
+        }
+    }
+
+    public void removeUsuario(Usuario usuario) {
+        this.usuarios.remove(usuario);
     }
 
     public void cargarSaldo(Double monto) {

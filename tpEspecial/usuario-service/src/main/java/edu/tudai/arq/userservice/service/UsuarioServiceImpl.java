@@ -3,13 +3,11 @@ package edu.tudai.arq.userservice.service;
 import edu.tudai.arq.userservice.dto.UsuarioDTO;
 import edu.tudai.arq.userservice.entity.Cuenta;
 import edu.tudai.arq.userservice.entity.Usuario;
-import edu.tudai.arq.userservice.entity.UsuarioCuenta;
 import edu.tudai.arq.userservice.exception.UsuarioNotFoundException;
 import edu.tudai.arq.userservice.exception.CuentaNotFoundException;
 import edu.tudai.arq.userservice.mapper.UsuarioMapper;
 import edu.tudai.arq.userservice.repository.CuentaRepository;
 import edu.tudai.arq.userservice.repository.UsuarioRepository;
-import edu.tudai.arq.userservice.repository.UsuarioCuentaRepository;
 import edu.tudai.arq.userservice.service.interfaces.UsuarioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,14 +20,11 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepo;
     private final CuentaRepository cuentaRepo;
-    private final UsuarioCuentaRepository usuarioCuentaRepo;
     private final UsuarioMapper mapper;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepo, CuentaRepository cuentaRepo,
-                              UsuarioCuentaRepository usuarioCuentaRepo, UsuarioMapper mapper) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepo, CuentaRepository cuentaRepo, UsuarioMapper mapper) {
         this.usuarioRepo = usuarioRepo;
         this.cuentaRepo = cuentaRepo;
-        this.usuarioCuentaRepo = usuarioCuentaRepo;
         this.mapper = mapper;
     }
 
@@ -98,13 +93,20 @@ public class UsuarioServiceImpl implements UsuarioService {
         Cuenta c = cuentaRepo.findById(idCuenta)
                 .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + idCuenta));
 
-        UsuarioCuenta uc = new UsuarioCuenta(u, c);
-        usuarioCuentaRepo.save(uc);
+        u.addCuenta(c);
+        usuarioRepo.save(u);
     }
 
     @Override
     @Transactional
     public void desasociarCuenta(Long idUsuario, Long idCuenta) {
-        usuarioCuentaRepo.deleteByUsuarioIdAndCuentaId(idUsuario, idCuenta);
+        Usuario u = usuarioRepo.findById(idUsuario)
+                .orElseThrow(() -> new UsuarioNotFoundException("Usuario no encontrado con ID: " + idUsuario));
+
+        Cuenta c = cuentaRepo.findById(idCuenta)
+                .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + idCuenta));
+
+        u.removeCuenta(c);
+        usuarioRepo.save(u);
     }
 }

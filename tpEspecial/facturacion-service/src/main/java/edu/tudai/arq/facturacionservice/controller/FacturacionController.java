@@ -122,15 +122,16 @@ public class FacturacionController {
         return ResponseEntity.ok(service.calcularTotalFacturado(fechaDesde, fechaHasta));
     }
 
-    @GetMapping("/cuenta/{idCuenta}/total-facturado")
-    @Operation(summary = "Calcular total facturado de una cuenta en un rango de fechas",
-            description = "Calcula el monto total facturado a una cuenta en un período específico")
-    @ApiResponse(responseCode = "200", description = "Total facturado a la cuenta calculado")
-    public ResponseEntity<Double> calcularTotalFacturadoPorCuenta(
-            @PathVariable Long idCuenta,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaDesde,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaHasta) {
-        return ResponseEntity.ok(service.calcularTotalFacturadoPorCuenta(idCuenta, fechaDesde, fechaHasta));
+    // ==================== REPORTES ====================
+
+    @GetMapping("/total-por-periodo")
+    @Operation(summary = "Total facturado en rango de meses de un año (Requerimiento d)",
+            description = "Como administrador quiero consultar el total facturado en un rango de meses de cierto año")
+    @ApiResponse(responseCode = "200", description = "Total facturado en el período")
+    public ResponseEntity<Double> getTotalFacturadoPorPeriodo(
+            @RequestParam Integer anio,
+            @RequestParam Integer mesDesde,
+            @RequestParam Integer mesHasta) {
+        return ResponseEntity.ok(service.getTotalFacturadoPorPeriodo(anio, mesDesde, mesHasta));
     }
 }
-

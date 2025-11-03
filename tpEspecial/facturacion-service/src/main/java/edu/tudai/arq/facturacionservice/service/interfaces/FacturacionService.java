@@ -31,4 +31,6 @@ public interface FacturacionService {
 
     Double calcularTotalFacturadoPorCuenta(
             Long idCuenta, LocalDateTime fechaDesde, LocalDateTime fechaHasta);
+
+    Double getTotalFacturadoPorPeriodo(Integer anio, Integer mesDesde, Integer mesHasta);
 }

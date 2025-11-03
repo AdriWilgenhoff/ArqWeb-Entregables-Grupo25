@@ -36,6 +36,9 @@ public interface ViajeRepository extends JpaRepository<Viaje, Long> {
     // Contar viajes por monopatín en un año específico
     @Query("SELECT COUNT(v) FROM Viaje v WHERE v.idMonopatin = :idMonopatin AND YEAR(v.fechaHoraInicio) = :anio")
     Long countViajesByMonopatinAndAnio(@Param("idMonopatin") Long idMonopatin, @Param("anio") int anio);
+
+    // Obtener monopatines con más de X viajes en un año
+    @Query("SELECT v.idMonopatin FROM Viaje v WHERE YEAR(v.fechaHoraInicio) = :anio " +
+           "GROUP BY v.idMonopatin HAVING COUNT(v) > :cantidadViajes")
+    List<Long> findMonopatinesConMasDeXViajes(@Param("cantidadViajes") int cantidadViajes, @Param("anio") int anio);
 }
-
-
