@@ -31,4 +31,3 @@ public class CarreraMapper {
                 c.getDuracion()
         );
     }
-}
