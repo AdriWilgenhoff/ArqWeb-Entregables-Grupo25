@@ -35,36 +35,34 @@ public class Tarifa {
     @Column(name = "fecha_vigencia_hasta")
     private LocalDate fechaVigenciaHasta;
 
-    @Setter
-    @Column(nullable = false)
-    private Boolean activa;
-
     public Tarifa() {
         this.fechaVigenciaDesde = LocalDate.now();
-        this.activa = true;
     }
 
     public Tarifa(TipoTarifa tipoTarifa, Double precioPorMinuto, LocalDate fechaVigenciaDesde) {
         this.tipoTarifa = tipoTarifa;
         this.precioPorMinuto = precioPorMinuto;
         this.fechaVigenciaDesde = fechaVigenciaDesde;
-        this.activa = true;
     }
 
-    public void desactivar(LocalDate fechaFin) {
-        this.activa = false;
-        this.fechaVigenciaHasta = fechaFin;
-    }
-
+    /**
+     * Verifica si la tarifa está vigente en una fecha específica.
+     * @param fecha la fecha a verificar
+     * @return true si la tarifa está vigente en esa fecha
+     */
     public boolean estaVigenteEn(LocalDate fecha) {
-        if (!activa) {
-            return false;
-        }
-
         boolean despuesDeFechaDesde = !fecha.isBefore(fechaVigenciaDesde);
         boolean antesDeFechaHasta = fechaVigenciaHasta == null || !fecha.isAfter(fechaVigenciaHasta);
-
         return despuesDeFechaDesde && antesDeFechaHasta;
+    }
+
+
+    /**
+     * Verifica si esta tarifa es "abierta" (sin fecha de fin).
+     * @return true si no tiene fecha de fin de vigencia
+     */
+    public boolean esAbierta() {
+        return fechaVigenciaHasta == null;
     }
 }
 

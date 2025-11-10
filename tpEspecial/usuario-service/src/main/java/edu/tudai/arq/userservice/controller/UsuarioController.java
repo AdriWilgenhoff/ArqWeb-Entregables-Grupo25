@@ -1,5 +1,6 @@
 package edu.tudai.arq.userservice.controller;
 
+import edu.tudai.arq.userservice.dto.CuentaDTO;
 import edu.tudai.arq.userservice.dto.UsuarioDTO;
 import edu.tudai.arq.userservice.exception.ApiError;
 import edu.tudai.arq.userservice.service.interfaces.UsuarioService;
@@ -88,6 +89,17 @@ public class UsuarioController {
             content = @Content(schema = @Schema(implementation = ApiError.class)))
     public ResponseEntity<UsuarioDTO.Response> findByEmail(@PathVariable String email) {
         return ResponseEntity.ok(service.findByEmail(email));
+    }
+
+    @GetMapping("/{idUsuario}/cuentas")
+    @Operation(summary = "Obtener todas las cuentas de un usuario",
+            description = "Retorna la lista de cuentas asociadas a un usuario específico")
+    @ApiResponse(responseCode = "200", description = "Lista de cuentas del usuario",
+            content = @Content(schema = @Schema(implementation = CuentaDTO.Response.class)))
+    @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public ResponseEntity<List<CuentaDTO.Response>> getCuentasByUsuario(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(service.getCuentasByUsuario(idUsuario));
     }
 
     @PostMapping("/{idUsuario}/cuentas/{idCuenta}")

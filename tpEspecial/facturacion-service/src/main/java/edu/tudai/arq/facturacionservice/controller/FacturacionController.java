@@ -9,13 +9,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -32,10 +30,14 @@ public class FacturacionController {
 
     @PostMapping
     @Operation(summary = "Crear una nueva facturación",
-            description = "Crea una facturación para un viaje finalizado")
-    @ApiResponse(responseCode = "201", description = "Facturación creada exitosamente",
+            description = "Crea una facturación para un viaje finalizado. " +
+                    "Recibe: idViaje, idCuenta, tiempos (total, pausado, pausa extendida). " +
+                    "El sistema obtiene automáticamente las tarifas vigentes HOY y calcula el monto total.")
+    @ApiResponse(responseCode = "201", description = "Facturación creada exitosamente. El monto se calculó automáticamente con las tarifas vigentes.",
             content = @Content(schema = @Schema(implementation = FacturacionDTO.Response.class)))
-    @ApiResponse(responseCode = "400", description = "Datos inválidos o viaje ya facturado",
+    @ApiResponse(responseCode = "400", description = "Viaje ya facturado o datos inválidos",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "Tarifa vigente no encontrada",
             content = @Content(schema = @Schema(implementation = ApiError.class)))
     public ResponseEntity<FacturacionDTO.Response> create(@Valid @RequestBody FacturacionDTO.Create in) {
         var out = service.create(in);
@@ -90,40 +92,9 @@ public class FacturacionController {
         return ResponseEntity.ok(service.findByCuenta(idCuenta));
     }
 
-    @GetMapping("/rango-fechas")
-    @Operation(summary = "Buscar facturaciones en un rango de fechas",
-            description = "Obtiene todas las facturaciones entre dos fechas")
-    @ApiResponse(responseCode = "200", description = "Lista de facturaciones en el rango",
-            content = @Content(schema = @Schema(implementation = FacturacionDTO.Response.class)))
-    public ResponseEntity<List<FacturacionDTO.Response>> findByFechaEntre(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaDesde,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaHasta) {
-        return ResponseEntity.ok(service.findByFechaEntre(fechaDesde, fechaHasta));
-    }
-
-    @GetMapping("/cuenta/{idCuenta}/rango-fechas")
-    @Operation(summary = "Buscar facturaciones de una cuenta en un rango de fechas")
-    @ApiResponse(responseCode = "200", description = "Lista de facturaciones de la cuenta en el rango",
-            content = @Content(schema = @Schema(implementation = FacturacionDTO.Response.class)))
-    public ResponseEntity<List<FacturacionDTO.Response>> findByCuentaAndFechaEntre(
-            @PathVariable Long idCuenta,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaDesde,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaHasta) {
-        return ResponseEntity.ok(service.findByCuentaAndFechaEntre(idCuenta, fechaDesde, fechaHasta));
-    }
-
-    @GetMapping("/total-facturado")
-    @Operation(summary = "Calcular total facturado en un rango de fechas",
-            description = "Calcula el monto total facturado en un período específico")
-    @ApiResponse(responseCode = "200", description = "Total facturado calculado")
-    public ResponseEntity<Double> calcularTotalFacturado(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaDesde,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaHasta) {
-        return ResponseEntity.ok(service.calcularTotalFacturado(fechaDesde, fechaHasta));
-    }
-
     // ==================== REPORTES ====================
 
+    // TODO: JWT - Requiere rol ADMIN - Requerimiento d)
     @GetMapping("/total-por-periodo")
     @Operation(summary = "Total facturado en rango de meses de un año (Requerimiento d)",
             description = "Como administrador quiero consultar el total facturado en un rango de meses de cierto año")

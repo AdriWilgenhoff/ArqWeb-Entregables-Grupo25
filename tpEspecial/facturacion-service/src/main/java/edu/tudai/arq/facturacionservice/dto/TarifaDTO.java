@@ -9,8 +9,8 @@ public class TarifaDTO {
     @Schema(description = "DTO de entrada para crear una nueva Tarifa", name = "TarifaCreate")
     public record Create(
             @NotNull(message = "El tipo de tarifa es obligatorio")
-            @Pattern(regexp = "NORMAL|PAUSA_EXTENDIDA",
-                    message = "El tipo de tarifa debe ser NORMAL o PAUSA_EXTENDIDA")
+            @Pattern(regexp = "NORMAL|PAUSA|PAUSA_EXTENDIDA",
+                    message = "El tipo de tarifa debe ser NORMAL, PAUSA o PAUSA_EXTENDIDA")
             String tipoTarifa,
 
             @NotNull(message = "El precio por minuto es obligatorio")
@@ -18,19 +18,18 @@ public class TarifaDTO {
             Double precioPorMinuto,
 
             @NotNull(message = "La fecha de vigencia desde es obligatoria")
+            @Schema(description = "Fecha de vigencia desde", example = "2024-11-01", format = "date", type = "string", pattern = "yyyy-MM-dd")
             String fechaVigenciaDesde
     ) {}
 
     /** DTO para actualizar Tarifa */
     @Schema(description = "DTO de entrada para actualizar una Tarifa", name = "TarifaUpdate")
     public record Update(
-            @NotNull(message = "El precio por minuto es obligatorio")
             @Positive(message = "El precio por minuto debe ser positivo")
             Double precioPorMinuto,
 
-            String fechaVigenciaHasta,
-
-            Boolean activa
+            @Schema(description = "Fecha de vigencia hasta", example = "2024-12-31", format = "date", type = "string", pattern = "yyyy-MM-dd")
+            String fechaVigenciaHasta
     ) {}
 
     /** DTO de salida para Tarifa */
@@ -48,11 +47,8 @@ public class TarifaDTO {
             @Schema(description = "Fecha de vigencia desde", example = "2024-01-01")
             String fechaVigenciaDesde,
 
-            @Schema(description = "Fecha de vigencia hasta", example = "2024-12-31")
-            String fechaVigenciaHasta,
 
-            @Schema(description = "Indica si la tarifa está activa", example = "true")
-            Boolean activa
+            @Schema(description = "Fecha de vigencia hasta (null si es indefinida)", example = "2024-12-31")
+            String fechaVigenciaHasta
     ) {}
 }
-

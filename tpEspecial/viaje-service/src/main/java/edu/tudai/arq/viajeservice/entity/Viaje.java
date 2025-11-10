@@ -87,11 +87,10 @@ public class Viaje {
         this.pausas.add(pausa);
     }
 
-    public void finalizarViaje(Long idParadaFin, Double kilometrosRecorridos, Double costoTotal) {
+    public void finalizarViaje(Long idParadaFin, Double kilometrosRecorridos) {
         this.fechaHoraFin = LocalDateTime.now();
         this.idParadaFin = idParadaFin;
         this.kilometrosRecorridos = kilometrosRecorridos;
-        this.costoTotal = costoTotal;
         this.estado = EstadoViaje.FINALIZADO;
     }
 
@@ -110,5 +109,53 @@ public class Viaje {
     public long calcularTiempoTotal() {
         LocalDateTime fin = (this.fechaHoraFin != null) ? this.fechaHoraFin : LocalDateTime.now();
         return Duration.between(this.fechaHoraInicio, fin).toMinutes();
+    }
+
+    /**
+     * Calcula el tiempo total pausado en minutos.
+     * Suma la duración de todas las pausas finalizadas.
+     */
+    public long calcularTiempoPausado() {
+        return pausas.stream()
+                .filter(p -> p.getHoraFin() != null)
+                .mapToLong(p -> Duration.between(p.getHoraInicio(), p.getHoraFin()).toMinutes())
+                .sum();
+    }
+
+    /**
+     * Calcula el tiempo en pausas extendidas (>15 minutos) en minutos.
+     * Solo cuenta el tiempo de las pausas marcadas como extendidas.
+     */
+    public long calcularTiempoPausaExtendida() {
+        long tiempoTotal = 0;
+        for (Pausa pausa : pausas) {
+            if (pausa.getHoraFin() != null && pausa.getExtendida()) {
+                long duracion = Duration.between(pausa.getHoraInicio(), pausa.getHoraFin()).toMinutes();
+                tiempoTotal += duracion;
+            }
+        }
+        return tiempoTotal;
+    }
+
+    /**
+     * Calcula el tiempo en pausas normales (≤15 minutos) en minutos.
+     * Solo cuenta el tiempo de las pausas NO marcadas como extendidas.
+     */
+    public long calcularTiempoPausaNormal() {
+        long tiempoTotal = 0;
+        for (Pausa pausa : pausas) {
+            if (pausa.getHoraFin() != null && !pausa.getExtendida()) {
+                long duracion = Duration.between(pausa.getHoraInicio(), pausa.getHoraFin()).toMinutes();
+                tiempoTotal += duracion;
+            }
+        }
+        return tiempoTotal;
+    }
+
+    /**
+     * Calcula el tiempo sin pausas (tiempo activo) en minutos.
+     */
+    public long calcularTiempoSinPausas() {
+        return calcularTiempoTotal() - calcularTiempoPausado();
     }
 }

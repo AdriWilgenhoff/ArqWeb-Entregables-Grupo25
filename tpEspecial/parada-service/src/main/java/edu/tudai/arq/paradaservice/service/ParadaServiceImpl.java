@@ -2,7 +2,6 @@ package edu.tudai.arq.paradaservice.service;
 
 import edu.tudai.arq.paradaservice.dto.ParadaDTO;
 import edu.tudai.arq.paradaservice.entity.Parada;
-import edu.tudai.arq.paradaservice.exception.ParadaException;
 import edu.tudai.arq.paradaservice.exception.ParadaNotFoundException;
 import edu.tudai.arq.paradaservice.mapper.ParadaMapper;
 import edu.tudai.arq.paradaservice.repository.ParadaRepository;
@@ -70,57 +69,17 @@ public class ParadaServiceImpl implements ParadaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParadaDTO.Response> findParadasConEspacio() {
-        return repository.findParadasConEspacio().stream()
+    public List<ParadaDTO.Response> findParadasCercanas(Integer latitud, Integer longitud, Double radioKm) {
+        return repository.findAll().stream()
+                .filter(p -> {
+                    int diffLat = Math.abs(p.getLatitud() - latitud);
+                    int diffLon = Math.abs(p.getLongitud() - longitud);
+                    double distancia = diffLat + diffLon;
+                    return distancia <= radioKm;
+                })
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ParadaDTO.Response> findParadasCercanas(Double latitud, Double longitud, Double radioKm) {
-        if (radioKm == null || radioKm <= 0) {
-            radioKm = 1.0; // Radio por defecto: 1 km
-        }
-        return repository.findParadasCercanas(latitud, longitud, radioKm).stream()
-                .map(mapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void incrementarMonopatines(Long id) {
-        Parada p = repository.findById(id)
-                .orElseThrow(() -> new ParadaNotFoundException(id));
-
-        if (p.getMonopatinesDisponibles() >= p.getCapacidad()) {
-            throw new ParadaException("La parada ha alcanzado su capacidad máxima");
-        }
-
-        p.setMonopatinesDisponibles(p.getMonopatinesDisponibles() + 1);
-        repository.save(p);
-    }
-
-    @Override
-    @Transactional
-    public void decrementarMonopatines(Long id) {
-        Parada p = repository.findById(id)
-                .orElseThrow(() -> new ParadaNotFoundException(id));
-
-        if (p.getMonopatinesDisponibles() <= 0) {
-            throw new ParadaException("No hay monopatines disponibles en esta parada");
-        }
-
-        p.setMonopatinesDisponibles(p.getMonopatinesDisponibles() - 1);
-        repository.save(p);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean verificarEspacioDisponible(Long id) {
-        Parada p = repository.findById(id)
-                .orElseThrow(() -> new ParadaNotFoundException(id));
-        return p.getMonopatinesDisponibles() < p.getCapacidad();
-    }
 }
 

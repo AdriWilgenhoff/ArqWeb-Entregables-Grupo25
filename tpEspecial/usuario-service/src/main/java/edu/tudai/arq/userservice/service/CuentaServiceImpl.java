@@ -1,10 +1,11 @@
 package edu.tudai.arq.userservice.service;
 
 import edu.tudai.arq.userservice.dto.CuentaDTO;
+import edu.tudai.arq.userservice.dto.UsuarioDTO;
 import edu.tudai.arq.userservice.entity.Cuenta;
 import edu.tudai.arq.userservice.exception.CuentaNotFoundException;
-import edu.tudai.arq.userservice.exception.SaldoInsuficienteException;
 import edu.tudai.arq.userservice.mapper.CuentaMapper;
+import edu.tudai.arq.userservice.mapper.UsuarioMapper;
 import edu.tudai.arq.userservice.repository.CuentaRepository;
 import edu.tudai.arq.userservice.service.interfaces.CuentaService;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,12 @@ public class CuentaServiceImpl implements CuentaService {
 
     private final CuentaRepository repo;
     private final CuentaMapper mapper;
+    private final UsuarioMapper usuarioMapper;
 
-    public CuentaServiceImpl(CuentaRepository repo, CuentaMapper mapper) {
+    public CuentaServiceImpl(CuentaRepository repo, CuentaMapper mapper, UsuarioMapper usuarioMapper) {
         this.repo = repo;
         this.mapper = mapper;
+        this.usuarioMapper = usuarioMapper;
     }
 
     @Override
@@ -93,6 +96,22 @@ public class CuentaServiceImpl implements CuentaService {
 
     @Override
     @Transactional
+    public CuentaDTO.Response descontarSaldo(Long id, CuentaDTO.DescontarSaldo in) {
+        Cuenta c = repo.findById(id)
+                .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
+
+        // Validar que haya saldo suficiente
+        if (c.getSaldo() < in.monto()) {
+            throw new IllegalArgumentException("Saldo insuficiente. Saldo actual: " + c.getSaldo() + ", monto a descontar: " + in.monto());
+        }
+
+        c.descontarSaldo(in.monto());
+        c = repo.save(c);
+        return mapper.toResponse(c);
+    }
+
+    @Override
+    @Transactional
     public void anularCuenta(Long id) {
         Cuenta c = repo.findById(id)
                 .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
@@ -107,5 +126,16 @@ public class CuentaServiceImpl implements CuentaService {
                 .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
         c.setHabilitada(true);
         repo.save(c);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UsuarioDTO.Response> getUsuariosByCuenta(Long idCuenta) {
+        Cuenta c = repo.findById(idCuenta)
+                .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + idCuenta));
+
+        return c.getUsuarios().stream()
+                .map(usuarioMapper::toResponse)
+                .collect(Collectors.toList());
     }
 }

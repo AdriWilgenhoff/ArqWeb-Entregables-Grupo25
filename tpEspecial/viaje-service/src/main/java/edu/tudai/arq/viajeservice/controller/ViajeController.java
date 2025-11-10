@@ -179,3 +179,4 @@ public class ViajeController {
         return ResponseEntity.ok(service.getMonopatinesConMasDeXViajes(cantidadViajes, anio));
     }
 }
+

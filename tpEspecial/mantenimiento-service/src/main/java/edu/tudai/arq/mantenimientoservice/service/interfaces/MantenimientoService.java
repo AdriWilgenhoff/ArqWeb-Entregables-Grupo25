@@ -1,10 +1,10 @@
 package edu.tudai.arq.mantenimientoservice.service.interfaces;
 
 import edu.tudai.arq.mantenimientoservice.dto.MantenimientoDTO;
+import edu.tudai.arq.mantenimientoservice.dto.ReporteOperacionDTO;
 import edu.tudai.arq.mantenimientoservice.dto.ReporteUsoDTO;
 
 import java.util.List;
-import java.util.Map;
 
 public interface MantenimientoService {
 
@@ -24,12 +24,10 @@ public interface MantenimientoService {
 
     List<MantenimientoDTO.Response> findFinalizados();
 
-    void marcarEnMantenimiento(Long idMonopatin);
-
-    void desmarcarMantenimiento(Long idMonopatin, Long idParadaDestino);
-
+    // ==================== REPORTES ====================
 
     List<ReporteUsoDTO.Response> generarReporteUso(boolean incluirPausas);
-    Map<String, Long> operativosVsMantenimiento();
+
+    ReporteOperacionDTO operativosVsMantenimiento();
 }
 

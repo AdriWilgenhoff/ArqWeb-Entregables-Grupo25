@@ -10,10 +10,8 @@ import java.util.Optional;
 @Repository
 public interface PausaRepository extends JpaRepository<Pausa, Long> {
 
-    // Buscar pausas por viaje
     List<Pausa> findByIdViaje(Long idViaje);
 
-    // Buscar pausa activa (sin hora de fin) de un viaje
     Optional<Pausa> findByIdViajeAndHoraFinIsNull(Long idViaje);
 }
 

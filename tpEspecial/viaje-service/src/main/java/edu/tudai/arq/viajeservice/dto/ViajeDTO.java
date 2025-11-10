@@ -31,15 +31,13 @@ public class ViajeDTO {
     public record Finalizacion(
             @NotNull(message = "El ID de parada de fin es obligatorio")
             @Positive(message = "El ID de parada de fin debe ser positivo")
+            @Schema(description = "ID de la parada donde finaliza el viaje", example = "7")
             Long idParadaFin,
 
             @NotNull(message = "Los kilómetros recorridos son obligatorios")
             @PositiveOrZero(message = "Los kilómetros recorridos no pueden ser negativos")
-            Double kilometrosRecorridos,
-
-            @NotNull(message = "El costo total es obligatorio")
-            @PositiveOrZero(message = "El costo total no puede ser negativo")
-            Double costoTotal
+            @Schema(description = "Kilómetros recorridos durante el viaje", example = "5.2")
+            Double kilometrosRecorridos
     ) {}
 
     /** DTO de salida para Viaje */
@@ -79,7 +77,22 @@ public class ViajeDTO {
             Double costoTotal,
 
             @Schema(description = "Número de pausas realizadas", example = "2")
-            Integer numeroPausas
+            Integer numeroPausas,
+
+            @Schema(description = "Tiempo total del viaje en minutos", example = "50")
+            Long tiempoTotal,
+
+            @Schema(description = "Tiempo total pausado en minutos", example = "20")
+            Long tiempoPausado,
+
+            @Schema(description = "Tiempo en pausa extendida (>15 min) en minutos", example = "10")
+            Long tiempoPausaExtendida,
+
+            @Schema(description = "Tiempo en pausa normal (≤15 min) en minutos", example = "10")
+            Long tiempoPausaNormal,
+
+            @Schema(description = "Tiempo sin pausas (activo) en minutos", example = "30")
+            Long tiempoSinPausas
     ) {}
 
     /** DTO de salida resumido para listados */
@@ -107,5 +120,6 @@ public class ViajeDTO {
             Double costoTotal
     ) {}
 }
+
 
 

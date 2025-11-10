@@ -41,6 +41,10 @@ public class Facturacion {
     private Long idTarifaNormal;
 
     @Setter
+    @Column(name = "id_tarifa_pausa")
+    private Long idTarifaPausa;
+
+    @Setter
     @Column(name = "id_tarifa_extendida")
     private Long idTarifaExtendida;
 
@@ -50,13 +54,14 @@ public class Facturacion {
     }
 
     public Facturacion(Long idViaje, Long idCuenta, Long tiempoTotal, Long tiempoPausado,
-                       Long idTarifaNormal, Long idTarifaExtendida, Double montoTotal) {
+                       Long idTarifaNormal, Long idTarifaPausa, Long idTarifaExtendida, Double montoTotal) {
         this.idViaje = idViaje;
         this.idCuenta = idCuenta;
         this.fecha = LocalDateTime.now();
         this.tiempoTotal = tiempoTotal;
         this.tiempoPausado = tiempoPausado;
         this.idTarifaNormal = idTarifaNormal;
+        this.idTarifaPausa = idTarifaPausa;
         this.idTarifaExtendida = idTarifaExtendida;
         this.montoTotal = montoTotal;
     }
@@ -65,5 +70,3 @@ public class Facturacion {
         return tiempoTotal - tiempoPausado;
     }
 }
-
-

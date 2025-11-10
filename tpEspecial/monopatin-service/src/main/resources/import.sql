@@ -1,9 +1,11 @@
-INSERT INTO monopatin (id, estado, latitud, longitud, kilometros_totales, tiempo_uso_total) VALUES (1, 'DISPONIBLE', -34.59762, -58.42318, 5.2, 85);
+INSERT INTO monopatin (estado, latitud, longitud, kilometros_totales, tiempo_uso_total, tiempo_pausas) VALUES ('DISPONIBLE', -34.6037, -58.3816, 25.5, 420, 60);
+INSERT INTO monopatin (estado, latitud, longitud, kilometros_totales, tiempo_uso_total, tiempo_pausas) VALUES ('DISPONIBLE', -34.6047, -58.3826, 18.9, 350, 45);
+INSERT INTO monopatin (estado, latitud, longitud, kilometros_totales, tiempo_uso_total, tiempo_pausas) VALUES ('DISPONIBLE', -34.6057, -58.3836, 12.5, 210, 30);
+INSERT INTO monopatin (estado, latitud, longitud, kilometros_totales, tiempo_uso_total, tiempo_pausas) VALUES ('EN_MANTENIMIENTO', -34.6067, -58.3846, 150.7, 2500, 400);
+INSERT INTO monopatin (estado, latitud, longitud, kilometros_totales, tiempo_uso_total, tiempo_pausas) VALUES ('EN_USO', -34.6077, -58.3856, 8.3, 145, 20);
+INSERT INTO monopatin (estado, latitud, longitud, kilometros_totales, tiempo_uso_total, tiempo_pausas) VALUES ('EN_USO', -34.6087, -58.3866, 15.6, 280, 35);
+INSERT INTO monopatin (estado, latitud, longitud, kilometros_totales, tiempo_uso_total, tiempo_pausas) VALUES ('DISPONIBLE', -34.6097, -58.3876, 0.0, 0, 0);
+INSERT INTO monopatin (estado, latitud, longitud, kilometros_totales, tiempo_uso_total, tiempo_pausas) VALUES ('DISPONIBLE', -34.6107, -58.3886, 3.4, 65, 10);
+INSERT INTO monopatin (estado, latitud, longitud, kilometros_totales, tiempo_uso_total, tiempo_pausas) VALUES ('DISPONIBLE', -34.6117, -58.3896, 22.1, 380, 55);
 
-INSERT INTO monopatin (id, estado, latitud, longitud, kilometros_totales, tiempo_uso_total) VALUES (2, 'EN_USO', -34.60333, -58.37956, 12.8, 150);
 
-INSERT INTO monopatin (id, estado, latitud, longitud, kilometros_totales, tiempo_uso_total) VALUES (3, 'DISPONIBLE', -34.60749, -58.39722, 0.5, 10);
-
-INSERT INTO monopatin (id, estado, latitud, longitud, kilometros_totales, tiempo_uso_total) VALUES (4, 'EN_MANTENIMIENTO', -34.58784, -58.41245, 150.7, 900);
-
-INSERT INTO monopatin (id, estado, latitud, longitud, kilometros_totales, tiempo_uso_total) VALUES (5, 'DISPONIBLE', -34.61805, -58.40201, 2.1, 40);

@@ -12,13 +12,11 @@
 
     <modules>
         <module>parada-service</module>
-        <module>eureka-service</module>
         <module>mantenimiento-service</module>
         <module>monopatin-service</module>
         <module>usuario-service</module>
         <module>viaje-service</module>
         <module>facturacion-service</module>
-        <module>admin-service</module>
     </modules>
 
     <properties>
@@ -27,7 +25,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Alinea todas las versiones de Spring Boot -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -36,7 +33,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Alinea todas las versiones de Spring Cloud (Boot 3.5.x => Cloud 2025.0.x) -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>

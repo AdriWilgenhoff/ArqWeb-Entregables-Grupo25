@@ -13,16 +13,12 @@ public class MonopatinDTO {
             EstadoMonopatin estado,
 
             @NotNull(message = "La latitud es obligatoria")
-            @DecimalMin(value = "-90.0", message = "La latitud debe ser mayor o igual a -90")
-            @DecimalMax(value = "90.0", message = "La latitud debe ser menor o igual a 90")
-            @Schema(description = "Latitud de la ubicación del monopatín", example = "-37.3214")
-            Double latitud,
+            @Schema(description = "Latitud de la ubicación del monopatín", example = "100")
+            Integer latitud,
 
             @NotNull(message = "La longitud es obligatoria")
-            @DecimalMin(value = "-180.0", message = "La longitud debe ser mayor o igual a -180")
-            @DecimalMax(value = "180.0", message = "La longitud debe ser menor o igual a 180")
-            @Schema(description = "Longitud de la ubicación del monopatín", example = "-59.1352")
-            Double longitud
+            @Schema(description = "Longitud de la ubicación del monopatín", example = "200")
+            Integer longitud
     ) {}
 
     @Schema(description = "DTO de entrada para actualizar un Monopatín existente", name = "MonopatinUpdate")
@@ -30,15 +26,11 @@ public class MonopatinDTO {
             @Schema(description = "Estado del monopatín", example = "EN_USO")
             EstadoMonopatin estado,
 
-            @DecimalMin(value = "-90.0", message = "La latitud debe ser mayor o igual a -90")
-            @DecimalMax(value = "90.0", message = "La latitud debe ser menor o igual a 90")
-            @Schema(description = "Latitud de la ubicación del monopatín", example = "-37.3214")
-            Double latitud,
+            @Schema(description = "Latitud de la ubicación del monopatín", example = "100")
+            Integer latitud,
 
-            @DecimalMin(value = "-180.0", message = "La longitud debe ser mayor o igual a -180")
-            @DecimalMax(value = "180.0", message = "La longitud debe ser menor o igual a 180")
-            @Schema(description = "Longitud de la ubicación del monopatín", example = "-59.1352")
-            Double longitud,
+            @Schema(description = "Longitud de la ubicación del monopatín", example = "200")
+            Integer longitud,
 
             @PositiveOrZero(message = "Los kilómetros deben ser mayores o iguales a 0")
             @Schema(description = "Kilómetros totales recorridos", example = "125.5")
@@ -46,7 +38,11 @@ public class MonopatinDTO {
 
             @PositiveOrZero(message = "El tiempo de uso debe ser mayor o igual a 0")
             @Schema(description = "Tiempo total de uso en minutos", example = "320")
-            Long tiempoUsoTotal
+            Long tiempoUsoTotal,
+
+            @PositiveOrZero(message = "El tiempo de pausas debe ser mayor o igual a 0")
+            @Schema(description = "Tiempo total en pausas en minutos", example = "45")
+            Long tiempoPausas
     ) {}
 
     @Schema(description = "DTO de respuesta que incluye todas las propiedades del Monopatín", name = "MonopatinResponse")
@@ -57,16 +53,19 @@ public class MonopatinDTO {
             @Schema(description = "Estado del monopatín", example = "DISPONIBLE")
             EstadoMonopatin estado,
 
-            @Schema(description = "Latitud de la ubicación", example = "-37.3214")
-            Double latitud,
+            @Schema(description = "Latitud de la ubicación", example = "100")
+            Integer latitud,
 
-            @Schema(description = "Longitud de la ubicación", example = "-59.1352")
-            Double longitud,
+            @Schema(description = "Longitud de la ubicación", example = "200")
+            Integer longitud,
 
             @Schema(description = "Kilómetros totales recorridos", example = "125.5")
             Double kilometrosTotales,
 
             @Schema(description = "Tiempo total de uso en minutos", example = "320")
-            Long tiempoUsoTotal
+            Long tiempoUsoTotal,
+
+            @Schema(description = "Tiempo total en pausas en minutos", example = "45")
+            Long tiempoPausas
     ) {}
 }

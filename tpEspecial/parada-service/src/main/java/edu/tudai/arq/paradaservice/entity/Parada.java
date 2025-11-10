@@ -25,23 +25,19 @@ public class Parada implements Serializable {
     private String nombre;
 
     @Column(nullable = false)
-    private Double latitud;
+    private Integer latitud;
 
     @Column(nullable = false)
-    private Double longitud;
+    private Integer longitud;
 
     @Column(nullable = false)
     private Integer capacidad;
 
-    @Column(name = "monopatines_disponibles", nullable = false)
-    private Integer monopatinesDisponibles;
-
-    public Parada(String nombre, Double latitud, Double longitud, Integer capacidad) {
+    public Parada(String nombre, Integer latitud, Integer longitud, Integer capacidad) {
         this.nombre = nombre;
         this.latitud = latitud;
         this.longitud = longitud;
         this.capacidad = capacidad;
-        this.monopatinesDisponibles = 0;
     }
 }
 

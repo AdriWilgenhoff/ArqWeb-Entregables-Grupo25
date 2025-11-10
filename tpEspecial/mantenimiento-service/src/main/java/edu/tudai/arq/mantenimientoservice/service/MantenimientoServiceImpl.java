@@ -1,9 +1,11 @@
 package edu.tudai.arq.mantenimientoservice.service;
 
 import edu.tudai.arq.mantenimientoservice.dto.MantenimientoDTO;
+import edu.tudai.arq.mantenimientoservice.dto.ReporteOperacionDTO;
 import edu.tudai.arq.mantenimientoservice.dto.ReporteUsoDTO;
 import edu.tudai.arq.mantenimientoservice.entity.Mantenimiento;
 import edu.tudai.arq.mantenimientoservice.exception.MantenimientoNotFoundException;
+import edu.tudai.arq.mantenimientoservice.exception.ServiceCommunicationException;
 import edu.tudai.arq.mantenimientoservice.feignclient.MonopatinFeignClient;
 import edu.tudai.arq.mantenimientoservice.feignclient.ViajeFeignClient;
 import edu.tudai.arq.mantenimientoservice.mapper.MantenimientoMapper;
@@ -16,7 +18,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,15 +59,28 @@ public class MantenimientoServiceImpl implements MantenimientoService {
     @Override
     @Transactional
     public MantenimientoDTO.Response finalizar(Long id, MantenimientoDTO.Update finishData) {
-        return update(id, finishData);
+        Mantenimiento m = repository.findById(id)
+                .orElseThrow(() -> new MantenimientoNotFoundException("Mantenimiento no encontrado con ID: " + id));
+
+        Long idMonopatin = m.getIdMonopatin();
+
+        MantenimientoDTO.Response response = update(id, finishData);
+
+        monopatinClient.cambiarEstado(idMonopatin, "DISPONIBLE");
+
+        return response;
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new MantenimientoNotFoundException("Mantenimiento no encontrado con ID: " + id);
+        Mantenimiento m = repository.findById(id)
+                .orElseThrow(() -> new MantenimientoNotFoundException("Mantenimiento no encontrado con ID: " + id));
+
+        if (m.getFechaHoraFin() == null) {
+            monopatinClient.cambiarEstado(m.getIdMonopatin(), "DISPONIBLE");
         }
+
         repository.deleteById(id);
     }
 
@@ -102,66 +116,32 @@ public class MantenimientoServiceImpl implements MantenimientoService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    @Transactional
-    public void marcarEnMantenimiento(Long idMonopatin) {
-        try {
-            // Cambiar el estado del monopatín a EN_MANTENIMIENTO en monopatin-service
-            monopatinClient.cambiarEstado(idMonopatin, "EN_MANTENIMIENTO");
-        } catch (Exception e) {
-            throw new RuntimeException("Error al marcar monopatín " + idMonopatin + " como en mantenimiento: " + e.getMessage());
-        }
-    }
-
-    @Override
-    @Transactional
-    public void desmarcarMantenimiento(Long idMonopatin, Long idParadaDestino) {
-        try {
-            // Cambiar el estado del monopatín a DISPONIBLE en monopatin-service
-            monopatinClient.cambiarEstado(idMonopatin, "DISPONIBLE");
-
-            // TODO: Si se especifica idParadaDestino, ubicar el monopatín en esa parada
-            // Esto requiere comunicación con parada-service (futuro)
-            if (idParadaDestino != null) {
-                // Placeholder para futura implementación con parada-service
-                System.out.println("Ubicando monopatín " + idMonopatin + " en parada " + idParadaDestino);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error al desmarcar monopatín " + idMonopatin + " del mantenimiento: " + e.getMessage());
-        }
-    }
+    // ==================== REPORTES ====================
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Long> operativosVsMantenimiento() {
+    public ReporteOperacionDTO operativosVsMantenimiento() {
         try {
-            // Obtener todos los monopatines
             var response = monopatinClient.getAllMonopatines();
             if (response.getBody() == null) {
-                return Map.of(
-                        "en_mantenimiento", 0L,
-                        "en_operacion", 0L
-                );
+                throw new ServiceCommunicationException("No se pudo obtener la lista de monopatines desde monopatin-service");
             }
 
             List<MonopatinFeignClient.MonopatinResponse> monopatines = response.getBody();
 
-            // Contar monopatines en mantenimiento (estado = "EN_MANTENIMIENTO")
-            long enMantenimiento = monopatines.stream()
-                    .filter(m -> "EN_MANTENIMIENTO".equals(m.estado()))
-                    .count();
-
-            // Contar monopatines en operación (estados DISPONIBLE o EN_USO)
             long enOperacion = monopatines.stream()
                     .filter(m -> "DISPONIBLE".equals(m.estado()) || "EN_USO".equals(m.estado()))
                     .count();
 
-            return Map.of(
-                    "en_mantenimiento", enMantenimiento,
-                    "en_operacion", enOperacion
-            );
+            long enMantenimiento = monopatines.stream()
+                    .filter(m -> "EN_MANTENIMIENTO".equals(m.estado()))
+                    .count();
+
+            return new ReporteOperacionDTO(enOperacion, enMantenimiento);
+        } catch (ServiceCommunicationException e) {
+            throw e; // Re-lanzar la excepción personalizada
         } catch (Exception e) {
-            throw new RuntimeException("Error al obtener estadísticas de monopatines: " + e.getMessage());
+            throw new ServiceCommunicationException("Error al comunicarse con monopatin-service: " + e.getMessage(), e);
         }
     }
 
@@ -171,24 +151,20 @@ public class MantenimientoServiceImpl implements MantenimientoService {
         List<ReporteUsoDTO.Response> reportes = new ArrayList<>();
 
         try {
-            // 1. Obtener todos los monopatines
             var monopatinesResponse = monopatinClient.getAllMonopatines();
             if (monopatinesResponse.getBody() == null) {
-                return reportes;
+                throw new ServiceCommunicationException("No se pudo obtener la lista de monopatines desde monopatin-service");
             }
 
             List<MonopatinFeignClient.MonopatinResponse> monopatines = monopatinesResponse.getBody();
 
-            // 2. Para cada monopatín, obtener sus viajes y calcular estadísticas
             for (var monopatin : monopatines) {
                 try {
-                    // Obtener viajes del monopatín
                     var viajesResponse = viajeClient.getViajesPorMonopatin(monopatin.id());
                     List<ViajeFeignClient.ViajeResponse> viajes = viajesResponse.getBody() != null
                             ? viajesResponse.getBody()
                             : new ArrayList<>();
 
-                    // 3. Calcular estadísticas
                     double kmTotales = viajes.stream()
                             .filter(v -> v.kilometrosRecorridos() != null)
                             .mapToDouble(ViajeFeignClient.ViajeResponse::kilometrosRecorridos)
@@ -198,7 +174,6 @@ public class MantenimientoServiceImpl implements MantenimientoService {
                     long tiempoEnPausas = incluirPausas ? calcularTiempoPausas(viajes) : 0L;
                     long tiempoSinPausas = tiempoTotal - tiempoEnPausas;
 
-                    // 4. Crear el reporte
                     ReporteUsoDTO.Response reporte = new ReporteUsoDTO.Response(
                             monopatin.id(),
                             kmTotales,
@@ -212,19 +187,19 @@ public class MantenimientoServiceImpl implements MantenimientoService {
                     reportes.add(reporte);
 
                 } catch (Exception e) {
-                    // Log error pero continuar con los demás monopatines
-                    System.err.println("Error al procesar monopatín " + monopatin.id() + ": " + e.getMessage());
+                      throw new ServiceCommunicationException("Error al procesar monopatín " + monopatin.id() + ": " + e.getMessage(), e);
                 }
             }
 
-            // 5. Ordenar por kilómetros descendente (los que más necesitan mantenimiento primero)
             reportes.sort((r1, r2) -> Double.compare(r2.kilometrosTotales(), r1.kilometrosTotales()));
 
-        } catch (Exception e) {
-            System.err.println("Error al generar reporte de uso: " + e.getMessage());
-        }
+            return reportes;
 
-        return reportes;
+        } catch (ServiceCommunicationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ServiceCommunicationException("Error al generar reporte de uso: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -250,8 +225,6 @@ public class MantenimientoServiceImpl implements MantenimientoService {
      * En una implementación real, se obtendría de una relación con entidad Pausa
      */
     private long calcularTiempoPausas(List<ViajeFeignClient.ViajeResponse> viajes) {
-        // Simplificación: asumimos que el 10% del tiempo total son pausas
-        // En producción, esto debería venir de la entidad Pausa relacionada con el viaje
         long tiempoTotal = calcularTiempoTotalViajes(viajes);
         return (long) (tiempoTotal * 0.10);
     }

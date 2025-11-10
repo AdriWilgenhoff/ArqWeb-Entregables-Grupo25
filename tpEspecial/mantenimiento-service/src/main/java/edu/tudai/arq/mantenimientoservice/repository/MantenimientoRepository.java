@@ -13,6 +13,5 @@ public interface MantenimientoRepository extends JpaRepository<Mantenimiento, Lo
 
     List<Mantenimiento> findByFechaHoraFinIsNotNull();
 
-    List<Mantenimiento> findByIdMonopatin(Long idMonopatin);
 }
 

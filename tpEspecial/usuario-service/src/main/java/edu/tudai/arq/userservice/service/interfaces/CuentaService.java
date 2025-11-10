@@ -1,6 +1,7 @@
 package edu.tudai.arq.userservice.service.interfaces;
 
 import edu.tudai.arq.userservice.dto.CuentaDTO;
+import edu.tudai.arq.userservice.dto.UsuarioDTO;
 import java.util.List;
 
 public interface CuentaService {
@@ -19,7 +20,11 @@ public interface CuentaService {
 
     CuentaDTO.Response cargarSaldo(Long id, CuentaDTO.CargarSaldo in);
 
+    CuentaDTO.Response descontarSaldo(Long id, CuentaDTO.DescontarSaldo in);
+
     void anularCuenta(Long id);
 
     void habilitarCuenta(Long id);
+
+    List<UsuarioDTO.Response> getUsuariosByCuenta(Long idCuenta);
 }

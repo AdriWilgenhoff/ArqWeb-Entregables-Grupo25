@@ -14,25 +14,15 @@ import java.util.Optional;
 @Repository
 public interface TarifaRepository extends JpaRepository<Tarifa, Long> {
 
-    // Buscar tarifas por tipo
-    List<Tarifa> findByTipoTarifa(TipoTarifa tipoTarifa);
+    Optional<Tarifa> findByTipoTarifaAndFechaVigenciaHastaIsNull(TipoTarifa tipoTarifa);
 
-    // Buscar tarifas activas
-    List<Tarifa> findByActiva(Boolean activa);
-
-    // Buscar tarifas activas por tipo
-    List<Tarifa> findByTipoTarifaAndActiva(TipoTarifa tipoTarifa, Boolean activa);
-
-    // Buscar tarifa vigente por tipo y fecha
-    @Query("SELECT t FROM Tarifa t WHERE t.tipoTarifa = :tipo AND t.activa = true " +
+    @Query("SELECT t FROM Tarifa t WHERE t.tipoTarifa = :tipo " +
             "AND t.fechaVigenciaDesde <= :fecha " +
             "AND (t.fechaVigenciaHasta IS NULL OR t.fechaVigenciaHasta >= :fecha)")
     Optional<Tarifa> findTarifaVigente(@Param("tipo") TipoTarifa tipo, @Param("fecha") LocalDate fecha);
 
-    // Buscar tarifas vigentes en una fecha
-    @Query("SELECT t FROM Tarifa t WHERE t.activa = true " +
-            "AND t.fechaVigenciaDesde <= :fecha " +
-            "AND (t.fechaVigenciaHasta IS NULL OR t.fechaVigenciaHasta >= :fecha)")
-    List<Tarifa> findTarifasVigentesEn(@Param("fecha") LocalDate fecha);
-}
 
+    @Query("SELECT t FROM Tarifa t WHERE t.fechaVigenciaDesde <= CURRENT_DATE " +
+            "AND (t.fechaVigenciaHasta IS NULL OR t.fechaVigenciaHasta >= CURRENT_DATE)")
+    List<Tarifa> findTarifasVigentes();
+}

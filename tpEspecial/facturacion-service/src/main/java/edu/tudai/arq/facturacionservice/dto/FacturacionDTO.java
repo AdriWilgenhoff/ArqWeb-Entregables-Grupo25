@@ -5,35 +5,38 @@ import jakarta.validation.constraints.*;
 
 public class FacturacionDTO {
 
-    /** DTO para crear Facturación */
+    /** DTO para crear Facturación - Recibe datos de viaje-service */
     @Schema(description = "DTO de entrada para crear una nueva Facturación", name = "FacturacionCreate")
     public record Create(
             @NotNull(message = "El ID de viaje es obligatorio")
             @Positive(message = "El ID de viaje debe ser positivo")
+            @Schema(description = "ID del viaje facturado", example = "1")
             Long idViaje,
 
             @NotNull(message = "El ID de cuenta es obligatorio")
             @Positive(message = "El ID de cuenta debe ser positivo")
+            @Schema(description = "ID de la cuenta que realizó el viaje", example = "1")
             Long idCuenta,
 
             @NotNull(message = "El tiempo total es obligatorio")
             @PositiveOrZero(message = "El tiempo total no puede ser negativo")
+            @Schema(description = "Tiempo total del viaje en minutos", example = "50")
             Long tiempoTotal,
 
-            @NotNull(message = "El tiempo pausado es obligatorio")
-            @PositiveOrZero(message = "El tiempo pausado no puede ser negativo")
-            Long tiempoPausado,
+            @NotNull(message = "El tiempo sin pausas es obligatorio")
+            @PositiveOrZero(message = "El tiempo sin pausas no puede ser negativo")
+            @Schema(description = "Tiempo sin pausas (activo) en minutos", example = "30")
+            Long tiempoSinPausas,
 
-            @NotNull(message = "El ID de tarifa normal es obligatorio")
-            @Positive(message = "El ID de tarifa normal debe ser positivo")
-            Long idTarifaNormal,
+            @NotNull(message = "El tiempo en pausa normal es obligatorio")
+            @PositiveOrZero(message = "El tiempo en pausa normal no puede ser negativo")
+            @Schema(description = "Tiempo en pausa normal (≤15 min) en minutos", example = "10")
+            Long tiempoPausaNormal,
 
-            @Positive(message = "El ID de tarifa extendida debe ser positivo si se proporciona")
-            Long idTarifaExtendida,
-
-            @NotNull(message = "El monto total es obligatorio")
-            @PositiveOrZero(message = "El monto total no puede ser negativo")
-            Double montoTotal
+            @NotNull(message = "El tiempo en pausa extendida es obligatorio")
+            @PositiveOrZero(message = "El tiempo en pausa extendida no puede ser negativo")
+            @Schema(description = "Tiempo en pausa extendida (>15 min) en minutos", example = "10")
+            Long tiempoPausaExtendida
     ) {}
 
     /** DTO de salida para Facturación */
@@ -66,7 +69,10 @@ public class FacturacionDTO {
             @Schema(description = "ID de la tarifa normal aplicada", example = "1")
             Long idTarifaNormal,
 
-            @Schema(description = "ID de la tarifa extendida aplicada", example = "2")
+            @Schema(description = "ID de la tarifa de pausa aplicada", example = "2")
+            Long idTarifaPausa,
+
+            @Schema(description = "ID de la tarifa extendida aplicada", example = "3")
             Long idTarifaExtendida
     ) {}
 

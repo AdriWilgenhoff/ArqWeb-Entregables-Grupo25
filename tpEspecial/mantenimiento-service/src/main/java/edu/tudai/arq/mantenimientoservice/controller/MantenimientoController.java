@@ -1,6 +1,7 @@
 package edu.tudai.arq.mantenimientoservice.controller;
 
 import edu.tudai.arq.mantenimientoservice.dto.MantenimientoDTO;
+import edu.tudai.arq.mantenimientoservice.dto.ReporteOperacionDTO;
 import edu.tudai.arq.mantenimientoservice.dto.ReporteUsoDTO;
 import edu.tudai.arq.mantenimientoservice.exception.ApiError;
 import edu.tudai.arq.mantenimientoservice.service.interfaces.MantenimientoService;
@@ -17,7 +18,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/mantenimientos")
@@ -31,6 +31,7 @@ public class MantenimientoController {
         this.service = service;
     }
 
+    // TODO: JWT - Requiere rol ADMIN o ENCARGADO_MANTENIMIENTO - Registrar monopatín en mantenimiento
     @PostMapping
     @Operation(summary = "Crear un nuevo registro de mantenimiento")
     @ApiResponse(responseCode = "201", description = "Mantenimiento creado exitosamente",
@@ -54,6 +55,7 @@ public class MantenimientoController {
         return ResponseEntity.ok(service.update(id, in));
     }
 
+    // TODO: JWT - Requiere rol ADMIN o ENCARGADO_MANTENIMIENTO - Registrar fin de mantenimiento
     @PutMapping("/{id}/finalizar")
     @Operation(summary = "Finalizar un mantenimiento (registrar fecha de fin)")
     @ApiResponse(responseCode = "200", description = "Mantenimiento finalizado exitosamente",
@@ -87,6 +89,7 @@ public class MantenimientoController {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    // TODO: JWT - Requiere rol ADMIN o ENCARGADO_MANTENIMIENTO
     @GetMapping
     @Operation(summary = "Listar todos los mantenimientos")
     @ApiResponse(responseCode = "200", description = "Lista de mantenimientos")
@@ -94,6 +97,7 @@ public class MantenimientoController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    // TODO: JWT - Requiere rol ADMIN o ENCARGADO_MANTENIMIENTO
     @GetMapping("/activos")
     @Operation(summary = "Listar mantenimientos activos (sin fecha de finalización)")
     @ApiResponse(responseCode = "200", description = "Lista de mantenimientos activos")
@@ -108,31 +112,17 @@ public class MantenimientoController {
         return ResponseEntity.ok(service.findFinalizados());
     }
 
-    @PutMapping("/monopatin/{idMonopatin}/marcar")
-    @Operation(summary = "Marcar un monopatín como en mantenimiento (no disponible)")
-    @ApiResponse(responseCode = "200", description = "Monopatín marcado como en mantenimiento")
-    public ResponseEntity<Void> marcarEnMantenimiento(@PathVariable Long idMonopatin) {
-        service.marcarEnMantenimiento(idMonopatin);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/monopatin/{idMonopatin}/desmarcar")
-    @Operation(summary = "Desmarcar un monopatín (habilitarlo para uso)")
-    @ApiResponse(responseCode = "200", description = "Monopatín desmarcado y habilitado")
-    public ResponseEntity<Void> desmarcarMantenimiento(
-            @PathVariable Long idMonopatin,
-            @RequestParam(required = false) Long idParadaDestino) {
-        service.desmarcarMantenimiento(idMonopatin, idParadaDestino);
-        return ResponseEntity.ok().build();
-    }
+    // ==================== REPORTES ====================
 
     @GetMapping("/estadisticas/operativos-vs-mantenimiento")
-    @Operation(summary = "Obtener cantidad de monopatines en operación vs en mantenimiento")
-    @ApiResponse(responseCode = "200", description = "Estadísticas de monopatines")
-    public ResponseEntity<Map<String, Long>> operativosVsMantenimiento() {
+    @Operation(summary = "Obtener cantidad de monopatines en operación vs en mantenimiento (Requerimiento e)")
+    @ApiResponse(responseCode = "200", description = "Estadísticas de monopatines",
+            content = @Content(schema = @Schema(implementation = ReporteOperacionDTO.class)))
+    public ResponseEntity<ReporteOperacionDTO> operativosVsMantenimiento() {
         return ResponseEntity.ok(service.operativosVsMantenimiento());
     }
 
+    // TODO: JWT - Requiere rol ADMIN o ENCARGADO_MANTENIMIENTO - Requerimiento a)
     @GetMapping("/reporte-uso")
     @Operation(
             summary = "Generar reporte de uso de monopatines por kilómetros (Requerimiento a)",

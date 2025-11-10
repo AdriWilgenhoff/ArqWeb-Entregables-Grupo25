@@ -28,6 +28,7 @@ public class ParadaController {
         this.service = service;
     }
 
+    // TODO: Requiere rol ADMIN - Registrar parada
     @PostMapping
     @Operation(summary = "Crear una nueva parada")
     @ApiResponse(responseCode = "201", description = "Parada creada exitosamente",
@@ -39,6 +40,7 @@ public class ParadaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(out);
     }
 
+    // TODO: Requiere rol ADMIN
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar una parada existente")
     @ApiResponse(responseCode = "200", description = "Parada actualizada exitosamente",
@@ -51,6 +53,7 @@ public class ParadaController {
         return ResponseEntity.ok(service.update(id, in));
     }
 
+    // TODO: Requiere rol ADMIN - Quitar parada
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar una parada")
     @ApiResponse(responseCode = "204", description = "Parada eliminada exitosamente")
@@ -78,48 +81,16 @@ public class ParadaController {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/con-espacio")
-    @Operation(summary = "Listar paradas con espacio disponible")
-    @ApiResponse(responseCode = "200", description = "Lista de paradas con espacio disponible")
-    public ResponseEntity<List<ParadaDTO.Response>> findParadasConEspacio() {
-        return ResponseEntity.ok(service.findParadasConEspacio());
-    }
-
     @GetMapping("/cercanas")
-    @Operation(summary = "Buscar paradas cercanas a una ubicación")
+    @Operation(summary = "Buscar paradas cercanas a una ubicación",
+            description = "Busca paradas por igualdad exacta de coordenadas")
     @ApiResponse(responseCode = "200", description = "Lista de paradas cercanas")
     public ResponseEntity<List<ParadaDTO.Response>> findParadasCercanas(
-            @RequestParam Double latitud,
-            @RequestParam Double longitud,
+            @RequestParam Integer latitud,
+            @RequestParam Integer longitud,
             @RequestParam(required = false, defaultValue = "1.0") Double radioKm) {
         return ResponseEntity.ok(service.findParadasCercanas(latitud, longitud, radioKm));
     }
 
-    @PutMapping("/{id}/incrementar-monopatines")
-    @Operation(summary = "Incrementar contador de monopatines en la parada (cuando llega un monopatín)")
-    @ApiResponse(responseCode = "200", description = "Contador incrementado")
-    @ApiResponse(responseCode = "409", description = "La parada está llena",
-            content = @Content(schema = @Schema(implementation = ApiError.class)))
-    public ResponseEntity<Void> incrementarMonopatines(@PathVariable Long id) {
-        service.incrementarMonopatines(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{id}/decrementar-monopatines")
-    @Operation(summary = "Decrementar contador de monopatines en la parada (cuando sale un monopatín)")
-    @ApiResponse(responseCode = "200", description = "Contador decrementado")
-    @ApiResponse(responseCode = "409", description = "No hay monopatines disponibles",
-            content = @Content(schema = @Schema(implementation = ApiError.class)))
-    public ResponseEntity<Void> decrementarMonopatines(@PathVariable Long id) {
-        service.decrementarMonopatines(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{id}/tiene-espacio")
-    @Operation(summary = "Verificar si una parada tiene espacio disponible")
-    @ApiResponse(responseCode = "200", description = "Resultado de la verificación")
-    public ResponseEntity<Boolean> verificarEspacioDisponible(@PathVariable Long id) {
-        return ResponseEntity.ok(service.verificarEspacioDisponible(id));
-    }
 }
 

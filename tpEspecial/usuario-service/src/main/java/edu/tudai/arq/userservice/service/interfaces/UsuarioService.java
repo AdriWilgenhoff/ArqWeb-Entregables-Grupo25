@@ -1,6 +1,7 @@
 package edu.tudai.arq.userservice.service.interfaces;
 
 import edu.tudai.arq.userservice.dto.UsuarioDTO;
+import edu.tudai.arq.userservice.dto.CuentaDTO;
 import java.util.List;
 
 public interface UsuarioService {
@@ -20,4 +21,6 @@ public interface UsuarioService {
     void asociarCuenta(Long idUsuario, Long idCuenta);
 
     void desasociarCuenta(Long idUsuario, Long idCuenta);
+
+    List<CuentaDTO.Response> getCuentasByUsuario(Long idUsuario);
 }

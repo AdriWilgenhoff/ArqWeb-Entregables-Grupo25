@@ -12,20 +12,17 @@ public interface ParadaFeignClient {
 
     @GetMapping("/api/v1/paradas/cercanas")
     ResponseEntity<List<ParadaResponse>> findParadasCercanas(
-            @RequestParam Double latitud,
-            @RequestParam Double longitud,
+            @RequestParam Integer latitud,
+            @RequestParam Integer longitud,
             @RequestParam(required = false, defaultValue = "0.05") Double radioKm
     );
 
     record ParadaResponse(
             Long id,
             String nombre,
-            Double latitud,
-            Double longitud,
-            Integer capacidad,
-            Integer monopatinesDisponibles,
-            Double porcentajeOcupacion,
-            Boolean tieneEspacio
+            Integer latitud,
+            Integer longitud,
+            Integer capacidad
     ) {}
 }
 

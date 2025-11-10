@@ -86,6 +86,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
 
+    @ExceptionHandler(ServiceCommunicationException.class)
+    public ResponseEntity<ApiError> handleServiceCommunicationException(
+            ServiceCommunicationException ex, HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Service Communication Error",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(apiError);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(
             Exception ex, HttpServletRequest request) {

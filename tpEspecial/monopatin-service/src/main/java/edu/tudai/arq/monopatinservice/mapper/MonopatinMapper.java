@@ -22,7 +22,8 @@ public class MonopatinMapper {
                 entity.getLatitud(),
                 entity.getLongitud(),
                 entity.getKilometrosTotales(),
-                entity.getTiempoUsoTotal()
+                entity.getTiempoUsoTotal(),
+                entity.getTiempoPausas()
         );
     }
 
@@ -41,6 +42,9 @@ public class MonopatinMapper {
         }
         if (dto.tiempoUsoTotal() != null) {
             entity.setTiempoUsoTotal(dto.tiempoUsoTotal());
+        }
+        if (dto.tiempoPausas() != null) {
+            entity.setTiempoPausas(dto.tiempoPausas());
         }
     }
 }

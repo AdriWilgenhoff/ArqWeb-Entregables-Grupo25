@@ -19,18 +19,20 @@ public interface MonopatinFeignClient {
     record MonopatinResponse(
             Long id,
             String estado,
-            Double latitud,
-            Double longitud,
+            Integer latitud,
+            Integer longitud,
             Double kilometrosTotales,
-            Long tiempoUsoTotal
+            Long tiempoUsoTotal,
+            Long tiempoPausas
     ) {}
 
     record MonopatinUpdate(
             String estado,
-            Double latitud,
-            Double longitud,
+            Integer latitud,
+            Integer longitud,
             Double kilometrosTotales,
-            Long tiempoUsoTotal
+            Long tiempoUsoTotal,
+            Long tiempoPausas
     ) {}
 }
 

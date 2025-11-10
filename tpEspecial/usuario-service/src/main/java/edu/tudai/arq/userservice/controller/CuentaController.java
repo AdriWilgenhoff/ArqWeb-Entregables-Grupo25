@@ -1,6 +1,7 @@
 package edu.tudai.arq.userservice.controller;
 
 import edu.tudai.arq.userservice.dto.CuentaDTO;
+import edu.tudai.arq.userservice.dto.UsuarioDTO;
 import edu.tudai.arq.userservice.exception.ApiError;
 import edu.tudai.arq.userservice.service.interfaces.CuentaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -88,6 +89,17 @@ public class CuentaController {
         return ResponseEntity.ok(service.findByNumeroIdentificatorio(numeroIdentificatorio));
     }
 
+    @GetMapping("/{idCuenta}/usuarios")
+    @Operation(summary = "Obtener todos los usuarios de una cuenta",
+            description = "Retorna la lista de usuarios asociados a una cuenta específica")
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios de la cuenta",
+            content = @Content(schema = @Schema(implementation = UsuarioDTO.Response.class)))
+    @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public ResponseEntity<List<UsuarioDTO.Response>> getUsuariosByCuenta(@PathVariable Long idCuenta) {
+        return ResponseEntity.ok(service.getUsuariosByCuenta(idCuenta));
+    }
+
     @PostMapping("/{id}/cargar-saldo")
     @Operation(summary = "Cargar saldo en una cuenta",
             description = "Agrega el monto especificado al saldo actual de la cuenta")
@@ -102,8 +114,24 @@ public class CuentaController {
         return ResponseEntity.ok(service.cargarSaldo(id, in));
     }
 
+    // TODO: JWT - Requiere autenticación del sistema (Feign interno)
+    @PostMapping("/{id}/descontar-saldo")
+    @Operation(summary = "Descontar saldo de una cuenta",
+            description = "Descuenta el monto especificado del saldo actual. Usado internamente por viaje-service al finalizar viajes.")
+    @ApiResponse(responseCode = "200", description = "Saldo descontado exitosamente",
+            content = @Content(schema = @Schema(implementation = CuentaDTO.Response.class)))
+    @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "400", description = "Saldo insuficiente o monto inválido",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public ResponseEntity<CuentaDTO.Response> descontarSaldo(@PathVariable Long id,
+                                                             @Valid @RequestBody CuentaDTO.DescontarSaldo in) {
+        return ResponseEntity.ok(service.descontarSaldo(id, in));
+    }
+
+    // TODO: JWT - Requiere rol ADMIN - Requerimiento b)
     @PutMapping("/{id}/anular")
-    @Operation(summary = "Anular una cuenta",
+    @Operation(summary = "Deshabilitar una cuenta",
             description = "Deshabilita la cuenta para su uso momentáneo (requerimiento del administrador)")
     @ApiResponse(responseCode = "204", description = "Cuenta anulada exitosamente")
     @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
@@ -113,6 +141,7 @@ public class CuentaController {
         service.anularCuenta(id);
     }
 
+    // TODO: JWT - Requiere rol ADMIN
     @PutMapping("/{id}/habilitar")
     @Operation(summary = "Habilitar una cuenta previamente anulada",
             description = "Rehabilita una cuenta que fue anulada anteriormente")

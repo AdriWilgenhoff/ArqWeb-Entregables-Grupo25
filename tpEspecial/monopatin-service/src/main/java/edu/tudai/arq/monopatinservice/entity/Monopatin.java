@@ -22,11 +22,11 @@ public class Monopatin {
 
     @Setter
     @Column(nullable = false)
-    private Double latitud;
+    private Integer latitud;
 
     @Setter
     @Column(nullable = false)
-    private Double longitud;
+    private Integer longitud;
 
     @Setter
     @Column(name = "kilometros_totales", nullable = false)
@@ -34,34 +34,37 @@ public class Monopatin {
 
     @Setter
     @Column(name = "tiempo_uso_total", nullable = false)
-    private Long tiempoUsoTotal; // en minutos
+    private Long tiempoUsoTotal;
 
-    // CONSTRUCTORES
+    @Setter
+    @Column(name = "tiempo_pausas", nullable = false)
+    private Long tiempoPausas;
 
     public Monopatin() {
         this.kilometrosTotales = 0.0;
         this.tiempoUsoTotal = 0L;
+        this.tiempoPausas = 0L;
     }
 
-    public Monopatin(EstadoMonopatin estado, Double latitud, Double longitud) {
+    public Monopatin(EstadoMonopatin estado, Integer latitud, Integer longitud) {
         this.estado = estado;
         this.latitud = latitud;
         this.longitud = longitud;
         this.kilometrosTotales = 0.0;
         this.tiempoUsoTotal = 0L;
+        this.tiempoPausas = 0L;
     }
 
-
-    public Monopatin(Long id, EstadoMonopatin estado, double latitud, double longitud, double kilometrosTotales, long tiempoUsoTotal) {
+    public Monopatin(Long id, EstadoMonopatin estado, Integer latitud, Integer longitud, double kilometrosTotales, long tiempoUsoTotal, long tiempoPausas) {
         this.id = id;
         this.estado = estado;
         this.latitud = latitud;
         this.longitud = longitud;
         this.kilometrosTotales = kilometrosTotales;
         this.tiempoUsoTotal = tiempoUsoTotal;
+        this.tiempoPausas = tiempoPausas;
     }
 
-     // Devuelve true si el monopatín se encuentra 'EN_USO'.
     public boolean estaEnUso() {
         return this.estado.equals(EstadoMonopatin.EN_USO);
     }

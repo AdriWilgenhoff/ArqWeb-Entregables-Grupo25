@@ -7,15 +7,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class FacturacionMapper {
 
-    public Facturacion toEntity(FacturacionDTO.Create in) {
+    public Facturacion toEntity(Long idViaje, Long idCuenta, Long tiempoTotal, Long tiempoPausado,
+                                Long idTarifaNormal, Long idTarifaPausa, Long idTarifaExtendida, Double montoTotal) {
         return new Facturacion(
-                in.idViaje(),
-                in.idCuenta(),
-                in.tiempoTotal(),
-                in.tiempoPausado(),
-                in.idTarifaNormal(),
-                in.idTarifaExtendida(),
-                in.montoTotal()
+                idViaje,
+                idCuenta,
+                tiempoTotal,
+                tiempoPausado,
+                idTarifaNormal,
+                idTarifaPausa,
+                idTarifaExtendida,
+                montoTotal
         );
     }
 
@@ -30,6 +32,7 @@ public class FacturacionMapper {
                 f.getTiempoPausado(),
                 f.getTiempoSinPausas(),
                 f.getIdTarifaNormal(),
+                f.getIdTarifaPausa(),
                 f.getIdTarifaExtendida()
         );
     }

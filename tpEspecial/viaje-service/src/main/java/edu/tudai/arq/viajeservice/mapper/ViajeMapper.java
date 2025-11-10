@@ -29,7 +29,13 @@ public class ViajeMapper {
                 v.getKilometrosRecorridos(),
                 v.getEstado().name(),
                 v.getCostoTotal(),
-                v.getPausas().size()
+
+                v.getPausas().size(),
+                v.calcularTiempoTotal(),
+                v.calcularTiempoPausado(),
+                v.calcularTiempoPausaExtendida(),
+                v.calcularTiempoPausaNormal(),
+                v.calcularTiempoSinPausas()
         );
     }
 

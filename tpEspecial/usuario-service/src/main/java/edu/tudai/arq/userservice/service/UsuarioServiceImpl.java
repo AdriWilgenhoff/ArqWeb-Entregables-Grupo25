@@ -1,10 +1,12 @@
 package edu.tudai.arq.userservice.service;
 
+import edu.tudai.arq.userservice.dto.CuentaDTO;
 import edu.tudai.arq.userservice.dto.UsuarioDTO;
 import edu.tudai.arq.userservice.entity.Cuenta;
 import edu.tudai.arq.userservice.entity.Usuario;
 import edu.tudai.arq.userservice.exception.UsuarioNotFoundException;
 import edu.tudai.arq.userservice.exception.CuentaNotFoundException;
+import edu.tudai.arq.userservice.mapper.CuentaMapper;
 import edu.tudai.arq.userservice.mapper.UsuarioMapper;
 import edu.tudai.arq.userservice.repository.CuentaRepository;
 import edu.tudai.arq.userservice.repository.UsuarioRepository;
@@ -21,11 +23,14 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepo;
     private final CuentaRepository cuentaRepo;
     private final UsuarioMapper mapper;
+    private final CuentaMapper cuentaMapper;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepo, CuentaRepository cuentaRepo, UsuarioMapper mapper) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepo, CuentaRepository cuentaRepo,
+                             UsuarioMapper mapper, CuentaMapper cuentaMapper) {
         this.usuarioRepo = usuarioRepo;
         this.cuentaRepo = cuentaRepo;
         this.mapper = mapper;
+        this.cuentaMapper = cuentaMapper;
     }
 
     @Override
@@ -108,5 +113,16 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         u.removeCuenta(c);
         usuarioRepo.save(u);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CuentaDTO.Response> getCuentasByUsuario(Long idUsuario) {
+        Usuario u = usuarioRepo.findById(idUsuario)
+                .orElseThrow(() -> new UsuarioNotFoundException("Usuario no encontrado con ID: " + idUsuario));
+
+        return u.getCuentas().stream()
+                .map(cuentaMapper::toResponse)
+                .collect(Collectors.toList());
     }
 }

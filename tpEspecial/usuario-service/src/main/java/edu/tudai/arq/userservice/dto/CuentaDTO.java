@@ -35,6 +35,16 @@ public class CuentaDTO {
     public record CargarSaldo(
             @NotNull(message = "El monto es obligatorio")
             @Positive(message = "El monto debe ser positivo")
+            @Schema(description = "Monto a cargar", example = "500.00")
+            Double monto
+    ) {}
+
+    /** DTO para descontar saldo */
+    @Schema(description = "DTO para descontar saldo de una Cuenta", name = "CuentaDescontarSaldo")
+    public record DescontarSaldo(
+            @NotNull(message = "El monto es obligatorio")
+            @Positive(message = "El monto debe ser positivo")
+            @Schema(description = "Monto a descontar", example = "150.00")
             Double monto
     ) {}
 

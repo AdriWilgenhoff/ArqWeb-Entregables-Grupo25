@@ -16,14 +16,7 @@ public interface ParadaService {
 
     List<ParadaDTO.Response> findAll();
 
-    List<ParadaDTO.Response> findParadasConEspacio();
+    List<ParadaDTO.Response> findParadasCercanas(Integer latitud, Integer longitud, Double radioKm);
 
-    List<ParadaDTO.Response> findParadasCercanas(Double latitud, Double longitud, Double radioKm);
-
-    void incrementarMonopatines(Long id);
-
-    void decrementarMonopatines(Long id);
-
-    boolean verificarEspacioDisponible(Long id);
 }
 

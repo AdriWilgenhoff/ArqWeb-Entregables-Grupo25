@@ -19,14 +19,12 @@ public class TarifaMapper {
     }
 
     public void update(Tarifa t, TarifaDTO.Update in) {
-        t.setPrecioPorMinuto(in.precioPorMinuto());
+        if (in.precioPorMinuto() != null) {
+            t.setPrecioPorMinuto(in.precioPorMinuto());
+        }
 
         if (in.fechaVigenciaHasta() != null && !in.fechaVigenciaHasta().isBlank()) {
             t.setFechaVigenciaHasta(LocalDate.parse(in.fechaVigenciaHasta()));
-        }
-
-        if (in.activa() != null) {
-            t.setActiva(in.activa());
         }
     }
 
@@ -36,9 +34,7 @@ public class TarifaMapper {
                 t.getTipoTarifa().name(),
                 t.getPrecioPorMinuto(),
                 t.getFechaVigenciaDesde().toString(),
-                t.getFechaVigenciaHasta() != null ? t.getFechaVigenciaHasta().toString() : null,
-                t.getActiva()
+                t.getFechaVigenciaHasta() != null ? t.getFechaVigenciaHasta().toString() : null
         );
     }
 }
-

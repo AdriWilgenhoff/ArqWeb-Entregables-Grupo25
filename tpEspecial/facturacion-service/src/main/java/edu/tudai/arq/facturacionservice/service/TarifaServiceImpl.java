@@ -3,6 +3,7 @@ package edu.tudai.arq.facturacionservice.service;
 import edu.tudai.arq.facturacionservice.dto.TarifaDTO;
 import edu.tudai.arq.facturacionservice.entity.Tarifa;
 import edu.tudai.arq.facturacionservice.entity.TipoTarifa;
+import edu.tudai.arq.facturacionservice.exception.TarifaDuplicadaException;
 import edu.tudai.arq.facturacionservice.exception.TarifaNotFoundException;
 import edu.tudai.arq.facturacionservice.mapper.TarifaMapper;
 import edu.tudai.arq.facturacionservice.repository.TarifaRepository;
@@ -10,8 +11,8 @@ import edu.tudai.arq.facturacionservice.service.interfaces.TarifaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +29,23 @@ public class TarifaServiceImpl implements TarifaService {
     @Override
     @Transactional
     public TarifaDTO.Response create(TarifaDTO.Create in) {
+        TipoTarifa tipoTarifa = TipoTarifa.valueOf(in.tipoTarifa());
+        Optional<Tarifa> tarifaExistente = tarifaRepo.findByTipoTarifaAndFechaVigenciaHastaIsNull(tipoTarifa);
+
+        if (tarifaExistente.isPresent()) {
+            Tarifa existente = tarifaExistente.get();
+            throw new TarifaDuplicadaException(
+                String.format(
+                    "No se puede crear una nueva tarifa de tipo %s. Ya existe una tarifa (ID: %d) " +
+                    "vigente desde %s sin fecha de finalización. Debe editar la tarifa existente " +
+                    "estableciendo una fecha de fin de vigencia antes de crear una nueva.",
+                    tipoTarifa,
+                    existente.getId(),
+                    existente.getFechaVigenciaDesde()
+                )
+            );
+        }
+
         Tarifa tarifa = mapper.toEntity(in);
         tarifa = tarifaRepo.save(tarifa);
         return mapper.toResponse(tarifa);
@@ -71,47 +89,9 @@ public class TarifaServiceImpl implements TarifaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TarifaDTO.Response> findByTipo(String tipoTarifa) {
-        TipoTarifa tipo = TipoTarifa.valueOf(tipoTarifa);
-        return tarifaRepo.findByTipoTarifa(tipo).stream()
-                .map(mapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<TarifaDTO.Response> findActivas() {
-        return tarifaRepo.findByActiva(true).stream()
+        return tarifaRepo.findTarifasVigentes().stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public TarifaDTO.Response findTarifaVigente(String tipoTarifa, LocalDate fecha) {
-        TipoTarifa tipo = TipoTarifa.valueOf(tipoTarifa);
-        Tarifa tarifa = tarifaRepo.findTarifaVigente(tipo, fecha)
-                .orElseThrow(() -> new TarifaNotFoundException(
-                        "No hay tarifa vigente de tipo " + tipoTarifa + " para la fecha " + fecha));
-        return mapper.toResponse(tarifa);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<TarifaDTO.Response> findTarifasVigentesEn(LocalDate fecha) {
-        return tarifaRepo.findTarifasVigentesEn(fecha).stream()
-                .map(mapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void desactivarTarifa(Long id, LocalDate fechaFin) {
-        Tarifa tarifa = tarifaRepo.findById(id)
-                .orElseThrow(() -> new TarifaNotFoundException("Tarifa no encontrada con ID: " + id));
-
-        tarifa.desactivar(fechaFin);
-        tarifaRepo.save(tarifa);
     }
 }
-

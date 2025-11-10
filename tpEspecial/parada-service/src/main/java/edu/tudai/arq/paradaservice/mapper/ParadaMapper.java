@@ -33,9 +33,6 @@ public class ParadaMapper {
         if (in.capacidad() != null) {
             p.setCapacidad(in.capacidad());
         }
-        if (in.monopatinesDisponibles() != null) {
-            p.setMonopatinesDisponibles(in.monopatinesDisponibles());
-        }
     }
 
     public ParadaDTO.Response toResponse(Parada p) {
@@ -44,8 +41,7 @@ public class ParadaMapper {
                 p.getNombre(),
                 p.getLatitud(),
                 p.getLongitud(),
-                p.getCapacidad(),
-                p.getMonopatinesDisponibles()
+                p.getCapacidad()
         );
     }
 }
