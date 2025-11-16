@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>gateway-service</module>
         <module>parada-service</module>
         <module>mantenimiento-service</module>
         <module>monopatin-service</module>
