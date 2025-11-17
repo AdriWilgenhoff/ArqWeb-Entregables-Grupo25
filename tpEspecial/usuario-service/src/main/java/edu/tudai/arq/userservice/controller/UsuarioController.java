@@ -30,7 +30,10 @@ public class UsuarioController {
     }
 
     @PostMapping
-    @Operation(summary = "Crear un nuevo usuario")
+    @Operation(
+            summary = "Crear un nuevo usuario (Uso administrativo)",
+            description = "Crea un usuario con rol específico. Para registro de usuarios finales use /api/v1/auth/register"
+    )
     @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente",
             content = @Content(schema = @Schema(implementation = UsuarioDTO.Response.class)))
     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos (ej: email duplicado)",

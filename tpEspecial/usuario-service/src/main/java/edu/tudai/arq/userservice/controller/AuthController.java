@@ -23,6 +23,30 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @PostMapping("/register")
+    @Operation(
+            summary = "Registrar nuevo usuario",
+            description = "Crea un nuevo usuario en el sistema y genera un token JWT automáticamente"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Registro exitoso - Token JWT generado",
+            content = @Content(schema = @Schema(implementation = AuthDTO.LoginResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "Email ya registrado",
+            content = @Content(schema = @Schema(implementation = ApiError.class))
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Datos de entrada inválidos",
+            content = @Content(schema = @Schema(implementation = ApiError.class))
+    )
+    public ResponseEntity<AuthDTO.LoginResponse> register(@Valid @RequestBody AuthDTO.RegisterRequest request) {
+        return ResponseEntity.ok(authService.register(request));
+    }
+
     @PostMapping("/login")
     @Operation(
             summary = "Iniciar sesión",
