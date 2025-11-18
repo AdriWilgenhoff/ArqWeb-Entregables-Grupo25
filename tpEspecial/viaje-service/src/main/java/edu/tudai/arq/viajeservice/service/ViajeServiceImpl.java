@@ -7,7 +7,6 @@ import edu.tudai.arq.viajeservice.entity.EstadoViaje;
 import edu.tudai.arq.viajeservice.entity.Pausa;
 import edu.tudai.arq.viajeservice.entity.Viaje;
 import edu.tudai.arq.viajeservice.exception.PausaNotFoundException;
-import edu.tudai.arq.viajeservice.exception.ServiceCommunicationException;
 import edu.tudai.arq.viajeservice.exception.ViajeInvalidoException;
 import edu.tudai.arq.viajeservice.exception.ViajeNotFoundException;
 import edu.tudai.arq.viajeservice.feignclient.CuentaFeignClient;
