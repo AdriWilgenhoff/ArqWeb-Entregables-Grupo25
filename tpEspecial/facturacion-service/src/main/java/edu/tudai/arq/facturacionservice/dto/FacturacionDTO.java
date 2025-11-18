@@ -36,7 +36,11 @@ public class FacturacionDTO {
             @NotNull(message = "El tiempo en pausa extendida es obligatorio")
             @PositiveOrZero(message = "El tiempo en pausa extendida no puede ser negativo")
             @Schema(description = "Tiempo en pausa extendida (>15 min) en minutos", example = "10")
-            Long tiempoPausaExtendida
+            Long tiempoPausaExtendida,
+
+            @PositiveOrZero(message = "Los kilómetros recorridos no pueden ser negativos")
+            @Schema(description = "Kilómetros recorridos en el viaje (para descuentos premium)", example = "5.5")
+            Double kilometrosRecorridos
     ) {}
 
     /** DTO de salida para Facturación */

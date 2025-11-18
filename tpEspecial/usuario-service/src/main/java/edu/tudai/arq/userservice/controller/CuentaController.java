@@ -152,4 +152,54 @@ public class CuentaController {
     public void habilitarCuenta(@PathVariable Long id) {
         service.habilitarCuenta(id);
     }
+
+    // ==================== ENDPOINTS PREMIUM ====================
+
+    @PostMapping("/{id}/upgrade-premium")
+    @Operation(
+            summary = "Convertir cuenta a PREMIUM",
+            description = "Actualiza una cuenta BASICA a PREMIUM. Descuenta $500 del saldo. " +
+                    "Las cuentas premium obtienen 100km gratis por mes, y luego 50% de descuento en viajes."
+    )
+    @ApiResponse(responseCode = "200", description = "Cuenta actualizada a premium exitosamente",
+            content = @Content(schema = @Schema(implementation = CuentaDTO.Response.class)))
+    @ApiResponse(responseCode = "400", description = "Saldo insuficiente o cuenta ya es premium",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public ResponseEntity<CuentaDTO.Response> upgradeToPremium(@PathVariable Long id) {
+        return ResponseEntity.ok(service.upgradeToPremium(id));
+    }
+
+    @PostMapping("/{id}/renovar-cupo")
+    @Operation(
+            summary = "Renovar cupo mensual de cuenta PREMIUM",
+            description = "Resetea el contador de kilómetros del mes y cobra el pago mensual de $500. " +
+                    "Esto se hace automáticamente cada mes, pero puede hacerse manualmente."
+    )
+    @ApiResponse(responseCode = "204", description = "Cupo renovado exitosamente")
+    @ApiResponse(responseCode = "400", description = "Saldo insuficiente o cuenta no es premium",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void renovarCupo(@PathVariable Long id) {
+        service.renovarCupo(id);
+    }
+
+    @PostMapping("/{id}/usar-kilometros-gratis")
+    @Operation(
+            summary = "Usar kilómetros gratis de cuenta PREMIUM",
+            description = "Descuenta kilómetros del cupo mensual gratis. Devuelve cuántos km se usaron efectivamente. " +
+                    "Si la cuenta no es premium o no tiene km disponibles, devuelve 0."
+    )
+    @ApiResponse(responseCode = "200", description = "Kilómetros usados exitosamente",
+            content = @Content(schema = @Schema(implementation = Double.class)))
+    @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public ResponseEntity<Double> usarKilometrosGratis(
+            @PathVariable Long id,
+            @RequestParam Double kilometros) {
+        return ResponseEntity.ok(service.usarKilometrosGratis(id, kilometros));
+    }
 }

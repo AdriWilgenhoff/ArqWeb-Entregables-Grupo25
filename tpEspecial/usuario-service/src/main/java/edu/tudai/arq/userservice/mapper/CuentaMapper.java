@@ -2,6 +2,7 @@ package edu.tudai.arq.userservice.mapper;
 
 import edu.tudai.arq.userservice.dto.CuentaDTO;
 import edu.tudai.arq.userservice.entity.Cuenta;
+import edu.tudai.arq.userservice.entity.TipoCuenta;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,6 +20,15 @@ public class CuentaMapper {
 
         if (in.saldoInicial() != null && in.saldoInicial() > 0) {
             c.setSaldo(in.saldoInicial());
+        }
+
+        // Configurar tipo de cuenta
+        if (in.tipoCuenta() != null && !in.tipoCuenta().isBlank()) {
+            try {
+                c.setTipoCuenta(TipoCuenta.valueOf(in.tipoCuenta().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                c.setTipoCuenta(TipoCuenta.BASICA);
+            }
         }
 
         return c;
@@ -39,7 +49,11 @@ public class CuentaMapper {
                 c.getFechaAlta().toString(),
                 c.getSaldo(),
                 c.getHabilitada(),
-                c.getIdCuentaMercadoPago()
+                c.getIdCuentaMercadoPago(),
+                c.getTipoCuenta().name(),
+                c.getKilometrosDisponiblesParaMostrar(),
+                c.getFechaUltimoPagoPremium() != null ? c.getFechaUltimoPagoPremium().toString() : null,
+                c.necesitaRenovacion()
         );
     }
 }

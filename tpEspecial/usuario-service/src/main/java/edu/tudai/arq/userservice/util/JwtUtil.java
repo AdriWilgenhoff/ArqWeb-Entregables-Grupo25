@@ -14,10 +14,10 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:MiClaveSecretaSuperSeguraParaJWTQueDebeSerMuyLargaYCompleja123456789}")
+    @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration:3600000}") // 1 hora por defecto
+    @Value("${jwt.expiration}") // 1 hora configurado en properties
     private Long expiration;
 
     private SecretKey getSigningKey() {

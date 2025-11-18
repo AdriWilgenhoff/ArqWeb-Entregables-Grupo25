@@ -1,6 +1,7 @@
 package edu.tudai.arq.viajeservice.service;
 
 import edu.tudai.arq.viajeservice.dto.PausaDTO;
+import edu.tudai.arq.viajeservice.dto.ReporteUsuarioDTO;
 import edu.tudai.arq.viajeservice.dto.ViajeDTO;
 import edu.tudai.arq.viajeservice.entity.EstadoViaje;
 import edu.tudai.arq.viajeservice.entity.Pausa;
@@ -24,7 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -181,7 +185,8 @@ public class ViajeServiceImpl implements ViajeService {
                     tiempoTotal,
                     tiempoSinPausas,
                     tiempoPausaNormal,
-                    tiempoPausaExtendida
+                    tiempoPausaExtendida,
+                    in.kilometrosRecorridos() // Agregar kilómetros para descuentos premium
             );
 
             var facturacionResponse = facturacionClient.crearFacturacion(facturacionRequest);
@@ -362,6 +367,115 @@ public class ViajeServiceImpl implements ViajeService {
     @Transactional(readOnly = true)
     public List<Long> getMonopatinesConMasDeXViajes(Integer cantidadViajes, Integer anio) {
         return viajeRepo.findMonopatinesConMasDeXViajes(cantidadViajes, anio);
+    }
+
+    // ==================== REPORTES DE USUARIOS (Requerimientos e y h) ====================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReporteUsuarioDTO.UsuarioActivo> getUsuariosMasActivos(
+            LocalDateTime fechaDesde,
+            LocalDateTime fechaHasta,
+            String tipoCuenta) {
+
+        List<Viaje> viajes;
+        if (fechaDesde != null && fechaHasta != null) {
+            viajes = viajeRepo.findByFechaHoraInicioBetween(fechaDesde, fechaHasta);
+        } else {
+            viajes = viajeRepo.findAll();
+        }
+
+        // Agrupar por usuario
+        Map<Long, List<Viaje>> viajesPorUsuario = viajes.stream()
+                .filter(v -> v.getIdUsuario() != null)
+                .collect(Collectors.groupingBy(Viaje::getIdUsuario));
+
+        List<ReporteUsuarioDTO.UsuarioActivo> reportes = new ArrayList<>();
+
+        for (Map.Entry<Long, List<Viaje>> entry : viajesPorUsuario.entrySet()) {
+            Long idUsuario = entry.getKey();
+            List<Viaje> viajesUsuario = entry.getValue();
+
+            // Si se especificó tipo de cuenta, filtrar
+            if (tipoCuenta != null && !tipoCuenta.isBlank()) {
+                try {
+                    var cuentaResponse = cuentaClient.getCuentaById(
+                            viajesUsuario.get(0).getIdCuenta()
+                    );
+                    if (cuentaResponse.getBody() != null) {
+                        String tipoCuentaUsuario = cuentaResponse.getBody().tipoCuenta();
+                        if (!tipoCuenta.equalsIgnoreCase(tipoCuentaUsuario)) {
+                            continue; // Saltar este usuario
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.warn("No se pudo verificar tipo de cuenta para usuario {}", idUsuario);
+                    continue;
+                }
+            }
+
+            int cantidadViajes = viajesUsuario.size();
+            Double kilometrosTotales = viajesUsuario.stream()
+                    .filter(v -> v.getKilometrosRecorridos() != null)
+                    .mapToDouble(Viaje::getKilometrosRecorridos)
+                    .sum();
+
+            Long tiempoTotal = viajesUsuario.stream()
+                    .filter(v -> v.getEstado() == EstadoViaje.FINALIZADO)
+                    .mapToLong(Viaje::calcularTiempoTotal)
+                    .sum();
+
+            reportes.add(new ReporteUsuarioDTO.UsuarioActivo(
+                    idUsuario,
+                    cantidadViajes,
+                    kilometrosTotales,
+                    tiempoTotal
+            ));
+        }
+
+        // Ordenar por tiempo total de uso (descendente) - Usuario más activo = más tiempo de uso
+        reportes.sort((r1, r2) -> Long.compare(r2.tiempoTotalMinutos(), r1.tiempoTotalMinutos()));
+
+        return reportes;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ReporteUsuarioDTO.UsuarioActivo getUsoDeUsuario(
+            Long idUsuario,
+            LocalDateTime fechaDesde,
+            LocalDateTime fechaHasta) {
+
+        List<Viaje> viajes;
+
+        if (fechaDesde != null && fechaHasta != null) {
+            viajes = viajeRepo.findByIdUsuarioAndFechaHoraInicioBetween(idUsuario, fechaDesde, fechaHasta);
+        } else {
+            viajes = viajeRepo.findByIdUsuario(idUsuario);
+        }
+
+        if (viajes.isEmpty()) {
+            return new ReporteUsuarioDTO.UsuarioActivo(idUsuario, 0, 0.0, 0L);
+        }
+
+        int cantidadViajes = viajes.size();
+
+        Double kilometrosTotales = viajes.stream()
+                .filter(v -> v.getKilometrosRecorridos() != null)
+                .mapToDouble(Viaje::getKilometrosRecorridos)
+                .sum();
+
+        Long tiempoTotal = viajes.stream()
+                .filter(v -> v.getEstado() == EstadoViaje.FINALIZADO)
+                .mapToLong(Viaje::calcularTiempoTotal)
+                .sum();
+
+        return new ReporteUsuarioDTO.UsuarioActivo(
+                idUsuario,
+                cantidadViajes,
+                kilometrosTotales,
+                tiempoTotal
+        );
     }
 
     private void verificarYMarcarPausaExtendida(Pausa pausa) {

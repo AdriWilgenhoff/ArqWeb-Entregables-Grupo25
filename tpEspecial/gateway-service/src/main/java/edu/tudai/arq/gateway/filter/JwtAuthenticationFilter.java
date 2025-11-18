@@ -25,7 +25,12 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     // Rutas públicas que no requieren autenticación
     private static final List<String> PUBLIC_PATHS = List.of(
             "/api/v1/auth/login",
-            "/api/v1/auth/register"
+            "/api/v1/auth/register",
+            "/swagger-ui",
+            "/v3/api-docs",
+            "/swagger-ui.html",
+            "/webjars/",
+            "/api-docs"
     );
 
     @Override
@@ -103,7 +108,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             if (path.startsWith("/api/v1/mantenimientos")) {
                 return true;
             }
-            // Puede ver reportes de monopatines
+            // Puede ver reportes de monopatines y uso
             if (path.startsWith("/api/v1/monopatines/reporte") && "GET".equals(method)) {
                 return true;
             }
@@ -113,9 +118,13 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         // Reglas específicas para USUARIO
         if ("USUARIO".equals(rol)) {
             // Los usuarios pueden:
-            // - Ver monopatines cercanos
-            if (path.startsWith("/api/v1/monopatines/cercanos") && "GET".equals(method)) {
-                return true;
+            // - Ver monopatines cercanos y disponibles
+            if (path.startsWith("/api/v1/monopatines") && "GET".equals(method)) {
+                // Permitir solo endpoints de consulta, no de administración
+                if (path.contains("/cercanos") || path.contains("/reporte-uso")) {
+                    return true;
+                }
+                return false;
             }
             // - Gestionar viajes y pausas
             if (path.startsWith("/api/v1/viajes") || path.startsWith("/api/v1/pausas")) {
@@ -123,11 +132,32 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             }
             // - Ver y gestionar sus cuentas
             if (path.startsWith("/api/v1/cuentas")) {
-                return true;
+                // Los usuarios pueden gestionar sus cuentas pero no ver todas
+                if (path.matches("/api/v1/cuentas/\\d+.*")) { // Operaciones sobre cuenta específica
+                    return true;
+                }
+                if ("POST".equals(method)) { // Crear cuenta
+                    return true;
+                }
+                return false;
+            }
+            // - Ver sus usuarios
+            if (path.startsWith("/api/v1/usuarios") && "GET".equals(method)) {
+                if (path.matches("/api/v1/usuarios/\\d+.*")) { // Solo su usuario específico
+                    return true;
+                }
+                return false;
             }
             // - Ver paradas
             if (path.startsWith("/api/v1/paradas") && "GET".equals(method)) {
                 return true;
+            }
+            // - Ver facturaciones propias
+            if (path.startsWith("/api/v1/facturaciones") && "GET".equals(method)) {
+                if (path.matches("/api/v1/facturaciones/cuenta/\\d+.*")) {
+                    return true;
+                }
+                return false;
             }
             return false;
         }

@@ -17,7 +17,10 @@ public class CuentaDTO {
             String idCuentaMercadoPago,
 
             @Min(value = 0, message = "El saldo inicial no puede ser negativo")
-            Double saldoInicial
+            Double saldoInicial,
+
+            @Schema(description = "Tipo de cuenta (BASICA o PREMIUM)", example = "BASICA")
+            String tipoCuenta  // Opcional, por defecto BASICA
     ) {}
 
     /** DTO para actualizar */
@@ -67,6 +70,19 @@ public class CuentaDTO {
             Boolean habilitada,
 
             @Schema(description = "ID de cuenta de Mercado Pago", example = "MP-123456789")
-            String idCuentaMercadoPago
+            String idCuentaMercadoPago,
+
+            // Campos premium
+            @Schema(description = "Tipo de cuenta", example = "PREMIUM")
+            String tipoCuenta,
+
+            @Schema(description = "Kilómetros disponibles gratis (solo premium)", example = "54.5")
+            Double kilometrosDisponibles,
+
+            @Schema(description = "Fecha del último pago premium", example = "2024-11-01")
+            String fechaUltimoPagoPremium,
+
+            @Schema(description = "Indica si la cuenta necesita renovación mensual", example = "false")
+            Boolean necesitaRenovacion
     ) {}
 }

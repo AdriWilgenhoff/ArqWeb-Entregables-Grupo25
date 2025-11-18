@@ -74,7 +74,22 @@ public class MonopatinServiceImpl implements MonopatinService {
         Monopatin entity = repository.findById(id)
                 .orElseThrow(() -> new MonopatinNotFoundException(id));
 
-        repository.delete(entity);
+        // Validar que no esté en uso
+        if (entity.getEstado() == EstadoMonopatin.EN_USO) {
+            throw new InvalidStateTransitionException(
+                    id,
+                    entity.getEstado().name(),
+                    "DADO_DE_BAJA"
+            );
+        }
+
+        // BAJA LÓGICA: cambiar estado en lugar de borrado físico
+        // Esto mantiene el historial de viajes, facturaciones y mantenimientos
+        entity.setEstado(EstadoMonopatin.DADO_DE_BAJA);
+        repository.save(entity);
+
+        // NO hacer borrado físico para mantener integridad referencial
+        // repository.delete(entity);
     }
 
     @Override
@@ -153,6 +168,9 @@ public class MonopatinServiceImpl implements MonopatinService {
         long totalEnOperacion = enDisponible + enUso;
 
         long enMantenimiento = repository.countByEstado(EstadoMonopatin.EN_MANTENIMIENTO);
+
+        // Los monopatines dados de baja NO se cuentan ni en operación ni en mantenimiento
+        // long dadosDeBaja = repository.countByEstado(EstadoMonopatin.DADO_DE_BAJA);
 
         long totalMonopatines = totalEnOperacion + enMantenimiento;
 

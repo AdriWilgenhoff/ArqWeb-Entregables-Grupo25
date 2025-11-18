@@ -14,7 +14,8 @@ public interface FacturacionFeignClient {
             Long tiempoTotal,
             Long tiempoSinPausas,
             Long tiempoPausaNormal,
-            Long tiempoPausaExtendida
+            Long tiempoPausaExtendida,
+            Double kilometrosRecorridos
     ) {}
 
     record FacturacionResponse(

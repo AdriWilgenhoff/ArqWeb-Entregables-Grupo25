@@ -27,4 +27,12 @@ public interface CuentaService {
     void habilitarCuenta(Long id);
 
     List<UsuarioDTO.Response> getUsuariosByCuenta(Long idCuenta);
+
+    // ==================== MÉTODOS PREMIUM ====================
+
+    CuentaDTO.Response upgradeToPremium(Long id);
+
+    void renovarCupo(Long id);
+
+    Double usarKilometrosGratis(Long id, Double kilometros);
 }

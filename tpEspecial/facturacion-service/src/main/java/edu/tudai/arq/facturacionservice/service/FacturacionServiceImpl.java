@@ -6,10 +6,13 @@ import edu.tudai.arq.facturacionservice.entity.Tarifa;
 import edu.tudai.arq.facturacionservice.entity.TipoTarifa;
 import edu.tudai.arq.facturacionservice.exception.FacturacionNotFoundException;
 import edu.tudai.arq.facturacionservice.exception.TarifaNotFoundException;
+import edu.tudai.arq.facturacionservice.feignclient.CuentaFeignClient;
 import edu.tudai.arq.facturacionservice.mapper.FacturacionMapper;
 import edu.tudai.arq.facturacionservice.repository.FacturacionRepository;
 import edu.tudai.arq.facturacionservice.repository.TarifaRepository;
 import edu.tudai.arq.facturacionservice.service.interfaces.FacturacionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +24,21 @@ import java.util.stream.Collectors;
 @Service
 public class FacturacionServiceImpl implements FacturacionService {
 
+    private static final Logger logger = LoggerFactory.getLogger(FacturacionServiceImpl.class);
+
     private final FacturacionRepository facturacionRepo;
     private final TarifaRepository tarifaRepo;
     private final FacturacionMapper mapper;
+    private final CuentaFeignClient cuentaClient;
 
     public FacturacionServiceImpl(FacturacionRepository facturacionRepo,
                                   TarifaRepository tarifaRepo,
-                                  FacturacionMapper mapper) {
+                                  FacturacionMapper mapper,
+                                  CuentaFeignClient cuentaClient) {
         this.facturacionRepo = facturacionRepo;
         this.tarifaRepo = tarifaRepo;
         this.mapper = mapper;
+        this.cuentaClient = cuentaClient;
     }
 
     @Override
@@ -42,6 +50,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 
         LocalDate hoy = LocalDate.now();
 
+        // Obtener tarifas vigentes
         Tarifa tarifaNormal = tarifaRepo.findTarifaVigente(TipoTarifa.NORMAL, hoy)
                 .orElseThrow(() -> new TarifaNotFoundException("No hay tarifa NORMAL vigente"));
 
@@ -51,10 +60,12 @@ public class FacturacionServiceImpl implements FacturacionService {
         Tarifa tarifaExtendida = tarifaRepo.findTarifaVigente(TipoTarifa.PAUSA_EXTENDIDA, hoy)
                 .orElse(null);
 
+        // Tiempos del viaje
         Long tiempoNormal = in.tiempoSinPausas();
         Long tiempoPausaNormal = in.tiempoPausaNormal();
         Long tiempoPausaExtendida = in.tiempoPausaExtendida();
 
+        // Calcular costos base
         double costoNormal = tiempoNormal * tarifaNormal.getPrecioPorMinuto();
         double costoPausa = (tarifaPausa != null && tiempoPausaNormal > 0)
                 ? tiempoPausaNormal * tarifaPausa.getPrecioPorMinuto()
@@ -63,7 +74,49 @@ public class FacturacionServiceImpl implements FacturacionService {
                 ? tiempoPausaExtendida * tarifaExtendida.getPrecioPorMinuto()
                 : 0.0;
 
-        Double montoTotal = costoNormal + costoPausa + costoPausaExtendida;
+        double montoTotalBase = costoNormal + costoPausa + costoPausaExtendida;
+
+        // ==================== LÓGICA PREMIUM ====================
+        Double montoTotal = montoTotalBase;
+        boolean esPremium = false;
+        Double kmGratisUsados = 0.0;
+
+        try {
+            // Obtener información de la cuenta
+            var cuentaResponse = cuentaClient.getCuentaById(in.idCuenta());
+            if (cuentaResponse.getBody() != null) {
+                var cuenta = cuentaResponse.getBody();
+                esPremium = "PREMIUM".equals(cuenta.tipoCuenta());
+
+                if (esPremium && in.kilometrosRecorridos() != null && in.kilometrosRecorridos() > 0) {
+                    // Usar kilómetros gratis si están disponibles
+                    if (cuenta.kilometrosDisponibles() != null && cuenta.kilometrosDisponibles() > 0) {
+                        var kmGratisResponse = cuentaClient.usarKilometrosGratis(
+                                in.idCuenta(),
+                                in.kilometrosRecorridos()
+                        );
+
+                        if (kmGratisResponse.getBody() != null) {
+                            kmGratisUsados = kmGratisResponse.getBody();
+                            Double proporcionGratis = kmGratisUsados / in.kilometrosRecorridos();
+
+                            // Reducir el monto proporcionalmente a los km gratis
+                            montoTotal *= (1 - proporcionGratis);
+
+                            logger.info("Cuenta PREMIUM - Km gratis usados: {} de {} km. Descuento aplicado: {}%",
+                                    kmGratisUsados, in.kilometrosRecorridos(), proporcionGratis * 100);
+                        }
+                    }
+
+                    // Si es premium (con o sin km gratis), aplicar descuento 50% al resto
+                    montoTotal *= 0.5;
+                    logger.info("Cuenta PREMIUM - Descuento 50% aplicado. Monto final: ${}", montoTotal);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("No se pudo aplicar lógica premium para cuenta {}: {}", in.idCuenta(), e.getMessage());
+            // Si falla, usar monto base sin descuentos
+        }
 
         Long tiempoPausado = tiempoPausaNormal + tiempoPausaExtendida;
 
@@ -79,6 +132,9 @@ public class FacturacionServiceImpl implements FacturacionService {
         );
 
         facturacion = facturacionRepo.save(facturacion);
+        logger.info("Facturación creada - Viaje: {}, Cuenta: {}, Premium: {}, Km gratis: {}, Monto: ${}",
+                in.idViaje(), in.idCuenta(), esPremium, kmGratisUsados, montoTotal);
+
         return mapper.toResponse(facturacion);
     }
 

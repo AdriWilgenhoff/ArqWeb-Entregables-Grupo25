@@ -1,20 +1,24 @@
 package edu.tudai.arq.viajeservice.controller;
 
 import edu.tudai.arq.viajeservice.dto.PausaDTO;
+import edu.tudai.arq.viajeservice.dto.ReporteUsuarioDTO;
 import edu.tudai.arq.viajeservice.dto.ViajeDTO;
 import edu.tudai.arq.viajeservice.exception.ApiError;
 import edu.tudai.arq.viajeservice.service.interfaces.ViajeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -177,6 +181,61 @@ public class ViajeController {
             @RequestParam Integer cantidadViajes,
             @RequestParam Integer anio) {
         return ResponseEntity.ok(service.getMonopatinesConMasDeXViajes(cantidadViajes, anio));
+    }
+
+    // TODO: JWT - Requiere rol ADMIN - Requerimiento e)
+    @GetMapping("/reportes/usuarios-mas-activos")
+    @Operation(
+            summary = "Usuarios que más utilizan monopatines (Requerimiento e)",
+            description = "Como administrador quiero ver los usuarios que más utilizan los monopatines, " +
+                    "filtrado por período y por tipo de usuario (BASICA o PREMIUM). " +
+                    "Retorna la lista ordenada por tiempo total de uso (descendente)."
+    )
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios más activos ordenados por tiempo de uso",
+            content = @Content(schema = @Schema(implementation = ReporteUsuarioDTO.UsuarioActivo.class)))
+    public ResponseEntity<List<ReporteUsuarioDTO.UsuarioActivo>> getUsuariosMasActivos(
+            @RequestParam(required = false)
+            @Parameter(description = "Fecha desde (formato: yyyy-MM-dd'T'HH:mm:ss)", example = "2024-01-01T00:00:00")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaDesde,
+
+            @RequestParam(required = false)
+            @Parameter(description = "Fecha hasta (formato: yyyy-MM-dd'T'HH:mm:ss)", example = "2024-12-31T23:59:59")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaHasta,
+
+            @RequestParam(required = false)
+            @Parameter(description = "Tipo de cuenta (BASICA o PREMIUM). Si no se especifica, muestra todos", example = "PREMIUM")
+            String tipoCuenta
+    ) {
+        return ResponseEntity.ok(service.getUsuariosMasActivos(fechaDesde, fechaHasta, tipoCuenta));
+    }
+
+    // Requerimiento h)
+    @GetMapping("/reportes/mi-uso")
+    @Operation(
+            summary = "Consultar uso de monopatines de un usuario (Requerimiento h)",
+            description = "Como usuario quiero saber cuánto he usado los monopatines en un período. " +
+                    "Muestra cantidad de viajes, kilómetros totales y tiempo total de uso."
+    )
+    @ApiResponse(responseCode = "200", description = "Reporte de uso del usuario",
+            content = @Content(schema = @Schema(implementation = ReporteUsuarioDTO.UsuarioActivo.class)))
+    public ResponseEntity<ReporteUsuarioDTO.UsuarioActivo> getMiUso(
+            @RequestParam
+            @Parameter(description = "ID del usuario", example = "1", required = true)
+            Long idUsuario,
+
+            @RequestParam(required = false)
+            @Parameter(description = "Fecha desde (formato: yyyy-MM-dd'T'HH:mm:ss)", example = "2024-01-01T00:00:00")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaDesde,
+
+            @RequestParam(required = false)
+            @Parameter(description = "Fecha hasta (formato: yyyy-MM-dd'T'HH:mm:ss)", example = "2024-12-31T23:59:59")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaHasta
+    ) {
+        return ResponseEntity.ok(service.getUsoDeUsuario(idUsuario, fechaDesde, fechaHasta));
     }
 }
 

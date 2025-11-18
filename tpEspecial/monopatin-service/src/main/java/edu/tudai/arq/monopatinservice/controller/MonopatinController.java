@@ -70,24 +70,31 @@ public class MonopatinController {
     }
 
 
-    // TODO: JWT - Requiere rol ADMIN - Quitar monopatín
-    @Operation(summary = "Elimina un monopatín", description = "Elimina el monopatín con el ID especificado.")
-    @ApiResponse(responseCode = "204", description = "Monopatín eliminado (sin contenido de respuesta)")
+    // TODO: JWT - Requiere rol ADMIN - Quitar monopatín (baja lógica)
+    @Operation(
+            summary = "Da de baja un monopatín (baja lógica)",
+            description = "Marca el monopatín como DADO_DE_BAJA. No se elimina de la base de datos para mantener el historial de viajes, facturaciones y mantenimientos. Alternativamente, puedes usar PUT /api/v1/monopatines/{id}/estado/DADO_DE_BAJA"
+    )
+    @ApiResponse(responseCode = "204", description = "Monopatín dado de baja exitosamente")
     @ApiResponse(responseCode = "404", description = "Monopatín no encontrado", content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "400", description = "No se puede dar de baja un monopatín en uso", content = @Content(schema = @Schema(implementation = ApiError.class)))
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Cambiar estado del monopatín", description = "Realiza una transición de estado (DISPONIBLE, EN_USO, EN_MANTENIMIENTO).")
+    @Operation(
+            summary = "Cambiar estado del monopatín",
+            description = "Realiza una transición de estado. Estados disponibles: DISPONIBLE, EN_USO, EN_MANTENIMIENTO, DADO_DE_BAJA"
+    )
     @ApiResponse(responseCode = "200", description = "Estado actualizado", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MonopatinDTO.Response.class)))
     @ApiResponse(responseCode = "404", description = "Monopatín no encontrado", content = @Content(schema = @Schema(implementation = ApiError.class)))
     @ApiResponse(responseCode = "400", description = "Transición inválida de estado", content = @Content(schema = @Schema(implementation = ApiError.class)))
     @PutMapping("/{id}/estado/{nuevoEstado}")
     public ResponseEntity<MonopatinDTO.Response> cambiarEstado(
             @PathVariable Long id,
-            @Parameter(description = "Nuevo estado del monopatín", required = true, schema = @Schema(implementation = EstadoMonopatin.class))
+            @Parameter(description = "Nuevo estado del monopatín (DISPONIBLE, EN_USO, EN_MANTENIMIENTO, DADO_DE_BAJA)", required = true, schema = @Schema(implementation = EstadoMonopatin.class))
             @PathVariable String nuevoEstado) {
 
         MonopatinDTO.Response updatedMonopatin = service.cambiarEstado(id, nuevoEstado);
