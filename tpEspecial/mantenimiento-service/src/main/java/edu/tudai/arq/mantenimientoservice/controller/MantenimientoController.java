@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/mantenimientos")
 @Validated
-@Tag(name = "Mantenimientos", description = "API para gestión de mantenimientos de monopatines. ⚠️ IMPORTANTE: Este servicio debe consumirse a través del API Gateway (puerto 8080) para que la autenticación y autorización funcionen correctamente.")
+@Tag(name = "Mantenimientos", description = "API para gestión de mantenimientos de monopatines.")
 public class MantenimientoController {
 
     private final MantenimientoService service;
@@ -152,7 +152,7 @@ public class MantenimientoController {
 
     @GetMapping("/estadisticas/operativos-vs-mantenimiento")
     @Operation(
-            summary = "Obtener cantidad de monopatines en operación vs en mantenimiento (Requerimiento e)",
+            summary = "Obtener cantidad de monopatines en operación vs en mantenimiento (Antes era el requerimiento e)",
             description = "Requiere rol ADMINISTRADOR. Acceso: http://localhost:8080/api/v1/mantenimientos/estadisticas/operativos-vs-mantenimiento"
     )
     @ApiResponse(responseCode = "200", description = "Estadísticas de monopatines",
@@ -166,12 +166,12 @@ public class MantenimientoController {
     @GetMapping("/reporte-uso")
     @Operation(
             summary = "Generar reporte de uso de monopatines por kilómetros (Requerimiento a)",
-            description = "Requiere rol MANTENIMIENTO o ADMINISTRADOR. Genera reporte de uso para determinar si un monopatín requiere mantenimiento. Los monopatines se ordenan por kilómetros descendente. Acceso: http://localhost:8080/api/v1/mantenimientos/reporte-uso"
+            description = "Requiere rol ADMINISTRADOR. Genera reporte de uso para determinar si un monopatín requiere mantenimiento. Los monopatines se ordenan por kilómetros descendente. Acceso: http://localhost:8080/api/v1/mantenimientos/reporte-uso"
     )
     @ApiResponse(responseCode = "200", description = "Reporte de uso generado exitosamente",
             content = @Content(schema = @Schema(implementation = ReporteUsoDTO.Response.class)))
     @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
-    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol MANTENIMIENTO o ADMINISTRADOR")
+    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
     public ResponseEntity<List<ReporteUsoDTO.Response>> generarReporteUso(
             @RequestParam(required = false, defaultValue = "true")
             @Parameter(description = "Incluir tiempos de pausa en el cálculo", example = "true")

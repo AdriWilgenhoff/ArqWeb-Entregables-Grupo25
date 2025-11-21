@@ -104,27 +104,38 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         // Reglas específicas para MANTENIMIENTO
         if ("MANTENIMIENTO".equals(rol)) {
-            // Puede acceder a endpoints de mantenimiento
+            // Puede acceder a endpoints de mantenimiento (excepto DELETE, estadísticas y reportes)
             if (path.startsWith("/api/v1/mantenimientos")) {
+                // Estadísticas solo para ADMINISTRADOR
+                if (path.contains("/estadisticas/")) {
+                    return false;
+                }
+                // Reporte de uso solo para ADMINISTRADOR
+                if (path.contains("/reporte-uso")) {
+                    return false;
+                }
+                // DELETE solo para ADMINISTRADOR
+                if ("DELETE".equals(method)) {
+                    return false;
+                }
+                // GET, POST, PUT permitidos (operaciones de mantenimiento)
                 return true;
             }
-            // Puede ver reportes de monopatines y uso
-            if (path.startsWith("/api/v1/monopatines/reporte") && "GET".equals(method)) {
-                return true;
-            }
+            // NO puede ver reportes de monopatines (removido - solo ADMIN)
             return false;
         }
 
         // Reglas específicas para USUARIO
         if ("USUARIO".equals(rol)) {
             // Los usuarios pueden:
-            // - Ver monopatines cercanos y disponibles
+            // - Ver monopatines (GET)
             if (path.startsWith("/api/v1/monopatines") && "GET".equals(method)) {
-                // Permitir solo endpoints de consulta, no de administración
-                if (path.contains("/cercanos") || path.contains("/reporte-uso")) {
-                    return true;
+                // Bloquear reportes y estadísticas (solo ADMIN)
+                if (path.contains("/reporte") || path.contains("/con-mas-viajes")) {
+                    return false;
                 }
-                return false;
+                // Permitir: GET /monopatines, GET /monopatines/{id}, GET /monopatines/cercanos
+                return true;
             }
             // - Gestionar viajes y pausas
             if (path.startsWith("/api/v1/viajes") || path.startsWith("/api/v1/pausas")) {

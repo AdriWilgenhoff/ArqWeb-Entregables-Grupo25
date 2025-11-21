@@ -156,7 +156,7 @@ public class MonopatinController {
     }
 
     @Operation(
-            summary = "Reporte de operación vs mantenimiento (Requerimiento e)",
+            summary = "Reporte de operación vs mantenimiento (Antes Requerimiento e)",
             description = "Requiere rol ADMINISTRADOR. Consulta la cantidad de monopatines en operación vs en mantenimiento. Acceso: http://localhost:8080/api/v1/monopatines/reporte-operacion"
     )
     @ApiResponse(responseCode = "200", description = "Reporte de operación generado", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ReporteOperacionDTO.class)))
@@ -171,12 +171,12 @@ public class MonopatinController {
     @GetMapping("/reporte-uso-kilometros")
     @Operation(
             summary = "Reporte de uso por kilómetros (Requerimiento a)",
-            description = "Requiere rol MANTENIMIENTO o ADMINISTRADOR. Genera reporte de uso de monopatines por kilómetros para establecer si requiere mantenimiento. incluirPausas=true muestra también tiempos de pausa. Acceso: http://localhost:8080/api/v1/monopatines/reporte-uso-kilometros"
+            description = "Requiere rol ADMINISTRADOR. Genera reporte de uso de monopatines por kilómetros para establecer si requiere mantenimiento. incluirPausas=true muestra también tiempos de pausa. Acceso: http://localhost:8080/api/v1/monopatines/reporte-uso-kilometros"
     )
     @ApiResponse(responseCode = "200", description = "Reporte de uso generado. Ordenado por kilómetros descendente.",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
     @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
-    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol MANTENIMIENTO o ADMINISTRADOR")
+    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
     public ResponseEntity<List<?>> getReporteUsoPorKilometros(
             @RequestParam(defaultValue = "false") @Parameter(description = "true = muestra kms + tiempo sin pausas + tiempo de pausas | false = muestra kms + tiempo sin pausas") boolean incluirPausas) {
         List<?> reporte = service.getReporteUsoPorKilometros(incluirPausas);

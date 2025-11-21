@@ -74,7 +74,6 @@ public class MonopatinServiceImpl implements MonopatinService {
         Monopatin entity = repository.findById(id)
                 .orElseThrow(() -> new MonopatinNotFoundException(id));
 
-        // Validar que no esté en uso
         if (entity.getEstado() == EstadoMonopatin.EN_USO) {
             throw new InvalidStateTransitionException(
                     id,
@@ -83,12 +82,9 @@ public class MonopatinServiceImpl implements MonopatinService {
             );
         }
 
-        // BAJA LÓGICA: cambiar estado en lugar de borrado físico
-        // Esto mantiene el historial de viajes, facturaciones y mantenimientos
         entity.setEstado(EstadoMonopatin.DADO_DE_BAJA);
         repository.save(entity);
 
-        // NO hacer borrado físico para mantener integridad referencial
         // repository.delete(entity);
     }
 
@@ -142,14 +138,12 @@ public class MonopatinServiceImpl implements MonopatinService {
     @Transactional(readOnly = true)
     public List<MonopatinDTO.Response> findMonopatinesConMasDeXViajes(Integer cantidadViajes, Integer anio) {
         try {
-            // Llamar a viaje-service usando FeignClient
             List<Long> idsMonopatines = viajeClient.getMonopatinesConMasDeXViajes(cantidadViajes, anio);
 
             if (idsMonopatines == null || idsMonopatines.isEmpty()) {
                 return List.of();
             }
 
-            // Buscar monopatines por IDs
             List<Monopatin> monopatines = repository.findByIdIn(idsMonopatines);
 
             return monopatines.stream()
@@ -168,9 +162,6 @@ public class MonopatinServiceImpl implements MonopatinService {
         long totalEnOperacion = enDisponible + enUso;
 
         long enMantenimiento = repository.countByEstado(EstadoMonopatin.EN_MANTENIMIENTO);
-
-        // Los monopatines dados de baja NO se cuentan ni en operación ni en mantenimiento
-        // long dadosDeBaja = repository.countByEstado(EstadoMonopatin.DADO_DE_BAJA);
 
         long totalMonopatines = totalEnOperacion + enMantenimiento;
 
@@ -193,25 +184,25 @@ public class MonopatinServiceImpl implements MonopatinService {
         List<Monopatin> monopatines = repository.findAll();
 
         if (incluirPausas) {
-            // Retornar con detalles de pausas
+            // Retornar con pausas
             return monopatines.stream()
                     .filter(m -> m.getKilometrosTotales() > 0)
                     .map(m -> new ReporteUsoDTO.ConPausas(
                             m.getId(),
                             m.getKilometrosTotales(),
-                            m.getTiempoUsoTotal() - m.getTiempoPausas(),  // Tiempo sin pausas
-                            m.getTiempoPausas()                           // Tiempo de pausas
+                            m.getTiempoUsoTotal() - m.getTiempoPausas(),
+                            m.getTiempoPausas()
                     ))
                     .sorted((r1, r2) -> Double.compare(r2.kilometrosTotales(), r1.kilometrosTotales()))
                     .collect(Collectors.toList());
         } else {
-            // Retornar simple, sin pausas
+            // Retornar sin pausas
             return monopatines.stream()
                     .filter(m -> m.getKilometrosTotales() > 0)
                     .map(m -> new ReporteUsoDTO.Simple(
                             m.getId(),
                             m.getKilometrosTotales(),
-                            m.getTiempoUsoTotal() - m.getTiempoPausas()   // Tiempo sin pausas
+                            m.getTiempoUsoTotal() - m.getTiempoPausas()
                     ))
                     .sorted((r1, r2) -> Double.compare(r2.kilometrosTotales(), r1.kilometrosTotales()))
                     .collect(Collectors.toList());
