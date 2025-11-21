@@ -171,11 +171,27 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         response.setStatusCode(status);
         response.getHeaders().add("Content-Type", "application/json");
 
+        String errorType;
+        String errorMessage;
+
+        if (status == HttpStatus.UNAUTHORIZED) {
+            // 401 - No autenticado
+            errorType = "No autenticado";
+            errorMessage = "Debe proporcionar un token JWT válido";
+        } else if (status == HttpStatus.FORBIDDEN) {
+            // 403 - No autorizado
+            errorType = "No autorizado";
+            errorMessage = "No tiene permisos para acceder a este recurso";
+        } else {
+            // Otros errores
+            errorType = status.getReasonPhrase();
+            errorMessage = message;
+        }
+
         String errorJson = String.format(
-            "{\"error\":\"%s\",\"message\":\"%s\",\"status\":%d}",
-            status.getReasonPhrase(),
-            message,
-            status.value()
+            "{\"error\":\"%s\",\"message\":\"%s\"}",
+            errorType,
+            errorMessage
         );
 
         return response.writeWith(
