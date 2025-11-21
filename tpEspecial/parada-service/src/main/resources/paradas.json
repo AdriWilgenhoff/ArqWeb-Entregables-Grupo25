@@ -1,0 +1,50 @@
+[
+  {
+    "nombre": "Parada Plaza del Centro",
+    "latitud": 100,
+    "longitud": 200,
+    "capacidad": 20
+  },
+  {
+    "nombre": "Parada Universidad Centro",
+    "latitud": 150,
+    "longitud": 250,
+    "capacidad": 15
+  },
+  {
+    "nombre": "Parada Universidad Campus",
+    "latitud": 200,
+    "longitud": 300,
+    "capacidad": 25
+  },
+  {
+    "nombre": "Parada Terminal",
+    "latitud": 250,
+    "longitud": 350,
+    "capacidad": 30
+  },
+  {
+    "nombre": "Parada Mc Donalds",
+    "latitud": 300,
+    "longitud": 400,
+    "capacidad": 18
+  },
+  {
+    "nombre": "Parada Municipalidad",
+    "latitud": 350,
+    "longitud": 450,
+    "capacidad": 22
+  },
+  {
+    "nombre": "Parada Banco Provincia",
+    "latitud": 400,
+    "longitud": 500,
+    "capacidad": 12
+  },
+  {
+    "nombre": "Parada La Movediza",
+    "latitud": 450,
+    "longitud": 550,
+    "capacidad": 20
+  }
+]

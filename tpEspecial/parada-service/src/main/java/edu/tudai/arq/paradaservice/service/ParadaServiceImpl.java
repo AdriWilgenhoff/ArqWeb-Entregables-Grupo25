@@ -33,7 +33,7 @@ public class ParadaServiceImpl implements ParadaService {
 
     @Override
     @Transactional
-    public ParadaDTO.Response update(Long id, ParadaDTO.Update in) {
+    public ParadaDTO.Response update(String id, ParadaDTO.Update in) {
         Parada p = repository.findById(id)
                 .orElseThrow(() -> new ParadaNotFoundException(id));
 
@@ -44,7 +44,7 @@ public class ParadaServiceImpl implements ParadaService {
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void delete(String id) {
         if (!repository.existsById(id)) {
             throw new ParadaNotFoundException(id);
         }
@@ -53,7 +53,7 @@ public class ParadaServiceImpl implements ParadaService {
 
     @Override
     @Transactional(readOnly = true)
-    public ParadaDTO.Response findById(Long id) {
+    public ParadaDTO.Response findById(String id) {
         Parada p = repository.findById(id)
                 .orElseThrow(() -> new ParadaNotFoundException(id));
         return mapper.toResponse(p);

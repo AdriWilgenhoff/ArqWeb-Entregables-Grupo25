@@ -1,5 +1,4 @@
--- Usuarios (IDs serán autogenerados: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
--- Contraseña para todos: "password123" (hasheada con BCrypt)
+
 INSERT INTO usuario (nombre, apellido, email, numero_celular, password_hash, rol, fecha_alta) VALUES ('Ana', 'Perez', 'ana.perez@admin.com', '1122334455', '$2a$10$N9qo8uLOickgx2ZMRZoMye1PZXJqmfH4z/XKMG.JcqQdX3wKJFsL6', 'ADMINISTRADOR', '2025-10-30');
 INSERT INTO usuario (nombre, apellido, email, numero_celular, password_hash, rol, fecha_alta) VALUES ('Bruno', 'Diaz', 'bruno.diaz@maint.com', '1199887766', '$2a$10$N9qo8uLOickgx2ZMRZoMye1PZXJqmfH4z/XKMG.JcqQdX3wKJFsL6', 'MANTENIMIENTO', '2025-10-30');
 INSERT INTO usuario (nombre, apellido, email, numero_celular, password_hash, rol, fecha_alta) VALUES ('Carlos', 'Gomez', 'carlos.gomez@user.com', '1111111111', '$2a$10$N9qo8uLOickgx2ZMRZoMye1PZXJqmfH4z/XKMG.JcqQdX3wKJFsL6', 'USUARIO', '2025-10-30');
@@ -11,22 +10,11 @@ INSERT INTO usuario (nombre, apellido, email, numero_celular, password_hash, rol
 INSERT INTO usuario (nombre, apellido, email, numero_celular, password_hash, rol, fecha_alta) VALUES ('Juan', 'Romero', 'juan.romero@user.com', '7777777777', '$2a$10$N9qo8uLOickgx2ZMRZoMye1PZXJqmfH4z/XKMG.JcqQdX3wKJFsL6', 'USUARIO', '2025-10-30');
 INSERT INTO usuario (nombre, apellido, email, numero_celular, password_hash, rol, fecha_alta) VALUES ('Maria', 'Suarez', 'maria.suarez@user.com', '8888888888', '$2a$10$N9qo8uLOickgx2ZMRZoMye1PZXJqmfH4z/XKMG.JcqQdX3wKJFsL6', 'USUARIO', '2025-10-30');
 
--- Cuentas (IDs serán autogenerados: 1, 2, 3, 4, 5)
--- Cuenta 1: BASICA con saldo alto
 INSERT INTO cuenta (numero_identificatorio, fecha_alta, saldo, habilitada, id_cuenta_mercado_pago, tipo_cuenta, kilometros_disponibles, fecha_ultimo_pago_premium) VALUES ('CBU-001-A', '2025-10-30', 15000.00, true, 'MP-ID-001', 'BASICA', 0.0, null);
-
--- Cuenta 2: PREMIUM activa con km disponibles (54.5 km gratis restantes)
 INSERT INTO cuenta (numero_identificatorio, fecha_alta, saldo, habilitada, id_cuenta_mercado_pago, tipo_cuenta, kilometros_disponibles, fecha_ultimo_pago_premium) VALUES ('CBU-002-B', '2025-11-01', 5000.00, true, 'MP-ID-002', 'PREMIUM', 54.5, '2025-11-01');
-
--- Cuenta 3: PREMIUM que agotó sus km gratis (0 km disponibles, tiene descuento 50%)
 INSERT INTO cuenta (numero_identificatorio, fecha_alta, saldo, habilitada, id_cuenta_mercado_pago, tipo_cuenta, kilometros_disponibles, fecha_ultimo_pago_premium) VALUES ('CBU-003-C', '2025-11-01', 3000.00, true, 'MP-ID-003', 'PREMIUM', 0.0, '2025-11-01');
-
--- Cuenta 4: BASICA con saldo bajo
 INSERT INTO cuenta (numero_identificatorio, fecha_alta, saldo, habilitada, id_cuenta_mercado_pago, tipo_cuenta, kilometros_disponibles, fecha_ultimo_pago_premium) VALUES ('CBU-004-D', '2025-10-30', 750.50, true, 'MP-ID-004', 'BASICA', 0.0, null);
-
--- Cuenta 5: BASICA anulada (inhabilitada)
 INSERT INTO cuenta (numero_identificatorio, fecha_alta, saldo, habilitada, id_cuenta_mercado_pago, tipo_cuenta, kilometros_disponibles, fecha_ultimo_pago_premium) VALUES ('CBU-005-E', '2025-10-30', 100.00, false, 'MP-ID-005', 'BASICA', 0.0, null);
-
 
 INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (1, 1);
 INSERT INTO usuario_cuenta (id_usuario, id_cuenta) VALUES (3, 1);

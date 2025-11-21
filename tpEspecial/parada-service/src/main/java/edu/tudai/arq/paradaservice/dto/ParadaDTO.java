@@ -45,8 +45,8 @@ public class ParadaDTO {
 
     @Schema(description = "DTO de respuesta para paradas", name = "ParadaResponse")
     public record Response(
-            @Schema(description = "ID de la parada", example = "1")
-            Long id,
+            @Schema(description = "ID de la parada (MongoDB ObjectId)", example = "507f1f77bcf86cd799439011")
+            String id,
 
             @Schema(description = "Nombre de la parada", example = "Parada Central Plaza")
             String nombre,

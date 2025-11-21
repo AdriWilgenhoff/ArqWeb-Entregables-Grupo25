@@ -26,7 +26,7 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(
             summary = "Registrar nuevo usuario",
-            description = "Crea un nuevo usuario en el sistema y genera un token JWT automáticamente"
+            description = "Público (sin autenticación). Crea un nuevo usuario en el sistema con rol USUARIO y genera un token JWT automáticamente. Acceso: http://localhost:8080/api/v1/auth/register"
     )
     @ApiResponse(
             responseCode = "200",
@@ -50,7 +50,7 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(
             summary = "Iniciar sesión",
-            description = "Autentica un usuario y genera un token JWT para acceder a los recursos protegidos"
+            description = "Público (sin autenticación). Autentica un usuario y genera un token JWT para acceder a los recursos protegidos. Acceso: http://localhost:8080/api/v1/auth/login"
     )
     @ApiResponse(
             responseCode = "200",

@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/paradas")
 @Validated
-@Tag(name = "Paradas", description = "API para gestión de paradas/estaciones de monopatines. ⚠️ IMPORTANTE: Este servicio debe consumirse a través del API Gateway (puerto 8080) para que la autenticación y autorización funcionen correctamente.")
+@Tag(name = "Paradas", description = "API para gestión de paradas/estaciones de monopatines.")
 public class ParadaController {
 
     private final ParadaService service;
@@ -31,7 +31,7 @@ public class ParadaController {
     @PostMapping
     @Operation(
             summary = "Crear una nueva parada",
-            description = "🔒 Requiere rol ADMINISTRADOR. Acceso: http://localhost:8080/api/v1/paradas"
+            description = "Requiere rol ADMINISTRADOR. Acceso: http://localhost:8080/api/v1/paradas"
     )
     @ApiResponse(responseCode = "201", description = "Parada creada exitosamente",
             content = @Content(schema = @Schema(implementation = ParadaDTO.Response.class)))
@@ -47,7 +47,7 @@ public class ParadaController {
     @PutMapping("/{id}")
     @Operation(
             summary = "Actualizar una parada existente",
-            description = "🔒 Requiere rol ADMINISTRADOR. Acceso: http://localhost:8080/api/v1/paradas/{id}"
+            description = "Requiere rol ADMINISTRADOR. Acceso: http://localhost:8080/api/v1/paradas/{id}"
     )
     @ApiResponse(responseCode = "200", description = "Parada actualizada exitosamente",
             content = @Content(schema = @Schema(implementation = ParadaDTO.Response.class)))
@@ -56,7 +56,7 @@ public class ParadaController {
     @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
     @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
     public ResponseEntity<ParadaDTO.Response> update(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody ParadaDTO.Update in) {
         return ResponseEntity.ok(service.update(id, in));
     }
@@ -64,14 +64,14 @@ public class ParadaController {
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Eliminar una parada",
-            description = "🔒 Requiere rol ADMINISTRADOR. Acceso: http://localhost:8080/api/v1/paradas/{id}"
+            description = "Requiere rol ADMINISTRADOR. Acceso: http://localhost:8080/api/v1/paradas/{id}"
     )
     @ApiResponse(responseCode = "204", description = "Parada eliminada exitosamente")
     @ApiResponse(responseCode = "404", description = "Parada no encontrada",
             content = @Content(schema = @Schema(implementation = ApiError.class)))
     @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
     @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -79,21 +79,21 @@ public class ParadaController {
     @GetMapping("/{id}")
     @Operation(
             summary = "Obtener una parada por ID",
-            description = "🔓 Accesible para usuarios autenticados. Acceso: http://localhost:8080/api/v1/paradas/{id}"
+            description = "Accesible para usuarios autenticados. Acceso: http://localhost:8080/api/v1/paradas/{id}"
     )
     @ApiResponse(responseCode = "200", description = "Parada encontrada",
             content = @Content(schema = @Schema(implementation = ParadaDTO.Response.class)))
     @ApiResponse(responseCode = "404", description = "Parada no encontrada",
             content = @Content(schema = @Schema(implementation = ApiError.class)))
     @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
-    public ResponseEntity<ParadaDTO.Response> findById(@PathVariable Long id) {
+    public ResponseEntity<ParadaDTO.Response> findById(@PathVariable String id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @GetMapping
     @Operation(
             summary = "Listar todas las paradas",
-            description = "🔓 Accesible para usuarios autenticados. Acceso: http://localhost:8080/api/v1/paradas"
+            description = "Accesible para usuarios autenticados. Acceso: http://localhost:8080/api/v1/paradas"
     )
     @ApiResponse(responseCode = "200", description = "Lista de paradas")
     @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
@@ -104,7 +104,7 @@ public class ParadaController {
     @GetMapping("/cercanas")
     @Operation(
             summary = "Buscar paradas cercanas a una ubicación",
-            description = "🔓 Accesible para usuarios autenticados. Busca paradas dentro del radio especificado. Acceso: http://localhost:8080/api/v1/paradas/cercanas"
+            description = "Accesible para usuarios autenticados. Busca paradas dentro del radio especificado. Acceso: http://localhost:8080/api/v1/paradas/cercanas"
     )
     @ApiResponse(responseCode = "200", description = "Lista de paradas cercanas")
     @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")

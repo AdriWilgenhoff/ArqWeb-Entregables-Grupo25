@@ -22,12 +22,11 @@ public class AuthDTO {
 
             @NotBlank(message = "El email es obligatorio")
             @Email(message = "Debe ser un email válido")
-            @Schema(description = "Email del usuario", example = "juan.perez@email.com")
+            @Schema(description = "Email del usuario", example = "juan.perez@gmail.com")
             String email,
 
             @NotBlank(message = "El número de celular es obligatorio")
-            @Pattern(regexp = "^[0-9]{10,15}$", message = "El número de celular debe tener entre 10 y 15 dígitos")
-            @Schema(description = "Número de celular del usuario", example = "2214567890")
+            @Schema(description = "Número de celular del usuario", example = "2494655632")
             String numeroCelular,
 
             @NotBlank(message = "La contraseña es obligatoria")
@@ -40,7 +39,7 @@ public class AuthDTO {
     public record LoginRequest(
             @NotBlank(message = "El email es obligatorio")
             @Email(message = "Debe ser un email válido")
-            @Schema(description = "Email del usuario", example = "juan.perez@email.com")
+            @Schema(description = "Email del usuario", example = "juan.perez@gmail.com")
             String email,
 
             @NotBlank(message = "La contraseña es obligatoria")
@@ -59,7 +58,7 @@ public class AuthDTO {
             @Schema(description = "ID del usuario autenticado", example = "1")
             Long userId,
 
-            @Schema(description = "Email del usuario", example = "juan.perez@email.com")
+            @Schema(description = "Email del usuario", example = "juan.perez@gmail.com")
             String email,
 
             @Schema(description = "Nombre completo del usuario", example = "Juan Pérez")

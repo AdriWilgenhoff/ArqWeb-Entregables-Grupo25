@@ -20,7 +20,7 @@ public class CuentaDTO {
             Double saldoInicial,
 
             @Schema(description = "Tipo de cuenta (BASICA o PREMIUM)", example = "BASICA")
-            String tipoCuenta  // Opcional, por defecto BASICA
+            String tipoCuenta
     ) {}
 
     /** DTO para actualizar */
@@ -72,7 +72,6 @@ public class CuentaDTO {
             @Schema(description = "ID de cuenta de Mercado Pago", example = "MP-123456789")
             String idCuentaMercadoPago,
 
-            // Campos premium
             @Schema(description = "Tipo de cuenta", example = "PREMIUM")
             String tipoCuenta,
 
