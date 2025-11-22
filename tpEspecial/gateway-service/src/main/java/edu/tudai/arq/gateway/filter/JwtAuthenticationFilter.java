@@ -121,6 +121,25 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 // GET, POST, PUT permitidos (operaciones de mantenimiento)
                 return true;
             }
+            // Puede ver tarifas activas
+            if (path.equals("/api/v1/tarifas/activas") && "GET".equals(method)) {
+                return true;
+            }
+            // Puede gestionar facturaciones (excepto ver todas y reportes)
+            if (path.startsWith("/api/v1/facturaciones")) {
+                // Bloquear endpoints administrativos (solo ADMIN)
+                if (path.equals("/api/v1/facturaciones") && "GET".equals(method)) {
+                    return false; // GET todas las facturaciones solo ADMIN
+                }
+                if (path.contains("/total-por-periodo")) {
+                    return false; // Reporte solo ADMIN
+                }
+                if ("DELETE".equals(method)) {
+                    return false; // DELETE solo ADMIN
+                }
+                // Permitir: GET /facturaciones/{id}, GET /facturaciones/viaje/{id}, GET /facturaciones/cuenta/{id}, POST
+                return true;
+            }
             // NO puede ver reportes de monopatines (removido - solo ADMIN)
             return false;
         }
@@ -143,6 +162,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             }
             // - Ver y gestionar sus cuentas
             if (path.startsWith("/api/v1/cuentas")) {
+                // Bloquear operaciones administrativas (solo ADMIN)
+                if (path.contains("/anular") || path.contains("/habilitar")) {
+                    return false;
+                }
                 // Los usuarios pueden gestionar sus cuentas pero no ver todas
                 if (path.matches("/api/v1/cuentas/\\d+.*")) { // Operaciones sobre cuenta específica
                     return true;
@@ -163,12 +186,25 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             if (path.startsWith("/api/v1/paradas") && "GET".equals(method)) {
                 return true;
             }
-            // - Ver facturaciones propias
-            if (path.startsWith("/api/v1/facturaciones") && "GET".equals(method)) {
-                if (path.matches("/api/v1/facturaciones/cuenta/\\d+.*")) {
-                    return true;
+            // - Ver tarifas activas
+            if (path.equals("/api/v1/tarifas/activas") && "GET".equals(method)) {
+                return true;
+            }
+            // - Ver facturaciones
+            if (path.startsWith("/api/v1/facturaciones")) {
+                // Bloquear endpoints administrativos (solo ADMIN)
+                if (path.equals("/api/v1/facturaciones") && "GET".equals(method)) {
+                    return false; // GET todas las facturaciones solo ADMIN
                 }
-                return false;
+                if (path.contains("/total-por-periodo")) {
+                    return false; // Reporte solo ADMIN
+                }
+                // DELETE solo para ADMIN (ya se bloquea más abajo con la validación general de DELETE)
+                if ("DELETE".equals(method)) {
+                    return false;
+                }
+                // Permitir: GET /facturaciones/{id}, GET /facturaciones/viaje/{id}, GET /facturaciones/cuenta/{id}, POST
+                return true;
             }
             return false;
         }
@@ -186,15 +222,12 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String errorMessage;
 
         if (status == HttpStatus.UNAUTHORIZED) {
-            // 401 - No autenticado
             errorType = "No autenticado";
             errorMessage = "Debe proporcionar un token JWT válido";
         } else if (status == HttpStatus.FORBIDDEN) {
-            // 403 - No autorizado
             errorType = "No autorizado";
             errorMessage = "No tiene permisos para acceder a este recurso";
         } else {
-            // Otros errores
             errorType = status.getReasonPhrase();
             errorMessage = message;
         }
@@ -212,7 +245,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -100; // Alta prioridad para ejecutarse antes que otros filtros
+        return -100;
     }
 }
 
