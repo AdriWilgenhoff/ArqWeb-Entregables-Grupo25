@@ -132,7 +132,7 @@ public class MantenimientoServiceImpl implements MantenimientoService {
 
             return new ReporteOperacionDTO(enOperacion, enMantenimiento);
         } catch (ServiceCommunicationException e) {
-            throw e; // Re-lanzar la excepción personalizada
+            throw e;
         } catch (Exception e) {
             throw new ServiceCommunicationException("Error al comunicarse con monopatin-service: " + e.getMessage(), e);
         }

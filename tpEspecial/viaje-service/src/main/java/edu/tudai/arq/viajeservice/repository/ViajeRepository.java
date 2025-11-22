@@ -29,7 +29,6 @@ public interface ViajeRepository extends JpaRepository<Viaje, Long> {
            "GROUP BY v.idMonopatin HAVING COUNT(v) > :cantidadViajes")
     List<Long> findMonopatinesConMasDeXViajes(@Param("cantidadViajes") int cantidadViajes, @Param("anio") int anio);
 
-    // Métodos para reportes de usuarios (Requerimientos e y h)
     List<Viaje> findByFechaHoraInicioBetween(LocalDateTime fechaDesde, LocalDateTime fechaHasta);
 
     List<Viaje> findByIdUsuarioAndFechaHoraInicioBetween(Long idUsuario, LocalDateTime fechaDesde, LocalDateTime fechaHasta);

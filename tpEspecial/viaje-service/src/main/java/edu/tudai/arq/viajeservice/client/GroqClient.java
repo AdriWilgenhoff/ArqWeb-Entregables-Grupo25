@@ -85,7 +85,6 @@ public class GroqClient {
         try {
             var resp = rest.exchange(url, HttpMethod.POST, req, Map.class);
 
-            // Extrae el texto: choices[0].message.content
             List<?> choices = (List<?>) ((Map<?, ?>) resp.getBody()).get("choices");
             Map<?, ?> choice0 = (Map<?, ?>) choices.get(0);
             Map<?, ?> message = (Map<?, ?>) choice0.get("message");

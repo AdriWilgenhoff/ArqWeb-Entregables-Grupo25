@@ -22,7 +22,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // Endpoints que NO requieren autenticación (públicos)
+    // Endpoints que NO requieren autenticación
     private static final List<String> PUBLIC_PATHS = List.of(
             "/api/v1/auth/login",
             "/api/v1/auth/register",

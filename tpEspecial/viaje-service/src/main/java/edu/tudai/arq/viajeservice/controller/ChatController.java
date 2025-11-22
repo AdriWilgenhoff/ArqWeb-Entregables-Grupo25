@@ -78,28 +78,12 @@ public class ChatController {
             @Parameter(description = "ID del usuario autenticado (inyectado por Gateway)", hidden = true)
             Long userId
     ) {
-        // Validar que el usuario esté autenticado (validación básica de infraestructura)
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ChatResponseDTO(false, "Usuario no autenticado. Se requiere JWT.", null));
         }
 
-        // Delegar toda la lógica de negocio al servicio (incluyendo validación PREMIUM)
         return chatService.procesarPrompt(prompt, userId);
-    }
-
-    @GetMapping("/ping")
-    @Operation(
-            summary = "Verificar que el servicio de chat esté funcionando",
-            description = "Endpoint de health check para el servicio de chat IA"
-    )
-    @ApiResponse(responseCode = "200", description = "Servicio funcionando correctamente")
-    public ResponseEntity<ChatResponseDTO> ping() {
-        return ResponseEntity.ok(new ChatResponseDTO(
-                true,
-                "Chat IA con Groq está operativo. Servicio disponible para usuarios PREMIUM.",
-                "OK"
-        ));
     }
 }
 

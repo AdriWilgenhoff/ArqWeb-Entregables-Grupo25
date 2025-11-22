@@ -22,25 +22,22 @@ public class AuthService {
 
     @Transactional
     public AuthDTO.LoginResponse register(AuthDTO.RegisterRequest request) {
-        // Verificar que no exista un usuario con ese email
         if (usuarioRepository.findByEmail(request.email()).isPresent()) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "Ya existe un usuario con el email: " + request.email());
         }
 
-        // Crear el nuevo usuario con la contraseña hasheada
         Usuario nuevoUsuario = new Usuario(
                 request.nombre().trim(),
                 request.apellido().trim(),
                 request.email().trim().toLowerCase(),
                 request.numeroCelular().trim(),
-                passwordEncoder.encode(request.password()), // Hashear la contraseña
-                Rol.USUARIO // Por defecto se registran como USUARIO
+                passwordEncoder.encode(request.password()),
+                Rol.USUARIO
         );
 
         nuevoUsuario = usuarioRepository.save(nuevoUsuario);
 
-        // Generar token JWT
         String token = jwtUtil.generateToken(
                 nuevoUsuario.getId(),
                 nuevoUsuario.getEmail(),

@@ -24,11 +24,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        // Todas las demás rutas requieren autenticación (será validada por el Gateway)
-                        .anyRequest().permitAll() // Permitimos todo porque el Gateway maneja la seguridad
+                        .anyRequest().permitAll()
                 );
 
         return http.build();

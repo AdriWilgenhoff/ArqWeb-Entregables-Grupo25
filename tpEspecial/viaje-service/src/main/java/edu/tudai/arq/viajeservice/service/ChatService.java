@@ -52,7 +52,6 @@ public class ChatService {
 
     @Transactional
     public ResponseEntity<?> procesarPrompt(String promptUsuario, Long idUsuario) {
-        // 1. VALIDAR QUE EL USUARIO TENGA CUENTA PREMIUM (lógica de negocio)
         try {
             var cuentasResponse = cuentaFeignClient.getCuentasByUsuario(idUsuario);
 
@@ -79,7 +78,6 @@ public class ChatService {
                     .body(new ChatResponseDTO(false, "Error al validar tu cuenta: " + e.getMessage(), null));
         }
 
-        // 2. PROCESAR LA CONSULTA
         try {
             String promptFinal = String.format("""
                 Este es el esquema de mi base de datos MySQL para el sistema de viajes en monopatín:
@@ -111,7 +109,6 @@ public class ChatService {
 
             log.info("==== SQL EXTRAÍDA ====\n{}", sql);
 
-            // Quitar el punto y coma final para JDBC/JPA
             String sqlToExecute = sql.endsWith(";") ? sql.substring(0, sql.length() - 1) : sql;
 
             try {
@@ -119,24 +116,19 @@ public class ChatService {
                 String respuestaNatural;
 
                 if (sql.trim().regionMatches(true, 0, "SELECT", 0, 6)) {
-                    // Ejecutar SELECT
                     @SuppressWarnings("unchecked")
                     List<Object> resultadosRaw = entityManager.createNativeQuery(sqlToExecute).getResultList();
 
-                    // Normalizar resultados (convertir escalares a arrays)
                     List<Object[]> resultados = normalizarResultados(resultadosRaw);
                     data = resultados;
 
-                    // Segunda llamada a Groq: convertir resultados a lenguaje natural
                     respuestaNatural = generarRespuestaNatural(promptUsuario, sql, resultados);
 
                     return ResponseEntity.ok(new ChatResponseDTO(true, respuestaNatural, data));
                 } else {
-                    // Ejecutar DML (INSERT/UPDATE/DELETE)
                     int rows = entityManager.createNativeQuery(sqlToExecute).executeUpdate();
                     data = rows;
 
-                    // Respuesta natural para DML
                     respuestaNatural = generarRespuestaNaturalDML(promptUsuario, sql, rows);
 
                     return ResponseEntity.ok(new ChatResponseDTO(true, respuestaNatural, data));
@@ -163,13 +155,11 @@ public class ChatService {
 
         String sql = m.group().trim();
 
-        // Asegurar UNA sola sentencia (hasta el primer ';')
         int first = sql.indexOf(';');
         if (first > -1) {
             sql = sql.substring(0, first + 1);
         }
 
-        // Bloquear DDL
         if (SQL_FORBIDDEN.matcher(sql).find()) {
             log.warn("Sentencia bloqueada por contener DDL prohibido: {}", sql);
             return null;
@@ -183,7 +173,6 @@ public class ChatService {
      */
     private String generarRespuestaNatural(String preguntaOriginal, String sqlEjecutado, List<Object[]> resultados) {
         try {
-            // Formatear los resultados a un string legible
             String resultadosFormateados = formatearResultados(resultados);
 
             String promptRespuesta = String.format("""
@@ -259,11 +248,8 @@ public class ChatService {
 
         for (Object resultado : resultadosRaw) {
             if (resultado instanceof Object[]) {
-                // Ya es un array, agregar directamente
                 resultadosNormalizados.add((Object[]) resultado);
             } else {
-                // Es un valor escalar (Long, Double, String, etc.)
-                // Convertirlo a array de un solo elemento
                 resultadosNormalizados.add(new Object[]{resultado});
             }
         }
@@ -281,11 +267,9 @@ public class ChatService {
 
         StringBuilder sb = new StringBuilder();
 
-        // Si es un solo valor (como COUNT, SUM, etc.)
         if (resultados.size() == 1 && resultados.get(0).length == 1) {
             sb.append(resultados.get(0)[0]);
         } else {
-            // Múltiples filas/columnas
             sb.append("[\n");
             for (int i = 0; i < Math.min(resultados.size(), 10); i++) { // Limitar a 10 filas
                 Object[] fila = resultados.get(i);

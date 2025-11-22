@@ -101,7 +101,6 @@ public class CuentaServiceImpl implements CuentaService {
         Cuenta c = repo.findById(id)
                 .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
 
-        // Permitir saldo negativo (el usuario queda en deuda)
         c.descontarSaldo(in.monto());
         c = repo.save(c);
         return mapper.toResponse(c);
@@ -144,12 +143,10 @@ public class CuentaServiceImpl implements CuentaService {
         Cuenta c = repo.findById(id)
                 .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
 
-        // Validar que no sea ya premium
         if (c.isPremium()) {
             throw new IllegalStateException("La cuenta ya es PREMIUM");
         }
 
-        // Validar saldo suficiente
         if (c.getSaldo() < Cuenta.MONTO_PREMIUM_MENSUAL) {
             throw new IllegalArgumentException(
                     "Saldo insuficiente para upgrade a premium. Requerido: " + Cuenta.MONTO_PREMIUM_MENSUAL +
@@ -157,12 +154,10 @@ public class CuentaServiceImpl implements CuentaService {
             );
         }
 
-        // Descontar el pago mensual
         c.descontarSaldo(Cuenta.MONTO_PREMIUM_MENSUAL);
 
-        // Actualizar a premium
         c.setTipoCuenta(TipoCuenta.PREMIUM);
-        c.renovarCupo(); // Inicializa fecha de pago y resetea km
+        c.renovarCupo();
 
         c = repo.save(c);
         return mapper.toResponse(c);
@@ -178,7 +173,6 @@ public class CuentaServiceImpl implements CuentaService {
             throw new IllegalStateException("Solo las cuentas PREMIUM pueden renovar cupo");
         }
 
-        // Validar saldo suficiente para la renovación
         if (c.getSaldo() < Cuenta.MONTO_PREMIUM_MENSUAL) {
             throw new IllegalArgumentException(
                     "Saldo insuficiente para renovación premium. Requerido: " + Cuenta.MONTO_PREMIUM_MENSUAL +
@@ -189,7 +183,6 @@ public class CuentaServiceImpl implements CuentaService {
         // Descontar el pago mensual
         c.descontarSaldo(Cuenta.MONTO_PREMIUM_MENSUAL);
 
-        // Renovar cupo
         c.renovarCupo();
         repo.save(c);
     }
@@ -213,7 +206,6 @@ public class CuentaServiceImpl implements CuentaService {
 
         Double kilometrosTotales = in.kilometros();
 
-        // Si es PREMIUM, usa kilómetros gratis disponibles
         Double kilometrosDescontados = c.usarKilometrosGratis(kilometrosTotales);
         Double kilometrosACobrar = kilometrosTotales - kilometrosDescontados;
 

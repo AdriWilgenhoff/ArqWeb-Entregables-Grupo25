@@ -164,14 +164,12 @@ public class ViajeServiceImpl implements ViajeService {
             throw new ViajeInvalidoException("Error al validar la ubicación del monopatín: " + e.getMessage());
         }
 
-        // Finalizar cualquier pausa activa
         pausaRepo.findByIdViajeAndHoraFinIsNull(id).ifPresent(pausa -> {
             pausa.finalizarPausa();
             verificarYMarcarPausaExtendida(pausa);
             pausaRepo.save(pausa);
         });
 
-        // Finalizar el viaje con la parada autodetectada
         viaje.finalizarViaje(idParadaFin, in.kilometrosRecorridos());
         viaje = viajeRepo.save(viaje);
 
@@ -180,7 +178,6 @@ public class ViajeServiceImpl implements ViajeService {
         Long tiempoPausaNormal = viaje.calcularTiempoPausaNormal();
         Long tiempoPausaExtendida = viaje.calcularTiempoPausaExtendida();
 
-        // Descontar kilómetros gratis si la cuenta es PREMIUM
         Double kilometrosACobrar = in.kilometrosRecorridos();
         try {
             var descontarKmRequest = new CuentaFeignClient.DescontarKilometrosRequest(in.kilometrosRecorridos());
@@ -195,7 +192,6 @@ public class ViajeServiceImpl implements ViajeService {
             logger.warn("No se pudieron descontar kilómetros gratis: {}", e.getMessage());
         }
 
-        // Crear facturación solo con los kilómetros que quedan por cobrar
         Double costoViaje = null;
         try {
             var facturacionRequest = new FacturacionFeignClient.FacturacionCreateRequest(
@@ -205,7 +201,7 @@ public class ViajeServiceImpl implements ViajeService {
                     tiempoSinPausas,
                     tiempoPausaNormal,
                     tiempoPausaExtendida,
-                    kilometrosACobrar  // Solo factura los km que no fueron cubiertos por los gratuitos
+                    kilometrosACobrar
             );
 
             var facturacionResponse = facturacionClient.crearFacturacion(facturacionRequest);
@@ -219,8 +215,6 @@ public class ViajeServiceImpl implements ViajeService {
         } catch (Exception e) {
             logger.warn("No se pudo crear facturación para el viaje {}: {}", id, e.getMessage());
         }
-
-        // Facturación ya descuenta el saldo automáticamente
 
         try {
             Long tiempoPausado = tiempoPausaNormal + tiempoPausaExtendida;
@@ -396,7 +390,6 @@ public class ViajeServiceImpl implements ViajeService {
             viajes = viajeRepo.findAll();
         }
 
-        // Agrupar por usuario
         Map<Long, List<Viaje>> viajesPorUsuario = viajes.stream()
                 .filter(v -> v.getIdUsuario() != null)
                 .collect(Collectors.groupingBy(Viaje::getIdUsuario));
@@ -407,7 +400,6 @@ public class ViajeServiceImpl implements ViajeService {
             Long idUsuario = entry.getKey();
             List<Viaje> viajesUsuario = entry.getValue();
 
-            // Si se especificó tipo de cuenta, filtrar
             if (tipoCuenta != null && !tipoCuenta.isBlank()) {
                 try {
                     var cuentaResponse = cuentaClient.getCuentaById(
@@ -416,7 +408,7 @@ public class ViajeServiceImpl implements ViajeService {
                     if (cuentaResponse.getBody() != null) {
                         String tipoCuentaUsuario = cuentaResponse.getBody().tipoCuenta();
                         if (!tipoCuenta.equalsIgnoreCase(tipoCuentaUsuario)) {
-                            continue; // Saltar este usuario
+                            continue;
                         }
                     }
                 } catch (Exception e) {

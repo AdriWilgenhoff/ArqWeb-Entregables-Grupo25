@@ -50,7 +50,6 @@ public class FacturacionServiceImpl implements FacturacionService {
 
         LocalDate hoy = LocalDate.now();
 
-        // Obtener tarifas vigentes
         Tarifa tarifaNormal = tarifaRepo.findTarifaVigente(TipoTarifa.NORMAL, hoy)
                 .orElseThrow(() -> new TarifaNotFoundException("No hay tarifa NORMAL vigente"));
 
@@ -60,15 +59,11 @@ public class FacturacionServiceImpl implements FacturacionService {
         Tarifa tarifaExtendida = tarifaRepo.findTarifaVigente(TipoTarifa.PAUSA_EXTENDIDA, hoy)
                 .orElse(null);
 
-        // ==================== CALCULAR COSTO DE KILÓMETROS ====================
-
         Double kilometrosACobrar = in.kilometrosRecorridos() != null ? in.kilometrosRecorridos() : 0.0;
         Double costoKilometros = kilometrosACobrar * tarifaNormal.getPrecioPorMinuto(); // Usando precioPorMinuto como precio/km
 
         logger.info("Cálculo inicial - Km a cobrar: {}, Tarifa: ${}/km, Costo base: ${}",
                 kilometrosACobrar, tarifaNormal.getPrecioPorMinuto(), costoKilometros);
-
-        // ==================== VERIFICAR SI ES PREMIUM ====================
 
         boolean esPremium = false;
         try {
@@ -77,7 +72,6 @@ public class FacturacionServiceImpl implements FacturacionService {
                 esPremium = "PREMIUM".equals(cuentaResponse.getBody().tipoCuenta());
 
                 if (esPremium) {
-                    // Aplicar descuento PREMIUM del 50% sobre los kilómetros
                     costoKilometros *= 0.5;
                     logger.info("Cuenta PREMIUM - Descuento 50% aplicado a kilómetros. Costo final km: ${}", costoKilometros);
                 }
@@ -86,7 +80,6 @@ public class FacturacionServiceImpl implements FacturacionService {
             logger.warn("No se pudo verificar si la cuenta es PREMIUM: {}", e.getMessage());
         }
 
-        // ==================== CALCULAR COSTO DE PAUSAS ====================
 
         Long tiempoPausaNormal = in.tiempoPausaNormal() != null ? in.tiempoPausaNormal() : 0L;
         Long tiempoPausaExtendida = in.tiempoPausaExtendida() != null ? in.tiempoPausaExtendida() : 0L;
@@ -102,16 +95,12 @@ public class FacturacionServiceImpl implements FacturacionService {
         logger.info("Costos de pausas - Normal: ${} ({} min), Extendida: ${} ({} min)",
                 costoPausa, tiempoPausaNormal, costoPausaExtendida, tiempoPausaExtendida);
 
-        // ==================== COSTO TOTAL ====================
-
         double montoTotal = costoKilometros + costoPausa + costoPausaExtendida;
 
         logger.info("FACTURACIÓN FINAL - Viaje: {}, Cuenta: {}, Premium: {}, " +
                 "Costo Km: ${}, Costo Pausas: ${}, TOTAL: ${}",
                 in.idViaje(), in.idCuenta(), esPremium,
                 costoKilometros, (costoPausa + costoPausaExtendida), montoTotal);
-
-        // ==================== GUARDAR FACTURACIÓN PRIMERO ====================
 
         Long tiempoPausado = tiempoPausaNormal + tiempoPausaExtendida;
 
@@ -129,8 +118,6 @@ public class FacturacionServiceImpl implements FacturacionService {
         facturacion = facturacionRepo.save(facturacion);
         logger.info("Facturación guardada exitosamente - ID: {}, Monto: ${}", facturacion.getId(), montoTotal);
 
-        // ==================== DESCONTAR SALDO (permitir negativo) ====================
-
         if (montoTotal > 0) {
             try {
                 var descontarRequest = new CuentaFeignClient.DescontarSaldoRequest(montoTotal);
@@ -139,7 +126,6 @@ public class FacturacionServiceImpl implements FacturacionService {
             } catch (Exception e) {
                 logger.warn("Advertencia: No se pudo descontar saldo de la cuenta {} (saldo negativo permitido): {}",
                         in.idCuenta(), e.getMessage());
-                // La facturación ya está guardada, el usuario queda en deuda
             }
         }
 

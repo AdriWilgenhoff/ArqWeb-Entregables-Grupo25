@@ -36,9 +36,5 @@ public interface CuentaService {
 
     Double usarKilometrosGratis(Long id, Double kilometros);
 
-    /**
-     * Descuenta kilómetros gratis si la cuenta es PREMIUM.
-     * Retorna cuántos km se descontaron y cuántos quedan por cobrar.
-     */
     CuentaDTO.ResultadoDescuentoKm descontarKilometrosGratis(Long id, CuentaDTO.DescontarKilometros in);
 }

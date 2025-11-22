@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .exceptionHandling(exceptionHandling -> exceptionHandling
-                        // 401 - No autenticado (sin token o token inválido)
+                        // 401 - No autenticado
                         .authenticationEntryPoint((exchange, ex) -> {
                             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                             return exchange.getResponse().writeWith(
@@ -33,7 +33,7 @@ public class SecurityConfig {
                                     ))
                             );
                         })
-                        // 403 - No autorizado (autenticado pero sin permisos)
+                        // 403 - No autorizado
                         .accessDeniedHandler((exchange, denied) -> {
                             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                             return exchange.getResponse().writeWith(
