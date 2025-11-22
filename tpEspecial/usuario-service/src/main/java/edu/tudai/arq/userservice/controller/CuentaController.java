@@ -229,6 +229,23 @@ public class CuentaController {
         service.renovarCupo(id);
     }
 
+    @PostMapping("/{id}/descontar-kilometros")
+    @Operation(
+            summary = "Descontar kilómetros gratis de cuenta PREMIUM",
+            description = "Descuenta kilómetros de los gratuitos disponibles. Retorna cuántos km se descontaron y cuántos quedan por cobrar. " +
+                    "Endpoint interno usado por viaje-service. Acceso: http://localhost:8080/api/v1/cuentas/{id}/descontar-kilometros"
+    )
+    @ApiResponse(responseCode = "200", description = "Kilómetros descontados exitosamente",
+            content = @Content(schema = @Schema(implementation = CuentaDTO.ResultadoDescuentoKm.class)))
+    @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
+    public ResponseEntity<CuentaDTO.ResultadoDescuentoKm> descontarKilometros(
+            @PathVariable Long id,
+            @Valid @RequestBody CuentaDTO.DescontarKilometros in) {
+        return ResponseEntity.ok(service.descontarKilometrosGratis(id, in));
+    }
+
     @PostMapping("/{id}/usar-kilometros-gratis")
     @Operation(
             summary = "Usar kilómetros gratis de cuenta PREMIUM",

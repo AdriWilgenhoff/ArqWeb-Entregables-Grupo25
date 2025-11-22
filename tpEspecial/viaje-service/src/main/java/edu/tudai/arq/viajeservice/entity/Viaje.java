@@ -37,12 +37,9 @@ public class Viaje {
     @Column(name = "fecha_hora_fin")
     private LocalDateTime fechaHoraFin;
 
-    @Column(name = "id_parada_inicio", nullable = false)
-    private Long idParadaInicio;
-
     @Setter
     @Column(name = "id_parada_fin")
-    private Long idParadaFin;
+    private String idParadaFin;
 
     @Setter
     @Column(name = "kilometros_recorridos", nullable = false)
@@ -68,11 +65,10 @@ public class Viaje {
         this.pausas = new ArrayList<>();
     }
 
-    public Viaje(Long idCuenta, Long idUsuario, Long idMonopatin, Long idParadaInicio) {
+    public Viaje(Long idCuenta, Long idUsuario, Long idMonopatin) {
         this.idCuenta = idCuenta;
         this.idUsuario = idUsuario;
         this.idMonopatin = idMonopatin;
-        this.idParadaInicio = idParadaInicio;
         this.fechaHoraInicio = LocalDateTime.now();
         this.kilometrosRecorridos = 0.0;
         this.estado = EstadoViaje.EN_CURSO;
@@ -87,7 +83,7 @@ public class Viaje {
         this.pausas.add(pausa);
     }
 
-    public void finalizarViaje(Long idParadaFin, Double kilometrosRecorridos) {
+    public void finalizarViaje(String idParadaFin, Double kilometrosRecorridos) {
         this.fechaHoraFin = LocalDateTime.now();
         this.idParadaFin = idParadaFin;
         this.kilometrosRecorridos = kilometrosRecorridos;

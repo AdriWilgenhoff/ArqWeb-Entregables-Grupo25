@@ -51,6 +51,25 @@ public class CuentaDTO {
             Double monto
     ) {}
 
+    /** DTO para descontar kilómetros gratis */
+    @Schema(description = "DTO para descontar kilómetros gratis de cuenta PREMIUM", name = "CuentaDescontarKilometros")
+    public record DescontarKilometros(
+            @NotNull(message = "Los kilómetros son obligatorios")
+            @PositiveOrZero(message = "Los kilómetros no pueden ser negativos")
+            @Schema(description = "Kilómetros totales del viaje", example = "12.5")
+            Double kilometros
+    ) {}
+
+    /** DTO de respuesta al descontar kilómetros */
+    @Schema(description = "Resultado del descuento de kilómetros", name = "ResultadoDescuentoKm")
+    public record ResultadoDescuentoKm(
+            @Schema(description = "Kilómetros que se descontaron de los gratuitos", example = "10.0")
+            Double kilometrosDescontados,
+
+            @Schema(description = "Kilómetros que quedan por cobrar (para facturación)", example = "2.5")
+            Double kilometrosACobrar
+    ) {}
+
     /** DTO de salida */
     @Schema(description = "DTO de respuesta para Cuentas", name = "CuentaResponse")
     public record Response(

@@ -60,63 +60,58 @@ public class FacturacionServiceImpl implements FacturacionService {
         Tarifa tarifaExtendida = tarifaRepo.findTarifaVigente(TipoTarifa.PAUSA_EXTENDIDA, hoy)
                 .orElse(null);
 
-        // Tiempos del viaje
-        Long tiempoNormal = in.tiempoSinPausas();
-        Long tiempoPausaNormal = in.tiempoPausaNormal();
-        Long tiempoPausaExtendida = in.tiempoPausaExtendida();
+        // ==================== CALCULAR COSTO DE KILÓMETROS ====================
 
-        // Calcular costos base
-        double costoNormal = tiempoNormal * tarifaNormal.getPrecioPorMinuto();
+        Double kilometrosACobrar = in.kilometrosRecorridos() != null ? in.kilometrosRecorridos() : 0.0;
+        Double costoKilometros = kilometrosACobrar * tarifaNormal.getPrecioPorMinuto(); // Usando precioPorMinuto como precio/km
+
+        logger.info("Cálculo inicial - Km a cobrar: {}, Tarifa: ${}/km, Costo base: ${}",
+                kilometrosACobrar, tarifaNormal.getPrecioPorMinuto(), costoKilometros);
+
+        // ==================== VERIFICAR SI ES PREMIUM ====================
+
+        boolean esPremium = false;
+        try {
+            var cuentaResponse = cuentaClient.getCuentaById(in.idCuenta());
+            if (cuentaResponse.getBody() != null) {
+                esPremium = "PREMIUM".equals(cuentaResponse.getBody().tipoCuenta());
+
+                if (esPremium) {
+                    // Aplicar descuento PREMIUM del 50% sobre los kilómetros
+                    costoKilometros *= 0.5;
+                    logger.info("Cuenta PREMIUM - Descuento 50% aplicado a kilómetros. Costo final km: ${}", costoKilometros);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("No se pudo verificar si la cuenta es PREMIUM: {}", e.getMessage());
+        }
+
+        // ==================== CALCULAR COSTO DE PAUSAS ====================
+
+        Long tiempoPausaNormal = in.tiempoPausaNormal() != null ? in.tiempoPausaNormal() : 0L;
+        Long tiempoPausaExtendida = in.tiempoPausaExtendida() != null ? in.tiempoPausaExtendida() : 0L;
+
         double costoPausa = (tarifaPausa != null && tiempoPausaNormal > 0)
                 ? tiempoPausaNormal * tarifaPausa.getPrecioPorMinuto()
                 : 0.0;
+
         double costoPausaExtendida = (tarifaExtendida != null && tiempoPausaExtendida > 0)
                 ? tiempoPausaExtendida * tarifaExtendida.getPrecioPorMinuto()
                 : 0.0;
 
-        double montoTotalBase = costoNormal + costoPausa + costoPausaExtendida;
+        logger.info("Costos de pausas - Normal: ${} ({} min), Extendida: ${} ({} min)",
+                costoPausa, tiempoPausaNormal, costoPausaExtendida, tiempoPausaExtendida);
 
-        // ==================== LÓGICA PREMIUM ====================
-        Double montoTotal = montoTotalBase;
-        boolean esPremium = false;
-        Double kmGratisUsados = 0.0;
+        // ==================== COSTO TOTAL ====================
 
-        try {
-            // Obtener información de la cuenta
-            var cuentaResponse = cuentaClient.getCuentaById(in.idCuenta());
-            if (cuentaResponse.getBody() != null) {
-                var cuenta = cuentaResponse.getBody();
-                esPremium = "PREMIUM".equals(cuenta.tipoCuenta());
+        double montoTotal = costoKilometros + costoPausa + costoPausaExtendida;
 
-                if (esPremium && in.kilometrosRecorridos() != null && in.kilometrosRecorridos() > 0) {
-                    // Usar kilómetros gratis si están disponibles
-                    if (cuenta.kilometrosDisponibles() != null && cuenta.kilometrosDisponibles() > 0) {
-                        var kmGratisResponse = cuentaClient.usarKilometrosGratis(
-                                in.idCuenta(),
-                                in.kilometrosRecorridos()
-                        );
+        logger.info("FACTURACIÓN FINAL - Viaje: {}, Cuenta: {}, Premium: {}, " +
+                "Costo Km: ${}, Costo Pausas: ${}, TOTAL: ${}",
+                in.idViaje(), in.idCuenta(), esPremium,
+                costoKilometros, (costoPausa + costoPausaExtendida), montoTotal);
 
-                        if (kmGratisResponse.getBody() != null) {
-                            kmGratisUsados = kmGratisResponse.getBody();
-                            Double proporcionGratis = kmGratisUsados / in.kilometrosRecorridos();
-
-                            // Reducir el monto proporcionalmente a los km gratis
-                            montoTotal *= (1 - proporcionGratis);
-
-                            logger.info("Cuenta PREMIUM - Km gratis usados: {} de {} km. Descuento aplicado: {}%",
-                                    kmGratisUsados, in.kilometrosRecorridos(), proporcionGratis * 100);
-                        }
-                    }
-
-                    // Si es premium (con o sin km gratis), aplicar descuento 50% al resto
-                    montoTotal *= 0.5;
-                    logger.info("Cuenta PREMIUM - Descuento 50% aplicado. Monto final: ${}", montoTotal);
-                }
-            }
-        } catch (Exception e) {
-            logger.warn("No se pudo aplicar lógica premium para cuenta {}: {}", in.idCuenta(), e.getMessage());
-            // Si falla, usar monto base sin descuentos
-        }
+        // ==================== GUARDAR FACTURACIÓN PRIMERO ====================
 
         Long tiempoPausado = tiempoPausaNormal + tiempoPausaExtendida;
 
@@ -132,8 +127,21 @@ public class FacturacionServiceImpl implements FacturacionService {
         );
 
         facturacion = facturacionRepo.save(facturacion);
-        logger.info("Facturación creada - Viaje: {}, Cuenta: {}, Premium: {}, Km gratis: {}, Monto: ${}",
-                in.idViaje(), in.idCuenta(), esPremium, kmGratisUsados, montoTotal);
+        logger.info("Facturación guardada exitosamente - ID: {}, Monto: ${}", facturacion.getId(), montoTotal);
+
+        // ==================== DESCONTAR SALDO (permitir negativo) ====================
+
+        if (montoTotal > 0) {
+            try {
+                var descontarRequest = new CuentaFeignClient.DescontarSaldoRequest(montoTotal);
+                cuentaClient.descontarSaldo(in.idCuenta(), descontarRequest);
+                logger.info("Saldo descontado exitosamente: ${} de cuenta ID: {}", montoTotal, in.idCuenta());
+            } catch (Exception e) {
+                logger.warn("Advertencia: No se pudo descontar saldo de la cuenta {} (saldo negativo permitido): {}",
+                        in.idCuenta(), e.getMessage());
+                // La facturación ya está guardada, el usuario queda en deuda
+            }
+        }
 
         return mapper.toResponse(facturacion);
     }

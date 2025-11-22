@@ -101,11 +101,7 @@ public class CuentaServiceImpl implements CuentaService {
         Cuenta c = repo.findById(id)
                 .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
 
-        // Validar que haya saldo suficiente
-        if (c.getSaldo() < in.monto()) {
-            throw new IllegalArgumentException("Saldo insuficiente. Saldo actual: " + c.getSaldo() + ", monto a descontar: " + in.monto());
-        }
-
+        // Permitir saldo negativo (el usuario queda en deuda)
         c.descontarSaldo(in.monto());
         c = repo.save(c);
         return mapper.toResponse(c);
@@ -207,5 +203,25 @@ public class CuentaServiceImpl implements CuentaService {
         Double kmUsados = c.usarKilometrosGratis(kilometros);
         repo.save(c);
         return kmUsados;
+    }
+
+    @Override
+    @Transactional
+    public CuentaDTO.ResultadoDescuentoKm descontarKilometrosGratis(Long id, CuentaDTO.DescontarKilometros in) {
+        Cuenta c = repo.findById(id)
+                .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
+
+        Double kilometrosTotales = in.kilometros();
+
+        // Si es PREMIUM, usa kilómetros gratis disponibles
+        Double kilometrosDescontados = c.usarKilometrosGratis(kilometrosTotales);
+        Double kilometrosACobrar = kilometrosTotales - kilometrosDescontados;
+
+        repo.save(c);
+
+        return new CuentaDTO.ResultadoDescuentoKm(
+                kilometrosDescontados,
+                kilometrosACobrar
+        );
     }
 }

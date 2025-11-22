@@ -16,6 +16,15 @@ public interface CuentaFeignClient {
             Double monto
     ) {}
 
+    record DescontarKilometrosRequest(
+            Double kilometros
+    ) {}
+
+    record ResultadoDescuentoKm(
+            Double kilometrosDescontados,
+            Double kilometrosACobrar
+    ) {}
+
     record CuentaResponse(
             Long id,
             String numeroIdentificatorio,
@@ -33,6 +42,10 @@ public interface CuentaFeignClient {
     @PostMapping("/api/v1/cuentas/{id}/descontar-saldo")
     ResponseEntity<CuentaResponse> descontarSaldo(@PathVariable("id") Long id,
                                                    @RequestBody DescontarSaldoRequest request);
+
+    @PostMapping("/api/v1/cuentas/{id}/descontar-kilometros")
+    ResponseEntity<ResultadoDescuentoKm> descontarKilometros(@PathVariable("id") Long id,
+                                                             @RequestBody DescontarKilometrosRequest request);
 
     @GetMapping("/api/v1/usuarios/{idUsuario}/cuentas")
     ResponseEntity<List<CuentaResponse>> getCuentasByUsuario(@PathVariable("idUsuario") Long idUsuario);

@@ -102,8 +102,8 @@ public class Cuenta {
     }
 
     public boolean descontarSaldo(Double monto) {
-        if (monto > 0 && this.saldo >= monto) {
-            this.saldo -= monto;
+        if (monto > 0) {
+            this.saldo -= monto; // Permite saldo negativo (deuda)
             return true;
         }
         return false;

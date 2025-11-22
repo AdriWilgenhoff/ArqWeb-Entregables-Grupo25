@@ -2,11 +2,9 @@ package edu.tudai.arq.mantenimientoservice.controller;
 
 import edu.tudai.arq.mantenimientoservice.dto.MantenimientoDTO;
 import edu.tudai.arq.mantenimientoservice.dto.ReporteOperacionDTO;
-import edu.tudai.arq.mantenimientoservice.dto.ReporteUsoDTO;
 import edu.tudai.arq.mantenimientoservice.exception.ApiError;
 import edu.tudai.arq.mantenimientoservice.service.interfaces.MantenimientoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -161,22 +159,6 @@ public class MantenimientoController {
     @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
     public ResponseEntity<ReporteOperacionDTO> operativosVsMantenimiento() {
         return ResponseEntity.ok(service.operativosVsMantenimiento());
-    }
-
-    @GetMapping("/reporte-uso")
-    @Operation(
-            summary = "Generar reporte de uso de monopatines por kilómetros (Requerimiento a)",
-            description = "Requiere rol ADMINISTRADOR. Genera reporte de uso para determinar si un monopatín requiere mantenimiento. Los monopatines se ordenan por kilómetros descendente. Acceso: http://localhost:8080/api/v1/mantenimientos/reporte-uso"
-    )
-    @ApiResponse(responseCode = "200", description = "Reporte de uso generado exitosamente",
-            content = @Content(schema = @Schema(implementation = ReporteUsoDTO.Response.class)))
-    @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
-    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
-    public ResponseEntity<List<ReporteUsoDTO.Response>> generarReporteUso(
-            @RequestParam(required = false, defaultValue = "true")
-            @Parameter(description = "Incluir tiempos de pausa en el cálculo", example = "true")
-            boolean incluirPausas) {
-        return ResponseEntity.ok(service.generarReporteUso(incluirPausas));
     }
 }
 

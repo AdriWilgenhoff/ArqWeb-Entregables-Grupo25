@@ -12,8 +12,7 @@ CREATE TABLE viaje (
     kilometros_recorridos DOUBLE COMMENT 'Kilómetros totales recorridos en el viaje',
     estado VARCHAR(20) NOT NULL COMMENT 'Estado del viaje: EN_CURSO, PAUSADO, FINALIZADO',
     costo_total DOUBLE COMMENT 'Costo total del viaje en pesos',
-    id_parada_inicio BIGINT COMMENT 'ID de la parada donde comenzó el viaje',
-    id_parada_fin BIGINT COMMENT 'ID de la parada donde finalizó el viaje'
+    id_parada_fin VARCHAR(255) COMMENT 'ID de la parada donde finalizó el viaje (String porque usa NoSQL/MongoDB). Sistema autodetecta la parada al finalizar.'
 ) COMMENT='Tabla que almacena información de los viajes realizados por los usuarios';
 
 CREATE TABLE pausa (
@@ -32,4 +31,7 @@ CREATE TABLE pausa (
 -- 4. Las pausas extendidas (>15 min) tienen el campo extendida=TRUE
 -- 5. Para calcular tiempos de viaje usar TIMESTAMPDIFF(MINUTE, fecha_hora_inicio, fecha_hora_fin)
 -- 6. La base de datos se llama 'viaje' y usa MySQL
+-- 7. id_parada_fin es VARCHAR (String) porque las paradas usan NoSQL (MongoDB)
+-- 8. NO existe id_parada_inicio - los viajes pueden iniciar desde cualquier ubicación
+-- 9. El sistema autodetecta la parada al finalizar mediante GPS del monopatín
 

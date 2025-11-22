@@ -74,7 +74,7 @@ public class ViajeServiceImpl implements ViajeService {
             if (!cuenta.habilitada()) {
                 throw new ViajeInvalidoException("La cuenta con ID " + in.idCuenta() + " está anulada/deshabilitada");
             }
-            if (cuenta.saldo() == null || cuenta.saldo() <= 0) {
+            if (cuenta.saldo() == null || cuenta.saldo() < 0) {
                 throw new ViajeInvalidoException("La cuenta no tiene saldo suficiente para iniciar un viaje");
             }
         } catch (ViajeInvalidoException e) {
@@ -136,6 +136,7 @@ public class ViajeServiceImpl implements ViajeService {
             throw new ViajeInvalidoException("Error al obtener ubicación del monopatín: " + e.getMessage());
         }
 
+        String idParadaFin;
         try {
             var paradasResponse = paradaClient.findParadasCercanas(
                     monopatin.latitud(),
@@ -151,24 +152,27 @@ public class ViajeServiceImpl implements ViajeService {
                 );
             }
 
-            if (in.idParadaFin() == null) {
-                var paradaMasCercana = paradasResponse.getBody().get(0);
-                logger.info("Parada automáticamente seleccionada: {}", paradaMasCercana.nombre());
-            }
+            var paradaMasCercana = paradasResponse.getBody().get(0);
+            idParadaFin = paradaMasCercana.id();
+            logger.info("Viaje {} finalizando. Parada autodetectada: ID={}, Nombre={}",
+                    id, idParadaFin, paradaMasCercana.nombre());
 
         } catch (ViajeInvalidoException e) {
             throw e;
         } catch (Exception e) {
-            logger.warn("No se pudo validar parada al finalizar viaje: {}", e.getMessage());
+            logger.error("Error al validar parada al finalizar viaje: {}", e.getMessage(), e);
+            throw new ViajeInvalidoException("Error al validar la ubicación del monopatín: " + e.getMessage());
         }
 
+        // Finalizar cualquier pausa activa
         pausaRepo.findByIdViajeAndHoraFinIsNull(id).ifPresent(pausa -> {
             pausa.finalizarPausa();
             verificarYMarcarPausaExtendida(pausa);
             pausaRepo.save(pausa);
         });
 
-        viaje.finalizarViaje(in.idParadaFin(), in.kilometrosRecorridos());
+        // Finalizar el viaje con la parada autodetectada
+        viaje.finalizarViaje(idParadaFin, in.kilometrosRecorridos());
         viaje = viajeRepo.save(viaje);
 
         Long tiempoTotal = viaje.calcularTiempoTotal();
@@ -176,6 +180,22 @@ public class ViajeServiceImpl implements ViajeService {
         Long tiempoPausaNormal = viaje.calcularTiempoPausaNormal();
         Long tiempoPausaExtendida = viaje.calcularTiempoPausaExtendida();
 
+        // Descontar kilómetros gratis si la cuenta es PREMIUM
+        Double kilometrosACobrar = in.kilometrosRecorridos();
+        try {
+            var descontarKmRequest = new CuentaFeignClient.DescontarKilometrosRequest(in.kilometrosRecorridos());
+            var resultadoKm = cuentaClient.descontarKilometros(viaje.getIdCuenta(), descontarKmRequest);
+
+            if (resultadoKm.getBody() != null) {
+                kilometrosACobrar = resultadoKm.getBody().kilometrosACobrar();
+                logger.info("Kilómetros PREMIUM descontados: {}. Quedan por cobrar: {}",
+                        resultadoKm.getBody().kilometrosDescontados(), kilometrosACobrar);
+            }
+        } catch (Exception e) {
+            logger.warn("No se pudieron descontar kilómetros gratis: {}", e.getMessage());
+        }
+
+        // Crear facturación solo con los kilómetros que quedan por cobrar
         Double costoViaje = null;
         try {
             var facturacionRequest = new FacturacionFeignClient.FacturacionCreateRequest(
@@ -185,7 +205,7 @@ public class ViajeServiceImpl implements ViajeService {
                     tiempoSinPausas,
                     tiempoPausaNormal,
                     tiempoPausaExtendida,
-                    in.kilometrosRecorridos() // Agregar kilómetros para descuentos premium
+                    kilometrosACobrar  // Solo factura los km que no fueron cubiertos por los gratuitos
             );
 
             var facturacionResponse = facturacionClient.crearFacturacion(facturacionRequest);
@@ -194,21 +214,13 @@ public class ViajeServiceImpl implements ViajeService {
                 costoViaje = facturacionResponse.getBody().montoTotal();
                 viaje.setCostoTotal(costoViaje);
                 viaje = viajeRepo.save(viaje);
+                logger.info("Facturación creada. Costo del viaje: ${}", costoViaje);
             }
         } catch (Exception e) {
             logger.warn("No se pudo crear facturación para el viaje {}: {}", id, e.getMessage());
         }
 
-        if (costoViaje != null && costoViaje > 0) {
-            try {
-                var descontarRequest = new CuentaFeignClient.DescontarSaldoRequest(costoViaje);
-                cuentaClient.descontarSaldo(viaje.getIdCuenta(), descontarRequest);
-                logger.info("Saldo descontado exitosamente: ${} de cuenta ID: {}", costoViaje, viaje.getIdCuenta());
-            } catch (Exception e) {
-                logger.error("No se pudo descontar saldo de la cuenta {}: {}", viaje.getIdCuenta(), e.getMessage());
-                // TODO: Implementar compensación o sistema de eventos para consistencia eventual
-            }
-        }
+        // Facturación ya descuenta el saldo automáticamente
 
         try {
             Long tiempoPausado = tiempoPausaNormal + tiempoPausaExtendida;
@@ -432,7 +444,6 @@ public class ViajeServiceImpl implements ViajeService {
             ));
         }
 
-        // Ordenar por tiempo total de uso (descendente) - Usuario más activo = más tiempo de uso
         reportes.sort((r1, r2) -> Long.compare(r2.tiempoTotalMinutos(), r1.tiempoTotalMinutos()));
 
         return reportes;

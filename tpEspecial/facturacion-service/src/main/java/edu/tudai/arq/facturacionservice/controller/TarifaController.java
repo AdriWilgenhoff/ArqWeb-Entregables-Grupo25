@@ -31,7 +31,11 @@ public class TarifaController {
     @PostMapping
     @Operation(
             summary = "Crear una nueva tarifa (Requerimiento f)",
-            description = "Requiere rol ADMINISTRADOR. Permite definir tarifas de tres tipos: NORMAL (uso regular), PAUSA (durante pausas de hasta 15 min) y PAUSA_EXTENDIDA (pausas mayores a 15 min). Acceso: http://localhost:8080/api/v1/tarifas"
+            description = "Requiere rol ADMINISTRADOR. Permite definir tarifas de tres tipos:\n" +
+                    "- NORMAL: precio por KILÓMETRO recorrido (ej: $50/km)\n" +
+                    "- PAUSA: precio por MINUTO de pausa normal (≤15 min, ej: $5/min)\n" +
+                    "- PAUSA_EXTENDIDA: precio por MINUTO de pausa extendida (>15 min, solo excedente, ej: $10/min)\n" +
+                    "El campo 'precioPorMinuto' se interpreta según el tipo de tarifa. Acceso: http://localhost:8080/api/v1/tarifas"
     )
     @ApiResponse(responseCode = "201", description = "Tarifa creada exitosamente",
             content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))

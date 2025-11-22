@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/viajes/chat")
+@RequestMapping("/api/v1/chat")
 @Tag(name = "Chat IA", description = "API de chat con IA para consultas sobre viajes (solo usuarios PREMIUM)")
 public class ChatController {
 
@@ -78,13 +78,13 @@ public class ChatController {
             @Parameter(description = "ID del usuario autenticado (inyectado por Gateway)", hidden = true)
             Long userId
     ) {
-        // Validar que el usuario esté autenticado
+        // Validar que el usuario esté autenticado (validación básica de infraestructura)
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ChatResponseDTO(false, "Usuario no autenticado. Se requiere JWT.", null));
         }
 
-        // Procesar la consulta
+        // Delegar toda la lógica de negocio al servicio (incluyendo validación PREMIUM)
         return chatService.procesarPrompt(prompt, userId);
     }
 

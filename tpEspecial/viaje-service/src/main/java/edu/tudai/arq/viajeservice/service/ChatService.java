@@ -2,6 +2,7 @@ package edu.tudai.arq.viajeservice.service;
 
 import edu.tudai.arq.viajeservice.client.GroqClient;
 import edu.tudai.arq.viajeservice.dto.ChatResponseDTO;
+import edu.tudai.arq.viajeservice.feignclient.CuentaFeignClient;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
@@ -28,16 +29,16 @@ public class ChatService {
     private EntityManager entityManager;
 
     private final GroqClient groqClient;
+    private final CuentaFeignClient cuentaFeignClient;
     private final String CONTEXTO_SQL;
 
-    // Regex para extraer SQL (acepta SELECT/INSERT/UPDATE/DELETE)
     private static final Pattern SQL_ALLOWED = Pattern.compile("(?is)\\b(SELECT|INSERT|UPDATE|DELETE)\\b[\\s\\S]*?;");
 
-    // Bloqueamos DDL peligrosos
     private static final Pattern SQL_FORBIDDEN = Pattern.compile("(?i)\\b(DROP|TRUNCATE|ALTER|CREATE|GRANT|REVOKE)\\b");
 
-    public ChatService(GroqClient groqClient) {
+    public ChatService(GroqClient groqClient, CuentaFeignClient cuentaFeignClient) {
         this.groqClient = groqClient;
+        this.cuentaFeignClient = cuentaFeignClient;
         this.CONTEXTO_SQL = cargarEsquemaSQL("schema_viajes.sql");
     }
 
@@ -51,6 +52,34 @@ public class ChatService {
 
     @Transactional
     public ResponseEntity<?> procesarPrompt(String promptUsuario, Long idUsuario) {
+        // 1. VALIDAR QUE EL USUARIO TENGA CUENTA PREMIUM (lógica de negocio)
+        try {
+            var cuentasResponse = cuentaFeignClient.getCuentasByUsuario(idUsuario);
+
+            if (cuentasResponse == null || cuentasResponse.getBody() == null || cuentasResponse.getBody().isEmpty()) {
+                log.warn("Usuario {} no tiene cuentas asociadas", idUsuario);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ChatResponseDTO(false, "No tienes ninguna cuenta asociada. Este servicio requiere una cuenta PREMIUM.", null));
+            }
+
+            boolean tienePremium = cuentasResponse.getBody().stream()
+                    .anyMatch(cuenta -> "PREMIUM".equalsIgnoreCase(cuenta.tipoCuenta()));
+
+            if (!tienePremium) {
+                log.warn("Usuario {} no tiene cuenta PREMIUM", idUsuario);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ChatResponseDTO(false, "Acceso denegado. Este servicio solo está disponible para usuarios con cuenta PREMIUM.", null));
+            }
+
+            log.info("Usuario {} tiene cuenta PREMIUM - acceso concedido al chat IA", idUsuario);
+
+        } catch (Exception e) {
+            log.error("Error al validar cuenta del usuario {}: {}", idUsuario, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ChatResponseDTO(false, "Error al validar tu cuenta: " + e.getMessage(), null));
+        }
+
+        // 2. PROCESAR LA CONSULTA
         try {
             String promptFinal = String.format("""
                 Este es el esquema de mi base de datos MySQL para el sistema de viajes en monopatín:

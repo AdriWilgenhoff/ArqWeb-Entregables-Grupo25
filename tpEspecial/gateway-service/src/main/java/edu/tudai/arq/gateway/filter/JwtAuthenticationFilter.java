@@ -22,7 +22,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // Rutas públicas que no requieren autenticación
+    // Endpoints que NO requieren autenticación (públicos)
     private static final List<String> PUBLIC_PATHS = List.of(
             "/api/v1/auth/login",
             "/api/v1/auth/register",
@@ -33,6 +33,103 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/api-docs"
     );
 
+    // === SOLO ADMINISTRADOR ===
+    private boolean isAdminOnly(String path, String method) {
+        // Mantenimientos
+        if (path.contains("/estadisticas/")) return true;
+        if (path.contains("/reporte-uso") && path.startsWith("/api/v1/mantenimientos")) return true;
+        if (path.startsWith("/api/v1/mantenimientos") && "DELETE".equals(method)) return true;
+
+        // Monopatines
+        if (path.contains("/reporte") && path.startsWith("/api/v1/monopatines")) return true;
+        if (path.contains("/con-mas-viajes")) return true;
+
+        // Viajes - Solo ADMIN
+        if (path.equals("/api/v1/viajes/monopatines-con-mas-viajes")) return true;
+        if (path.equals("/api/v1/viajes/reportes/usuarios-mas-activos")) return true;
+        if (path.startsWith("/api/v1/viajes") && "DELETE".equals(method)) return true;
+
+        // Cuentas
+        if (path.contains("/anular") || path.contains("/habilitar")) return true;
+
+        // Facturaciones
+        if (path.equals("/api/v1/facturaciones") && "GET".equals(method)) return true;
+        if (path.contains("/total-por-periodo")) return true;
+        if (path.startsWith("/api/v1/facturaciones") && "DELETE".equals(method)) return true;
+
+        // Tarifas (excepto /activas)
+        if (path.startsWith("/api/v1/tarifas") && !path.equals("/api/v1/tarifas/activas")) return true;
+
+        // Paradas (POST, PUT, DELETE)
+        if (path.startsWith("/api/v1/paradas") && !"GET".equals(method)) return true;
+
+        return false;
+    }
+
+    // === MANTENIMIENTO + ADMIN ===
+    private boolean isMantenimientoAccess(String path, String method) {
+        if (path.startsWith("/api/v1/mantenimientos")) return true;
+        if (path.equals("/api/v1/tarifas/activas") && "GET".equals(method)) return true;
+        if (path.startsWith("/api/v1/facturaciones")) return true;
+        return false;
+    }
+
+    // === USUARIO + MANTENIMIENTO + ADMIN ===
+    private boolean isUsuarioAccess(String path, String method) {
+        // Monopatines (GET)
+        if (path.startsWith("/api/v1/monopatines") && "GET".equals(method)) return true;
+
+        // Viajes y pausas
+        if (path.startsWith("/api/v1/viajes")) return true;
+        if (path.startsWith("/api/v1/pausas")) return true;
+
+        // Chat IA (la validación PREMIUM se hace dentro del servicio)
+        if (path.startsWith("/api/v1/chat")) return true;
+
+        // Cuentas (operaciones específicas o crear)
+        if (path.startsWith("/api/v1/cuentas")) {
+            if (path.matches("/api/v1/cuentas/\\d+.*")) return true;
+            if ("POST".equals(method)) return true;
+        }
+
+        // Usuarios (GET específico)
+        if (path.startsWith("/api/v1/usuarios") && "GET".equals(method)) {
+            return path.matches("/api/v1/usuarios/\\d+.*");
+        }
+
+        // Paradas (GET)
+        if (path.startsWith("/api/v1/paradas") && "GET".equals(method)) return true;
+
+        // Tarifas activas
+        if (path.equals("/api/v1/tarifas/activas") && "GET".equals(method)) return true;
+
+        // Facturaciones
+        if (path.startsWith("/api/v1/facturaciones")) return true;
+
+        return false;
+    }
+
+    private boolean hasPermission(String path, String method, String rol) {
+        // 1. ADMIN tiene acceso a todo
+        if ("ADMINISTRADOR".equals(rol)) return true;
+
+        // 2. Si es endpoint solo ADMIN, denegar
+        if (isAdminOnly(path, method)) return false;
+
+        // 3. MANTENIMIENTO tiene acceso a sus endpoints
+        if ("MANTENIMIENTO".equals(rol)) {
+            return isMantenimientoAccess(path, method);
+        }
+
+        // 4. USUARIO tiene acceso a sus endpoints
+        if ("USUARIO".equals(rol)) {
+            return isUsuarioAccess(path, method);
+        }
+
+        // 5. Por defecto denegar
+        return false;
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -40,43 +137,36 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         log.debug("Processing request: {} {}", request.getMethod(), path);
 
-        // Permitir acceso a rutas públicas
         if (isPublicPath(path)) {
             log.debug("Public path, skipping authentication: {}", path);
             return chain.filter(exchange);
         }
 
-        // Verificar si existe el header Authorization
         String authHeader = request.getHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.warn("Missing or invalid Authorization header for path: {}", path);
             return onError(exchange, "Authorization header is missing or invalid", HttpStatus.UNAUTHORIZED);
         }
 
-        // Extraer el token
         String token = authHeader.substring(7);
 
         try {
-            // Validar el token
             if (!jwtUtil.validateToken(token)) {
                 log.warn("Invalid or expired token for path: {}", path);
                 return onError(exchange, "Invalid or expired token", HttpStatus.UNAUTHORIZED);
             }
 
-            // Extraer información del token
             String email = jwtUtil.extractEmail(token);
             Long userId = jwtUtil.extractUserId(token);
             String rol = jwtUtil.extractRol(token);
 
             log.debug("Token validated successfully. User: {} (ID: {}), Role: {}", email, userId, rol);
 
-            // Validar permisos según el rol y la ruta
             if (!hasPermission(path, request.getMethod().name(), rol)) {
                 log.warn("Access denied for user {} with role {} to path: {}", email, rol, path);
                 return onError(exchange, "Access denied - Insufficient permissions", HttpStatus.FORBIDDEN);
             }
 
-            // Agregar información del usuario al request para que los microservicios la puedan usar
             ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                     .header("X-User-Email", email)
                     .header("X-User-Id", String.valueOf(userId))
@@ -96,122 +186,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
     }
 
-    private boolean hasPermission(String path, String method, String rol) {
-        // ADMINISTRADOR tiene acceso completo
-        if ("ADMINISTRADOR".equals(rol)) {
-            return true;
-        }
-
-        // Reglas específicas para MANTENIMIENTO
-        if ("MANTENIMIENTO".equals(rol)) {
-            // Puede acceder a endpoints de mantenimiento (excepto DELETE, estadísticas y reportes)
-            if (path.startsWith("/api/v1/mantenimientos")) {
-                // Estadísticas solo para ADMINISTRADOR
-                if (path.contains("/estadisticas/")) {
-                    return false;
-                }
-                // Reporte de uso solo para ADMINISTRADOR
-                if (path.contains("/reporte-uso")) {
-                    return false;
-                }
-                // DELETE solo para ADMINISTRADOR
-                if ("DELETE".equals(method)) {
-                    return false;
-                }
-                // GET, POST, PUT permitidos (operaciones de mantenimiento)
-                return true;
-            }
-            // Puede ver tarifas activas
-            if (path.equals("/api/v1/tarifas/activas") && "GET".equals(method)) {
-                return true;
-            }
-            // Puede gestionar facturaciones (excepto ver todas y reportes)
-            if (path.startsWith("/api/v1/facturaciones")) {
-                // Bloquear endpoints administrativos (solo ADMIN)
-                if (path.equals("/api/v1/facturaciones") && "GET".equals(method)) {
-                    return false; // GET todas las facturaciones solo ADMIN
-                }
-                if (path.contains("/total-por-periodo")) {
-                    return false; // Reporte solo ADMIN
-                }
-                if ("DELETE".equals(method)) {
-                    return false; // DELETE solo ADMIN
-                }
-                // Permitir: GET /facturaciones/{id}, GET /facturaciones/viaje/{id}, GET /facturaciones/cuenta/{id}, POST
-                return true;
-            }
-            // NO puede ver reportes de monopatines (removido - solo ADMIN)
-            return false;
-        }
-
-        // Reglas específicas para USUARIO
-        if ("USUARIO".equals(rol)) {
-            // Los usuarios pueden:
-            // - Ver monopatines (GET)
-            if (path.startsWith("/api/v1/monopatines") && "GET".equals(method)) {
-                // Bloquear reportes y estadísticas (solo ADMIN)
-                if (path.contains("/reporte") || path.contains("/con-mas-viajes")) {
-                    return false;
-                }
-                // Permitir: GET /monopatines, GET /monopatines/{id}, GET /monopatines/cercanos
-                return true;
-            }
-            // - Gestionar viajes y pausas
-            if (path.startsWith("/api/v1/viajes") || path.startsWith("/api/v1/pausas")) {
-                return true;
-            }
-            // - Ver y gestionar sus cuentas
-            if (path.startsWith("/api/v1/cuentas")) {
-                // Bloquear operaciones administrativas (solo ADMIN)
-                if (path.contains("/anular") || path.contains("/habilitar")) {
-                    return false;
-                }
-                // Los usuarios pueden gestionar sus cuentas pero no ver todas
-                if (path.matches("/api/v1/cuentas/\\d+.*")) { // Operaciones sobre cuenta específica
-                    return true;
-                }
-                if ("POST".equals(method)) { // Crear cuenta
-                    return true;
-                }
-                return false;
-            }
-            // - Ver sus usuarios
-            if (path.startsWith("/api/v1/usuarios") && "GET".equals(method)) {
-                if (path.matches("/api/v1/usuarios/\\d+.*")) { // Solo su usuario específico
-                    return true;
-                }
-                return false;
-            }
-            // - Ver paradas
-            if (path.startsWith("/api/v1/paradas") && "GET".equals(method)) {
-                return true;
-            }
-            // - Ver tarifas activas
-            if (path.equals("/api/v1/tarifas/activas") && "GET".equals(method)) {
-                return true;
-            }
-            // - Ver facturaciones
-            if (path.startsWith("/api/v1/facturaciones")) {
-                // Bloquear endpoints administrativos (solo ADMIN)
-                if (path.equals("/api/v1/facturaciones") && "GET".equals(method)) {
-                    return false; // GET todas las facturaciones solo ADMIN
-                }
-                if (path.contains("/total-por-periodo")) {
-                    return false; // Reporte solo ADMIN
-                }
-                // DELETE solo para ADMIN (ya se bloquea más abajo con la validación general de DELETE)
-                if ("DELETE".equals(method)) {
-                    return false;
-                }
-                // Permitir: GET /facturaciones/{id}, GET /facturaciones/viaje/{id}, GET /facturaciones/cuenta/{id}, POST
-                return true;
-            }
-            return false;
-        }
-
-        // Por defecto denegar acceso
-        return false;
-    }
 
     private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus status) {
         ServerHttpResponse response = exchange.getResponse();

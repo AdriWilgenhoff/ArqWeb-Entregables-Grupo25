@@ -18,7 +18,7 @@ public interface ParadaFeignClient {
     );
 
     record ParadaResponse(
-            Long id,
+            String id,
             String nombre,
             Integer latitud,
             Integer longitud,
