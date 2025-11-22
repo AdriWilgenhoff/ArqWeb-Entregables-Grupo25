@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.List;
 
 @Component
+public class CargaDeDatos implements CommandLineRunner {
 
     private final ParadaRepository paradaRepository;
     private final ObjectMapper objectMapper;
