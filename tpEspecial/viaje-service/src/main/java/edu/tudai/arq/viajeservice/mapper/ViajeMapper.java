@@ -11,8 +11,7 @@ public class ViajeMapper {
         return new Viaje(
                 in.idCuenta(),
                 in.idUsuario(),
-                in.idMonopatin(),
-                in.idParadaInicio()
+                in.idMonopatin()
         );
     }
 
@@ -24,7 +23,6 @@ public class ViajeMapper {
                 v.getIdMonopatin(),
                 v.getFechaHoraInicio().toString(),
                 v.getFechaHoraFin() != null ? v.getFechaHoraFin().toString() : null,
-                v.getIdParadaInicio(),
                 v.getIdParadaFin(),
                 v.getKilometrosRecorridos(),
                 v.getEstado().name(),

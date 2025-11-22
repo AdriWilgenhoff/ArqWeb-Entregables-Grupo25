@@ -6,10 +6,13 @@ import edu.tudai.arq.facturacionservice.entity.Tarifa;
 import edu.tudai.arq.facturacionservice.entity.TipoTarifa;
 import edu.tudai.arq.facturacionservice.exception.FacturacionNotFoundException;
 import edu.tudai.arq.facturacionservice.exception.TarifaNotFoundException;
+import edu.tudai.arq.facturacionservice.feignclient.CuentaFeignClient;
 import edu.tudai.arq.facturacionservice.mapper.FacturacionMapper;
 import edu.tudai.arq.facturacionservice.repository.FacturacionRepository;
 import edu.tudai.arq.facturacionservice.repository.TarifaRepository;
 import edu.tudai.arq.facturacionservice.service.interfaces.FacturacionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +24,21 @@ import java.util.stream.Collectors;
 @Service
 public class FacturacionServiceImpl implements FacturacionService {
 
+    private static final Logger logger = LoggerFactory.getLogger(FacturacionServiceImpl.class);
+
     private final FacturacionRepository facturacionRepo;
     private final TarifaRepository tarifaRepo;
     private final FacturacionMapper mapper;
+    private final CuentaFeignClient cuentaClient;
 
     public FacturacionServiceImpl(FacturacionRepository facturacionRepo,
                                   TarifaRepository tarifaRepo,
-                                  FacturacionMapper mapper) {
+                                  FacturacionMapper mapper,
+                                  CuentaFeignClient cuentaClient) {
         this.facturacionRepo = facturacionRepo;
         this.tarifaRepo = tarifaRepo;
         this.mapper = mapper;
+        this.cuentaClient = cuentaClient;
     }
 
     @Override
@@ -51,19 +59,48 @@ public class FacturacionServiceImpl implements FacturacionService {
         Tarifa tarifaExtendida = tarifaRepo.findTarifaVigente(TipoTarifa.PAUSA_EXTENDIDA, hoy)
                 .orElse(null);
 
-        Long tiempoNormal = in.tiempoSinPausas();
-        Long tiempoPausaNormal = in.tiempoPausaNormal();
-        Long tiempoPausaExtendida = in.tiempoPausaExtendida();
+        Double kilometrosACobrar = in.kilometrosRecorridos() != null ? in.kilometrosRecorridos() : 0.0;
+        Double costoKilometros = kilometrosACobrar * tarifaNormal.getPrecioPorMinuto(); // Usando precioPorMinuto como precio/km
 
-        double costoNormal = tiempoNormal * tarifaNormal.getPrecioPorMinuto();
+        logger.info("Cálculo inicial - Km a cobrar: {}, Tarifa: ${}/km, Costo base: ${}",
+                kilometrosACobrar, tarifaNormal.getPrecioPorMinuto(), costoKilometros);
+
+        boolean esPremium = false;
+        try {
+            var cuentaResponse = cuentaClient.getCuentaById(in.idCuenta());
+            if (cuentaResponse.getBody() != null) {
+                esPremium = "PREMIUM".equals(cuentaResponse.getBody().tipoCuenta());
+
+                if (esPremium) {
+                    costoKilometros *= 0.5;
+                    logger.info("Cuenta PREMIUM - Descuento 50% aplicado a kilómetros. Costo final km: ${}", costoKilometros);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("No se pudo verificar si la cuenta es PREMIUM: {}", e.getMessage());
+        }
+
+
+        Long tiempoPausaNormal = in.tiempoPausaNormal() != null ? in.tiempoPausaNormal() : 0L;
+        Long tiempoPausaExtendida = in.tiempoPausaExtendida() != null ? in.tiempoPausaExtendida() : 0L;
+
         double costoPausa = (tarifaPausa != null && tiempoPausaNormal > 0)
                 ? tiempoPausaNormal * tarifaPausa.getPrecioPorMinuto()
                 : 0.0;
+
         double costoPausaExtendida = (tarifaExtendida != null && tiempoPausaExtendida > 0)
                 ? tiempoPausaExtendida * tarifaExtendida.getPrecioPorMinuto()
                 : 0.0;
 
-        Double montoTotal = costoNormal + costoPausa + costoPausaExtendida;
+        logger.info("Costos de pausas - Normal: ${} ({} min), Extendida: ${} ({} min)",
+                costoPausa, tiempoPausaNormal, costoPausaExtendida, tiempoPausaExtendida);
+
+        double montoTotal = costoKilometros + costoPausa + costoPausaExtendida;
+
+        logger.info("FACTURACIÓN FINAL - Viaje: {}, Cuenta: {}, Premium: {}, " +
+                "Costo Km: ${}, Costo Pausas: ${}, TOTAL: ${}",
+                in.idViaje(), in.idCuenta(), esPremium,
+                costoKilometros, (costoPausa + costoPausaExtendida), montoTotal);
 
         Long tiempoPausado = tiempoPausaNormal + tiempoPausaExtendida;
 
@@ -79,6 +116,19 @@ public class FacturacionServiceImpl implements FacturacionService {
         );
 
         facturacion = facturacionRepo.save(facturacion);
+        logger.info("Facturación guardada exitosamente - ID: {}, Monto: ${}", facturacion.getId(), montoTotal);
+
+        if (montoTotal > 0) {
+            try {
+                var descontarRequest = new CuentaFeignClient.DescontarSaldoRequest(montoTotal);
+                cuentaClient.descontarSaldo(in.idCuenta(), descontarRequest);
+                logger.info("Saldo descontado exitosamente: ${} de cuenta ID: {}", montoTotal, in.idCuenta());
+            } catch (Exception e) {
+                logger.warn("Advertencia: No se pudo descontar saldo de la cuenta {} (saldo negativo permitido): {}",
+                        in.idCuenta(), e.getMessage());
+            }
+        }
+
         return mapper.toResponse(facturacion);
     }
 

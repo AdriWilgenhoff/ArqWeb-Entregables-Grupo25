@@ -22,7 +22,6 @@ public class UsuarioDTO {
             String email,
 
             @NotBlank(message = "El número de celular es obligatorio")
-            @Pattern(regexp = "^[0-9+\\-\\s()]+$", message = "El número de celular debe ser válido")
             @Size(max = 20, message = "El número no puede exceder los 20 caracteres")
             String numeroCelular,
 
@@ -31,8 +30,8 @@ public class UsuarioDTO {
             String password,
 
             @NotNull(message = "El rol es obligatorio")
-            @Pattern(regexp = "CLIENTE|ENCARGADO_MANTENIMIENTO|ADMINISTRADOR",
-                    message = "El rol debe ser CLIENTE, ENCARGADO_MANTENIMIENTO o ADMINISTRADOR")
+            @Pattern(regexp = "USUARIO|MANTENIMIENTO|ADMINISTRADOR",
+                    message = "El rol debe ser USUARIO, MANTENIMIENTO o ADMINISTRADOR")
             String rol
     ) {}
 
@@ -48,14 +47,13 @@ public class UsuarioDTO {
             String apellido,
 
             @NotBlank(message = "El número de celular es obligatorio")
-            @Pattern(regexp = "^[0-9+\\-\\s()]+$")
             @Size(max = 20)
             String numeroCelular,
 
             @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres si se proporciona")
             String password,
 
-            @Pattern(regexp = "CLIENTE|ENCARGADO_MANTENIMIENTO|ADMINISTRADOR")
+            @Pattern(regexp = "USUARIO|MANTENIMIENTO|ADMINISTRADOR")
             String rol
     ) {}
 
@@ -71,16 +69,16 @@ public class UsuarioDTO {
             @Schema(description = "Apellido del usuario", example = "Pérez")
             String apellido,
 
-            @Schema(description = "Email del usuario", example = "juan.perez@email.com")
+            @Schema(description = "Email del usuario", example = "juan.perez@gmail.com")
             String email,
 
-            @Schema(description = "Número de celular", example = "+54 2494 123456")
+            @Schema(description = "Número de celular", example = "+54 2494 655632")
             String numeroCelular,
 
             @Schema(description = "Fecha de alta", example = "2024-01-15")
             String fechaAlta,
 
-            @Schema(description = "Rol del usuario", example = "CLIENTE")
+            @Schema(description = "Rol del usuario", example = "USUARIO")
             String rol
     ) {}
 }

@@ -8,11 +8,11 @@ public interface ParadaService {
 
     ParadaDTO.Response create(ParadaDTO.Create in);
 
-    ParadaDTO.Response update(Long id, ParadaDTO.Update in);
+    ParadaDTO.Response update(String id, ParadaDTO.Update in);
 
-    void delete(Long id);
+    void delete(String id);
 
-    ParadaDTO.Response findById(Long id);
+    ParadaDTO.Response findById(String id);
 
     List<ParadaDTO.Response> findAll();
 

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,8 +25,11 @@ public interface ViajeRepository extends JpaRepository<Viaje, Long> {
     @Query("SELECT v FROM Viaje v WHERE v.idMonopatin = :idMonopatin AND v.estado IN ('EN_CURSO', 'PAUSADO')")
     Optional<Viaje> findViajeActivoByMonopatin(@Param("idMonopatin") Long idMonopatin);
 
-
     @Query("SELECT v.idMonopatin FROM Viaje v WHERE YEAR(v.fechaHoraInicio) = :anio " +
            "GROUP BY v.idMonopatin HAVING COUNT(v) > :cantidadViajes")
     List<Long> findMonopatinesConMasDeXViajes(@Param("cantidadViajes") int cantidadViajes, @Param("anio") int anio);
+
+    List<Viaje> findByFechaHoraInicioBetween(LocalDateTime fechaDesde, LocalDateTime fechaHasta);
+
+    List<Viaje> findByIdUsuarioAndFechaHoraInicioBetween(Long idUsuario, LocalDateTime fechaDesde, LocalDateTime fechaHasta);
 }

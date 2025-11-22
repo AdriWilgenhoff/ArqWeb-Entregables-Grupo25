@@ -7,32 +7,27 @@ import jakarta.validation.constraints.*;
 public class ViajeDTO {
 
     /** DTO para crear Viaje (iniciar viaje) */
-    @Schema(description = "DTO de entrada para iniciar un nuevo Viaje", name = "ViajeCreate")
+    @Schema(description = "DTO de entrada para iniciar un nuevo Viaje. El monopatín puede estar en cualquier ubicación.", name = "ViajeCreate")
     public record Create(
             @NotNull(message = "El ID de cuenta es obligatorio")
             @Positive(message = "El ID de cuenta debe ser positivo")
+            @Schema(description = "ID de la cuenta que paga el viaje", example = "1")
             Long idCuenta,
 
             @NotNull(message = "El ID de usuario es obligatorio")
             @Positive(message = "El ID de usuario debe ser positivo")
+            @Schema(description = "ID del usuario que realiza el viaje", example = "1")
             Long idUsuario,
 
             @NotNull(message = "El ID de monopatín es obligatorio")
             @Positive(message = "El ID de monopatín debe ser positivo")
-            Long idMonopatin,
-
-            @NotNull(message = "El ID de parada de inicio es obligatorio")
-            @Positive(message = "El ID de parada de inicio debe ser positivo")
-            Long idParadaInicio
+            @Schema(description = "ID del monopatín a utilizar", example = "5")
+            Long idMonopatin
     ) {}
 
     /** DTO para finalizar Viaje */
-    @Schema(description = "DTO de entrada para finalizar un Viaje", name = "ViajeFinalizacion")
+    @Schema(description = "DTO de entrada para finalizar un Viaje. El sistema validará automáticamente que el monopatín esté en una parada.", name = "ViajeFinalizacion")
     public record Finalizacion(
-            @NotNull(message = "El ID de parada de fin es obligatorio")
-            @Positive(message = "El ID de parada de fin debe ser positivo")
-            @Schema(description = "ID de la parada donde finaliza el viaje", example = "7")
-            Long idParadaFin,
 
             @NotNull(message = "Los kilómetros recorridos son obligatorios")
             @PositiveOrZero(message = "Los kilómetros recorridos no pueden ser negativos")
@@ -61,11 +56,8 @@ public class ViajeDTO {
             @Schema(description = "Fecha y hora de fin del viaje", example = "2024-11-01T11:00:00")
             String fechaHoraFin,
 
-            @Schema(description = "ID de la parada de inicio", example = "3")
-            Long idParadaInicio,
-
-            @Schema(description = "ID de la parada de fin", example = "7")
-            Long idParadaFin,
+            @Schema(description = "ID de la parada donde finalizó el viaje (autodetectada por el sistema). ID en formato NoSQL String.", example = "673f1a2b3c4d5e6f7g8h9i0j")
+            String idParadaFin,
 
             @Schema(description = "Kilómetros recorridos", example = "5.2")
             Double kilometrosRecorridos,

@@ -17,7 +17,10 @@ public class CuentaDTO {
             String idCuentaMercadoPago,
 
             @Min(value = 0, message = "El saldo inicial no puede ser negativo")
-            Double saldoInicial
+            Double saldoInicial,
+
+            @Schema(description = "Tipo de cuenta (BASICA o PREMIUM)", example = "BASICA")
+            String tipoCuenta
     ) {}
 
     /** DTO para actualizar */
@@ -48,6 +51,25 @@ public class CuentaDTO {
             Double monto
     ) {}
 
+    /** DTO para descontar kilómetros gratis */
+    @Schema(description = "DTO para descontar kilómetros gratis de cuenta PREMIUM", name = "CuentaDescontarKilometros")
+    public record DescontarKilometros(
+            @NotNull(message = "Los kilómetros son obligatorios")
+            @PositiveOrZero(message = "Los kilómetros no pueden ser negativos")
+            @Schema(description = "Kilómetros totales del viaje", example = "12.5")
+            Double kilometros
+    ) {}
+
+    /** DTO de respuesta al descontar kilómetros */
+    @Schema(description = "Resultado del descuento de kilómetros", name = "ResultadoDescuentoKm")
+    public record ResultadoDescuentoKm(
+            @Schema(description = "Kilómetros que se descontaron de los gratuitos", example = "10.0")
+            Double kilometrosDescontados,
+
+            @Schema(description = "Kilómetros que quedan por cobrar (para facturación)", example = "2.5")
+            Double kilometrosACobrar
+    ) {}
+
     /** DTO de salida */
     @Schema(description = "DTO de respuesta para Cuentas", name = "CuentaResponse")
     public record Response(
@@ -67,6 +89,18 @@ public class CuentaDTO {
             Boolean habilitada,
 
             @Schema(description = "ID de cuenta de Mercado Pago", example = "MP-123456789")
-            String idCuentaMercadoPago
+            String idCuentaMercadoPago,
+
+            @Schema(description = "Tipo de cuenta", example = "PREMIUM")
+            String tipoCuenta,
+
+            @Schema(description = "Kilómetros disponibles gratis (solo premium)", example = "54.5")
+            Double kilometrosDisponibles,
+
+            @Schema(description = "Fecha del último pago premium", example = "2024-11-01")
+            String fechaUltimoPagoPremium,
+
+            @Schema(description = "Indica si la cuenta necesita renovación mensual", example = "false")
+            Boolean necesitaRenovacion
     ) {}
 }

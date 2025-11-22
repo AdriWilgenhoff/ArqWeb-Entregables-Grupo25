@@ -3,6 +3,7 @@ package edu.tudai.arq.userservice.service;
 import edu.tudai.arq.userservice.dto.CuentaDTO;
 import edu.tudai.arq.userservice.dto.UsuarioDTO;
 import edu.tudai.arq.userservice.entity.Cuenta;
+import edu.tudai.arq.userservice.entity.TipoCuenta;
 import edu.tudai.arq.userservice.exception.CuentaNotFoundException;
 import edu.tudai.arq.userservice.mapper.CuentaMapper;
 import edu.tudai.arq.userservice.mapper.UsuarioMapper;
@@ -100,11 +101,6 @@ public class CuentaServiceImpl implements CuentaService {
         Cuenta c = repo.findById(id)
                 .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
 
-        // Validar que haya saldo suficiente
-        if (c.getSaldo() < in.monto()) {
-            throw new IllegalArgumentException("Saldo insuficiente. Saldo actual: " + c.getSaldo() + ", monto a descontar: " + in.monto());
-        }
-
         c.descontarSaldo(in.monto());
         c = repo.save(c);
         return mapper.toResponse(c);
@@ -137,5 +133,87 @@ public class CuentaServiceImpl implements CuentaService {
         return c.getUsuarios().stream()
                 .map(usuarioMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    // ==================== MÉTODOS PREMIUM ====================
+
+    @Override
+    @Transactional
+    public CuentaDTO.Response upgradeToPremium(Long id) {
+        Cuenta c = repo.findById(id)
+                .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
+
+        if (c.isPremium()) {
+            throw new IllegalStateException("La cuenta ya es PREMIUM");
+        }
+
+        if (c.getSaldo() < Cuenta.MONTO_PREMIUM_MENSUAL) {
+            throw new IllegalArgumentException(
+                    "Saldo insuficiente para upgrade a premium. Requerido: " + Cuenta.MONTO_PREMIUM_MENSUAL +
+                    ", Disponible: " + c.getSaldo()
+            );
+        }
+
+        c.descontarSaldo(Cuenta.MONTO_PREMIUM_MENSUAL);
+
+        c.setTipoCuenta(TipoCuenta.PREMIUM);
+        c.renovarCupo();
+
+        c = repo.save(c);
+        return mapper.toResponse(c);
+    }
+
+    @Override
+    @Transactional
+    public void renovarCupo(Long id) {
+        Cuenta c = repo.findById(id)
+                .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
+
+        if (!c.isPremium()) {
+            throw new IllegalStateException("Solo las cuentas PREMIUM pueden renovar cupo");
+        }
+
+        if (c.getSaldo() < Cuenta.MONTO_PREMIUM_MENSUAL) {
+            throw new IllegalArgumentException(
+                    "Saldo insuficiente para renovación premium. Requerido: " + Cuenta.MONTO_PREMIUM_MENSUAL +
+                    ", Disponible: " + c.getSaldo()
+            );
+        }
+
+        // Descontar el pago mensual
+        c.descontarSaldo(Cuenta.MONTO_PREMIUM_MENSUAL);
+
+        c.renovarCupo();
+        repo.save(c);
+    }
+
+    @Override
+    @Transactional
+    public Double usarKilometrosGratis(Long id, Double kilometros) {
+        Cuenta c = repo.findById(id)
+                .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
+
+        Double kmUsados = c.usarKilometrosGratis(kilometros);
+        repo.save(c);
+        return kmUsados;
+    }
+
+    @Override
+    @Transactional
+    public CuentaDTO.ResultadoDescuentoKm descontarKilometrosGratis(Long id, CuentaDTO.DescontarKilometros in) {
+        Cuenta c = repo.findById(id)
+                .orElseThrow(() -> new CuentaNotFoundException("Cuenta no encontrada con ID: " + id));
+
+        Double kilometrosTotales = in.kilometros();
+
+        Double kilometrosDescontados = c.usarKilometrosGratis(kilometrosTotales);
+        Double kilometrosACobrar = kilometrosTotales - kilometrosDescontados;
+
+        repo.save(c);
+
+        return new CuentaDTO.ResultadoDescuentoKm(
+                kilometrosDescontados,
+                kilometrosACobrar
+        );
     }
 }

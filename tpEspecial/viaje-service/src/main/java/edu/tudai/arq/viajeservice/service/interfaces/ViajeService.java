@@ -1,8 +1,10 @@
 package edu.tudai.arq.viajeservice.service.interfaces;
 
 import edu.tudai.arq.viajeservice.dto.PausaDTO;
+import edu.tudai.arq.viajeservice.dto.ReporteUsuarioDTO;
 import edu.tudai.arq.viajeservice.dto.ViajeDTO;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ViajeService {
@@ -38,4 +40,17 @@ public interface ViajeService {
 
     // Reportes
     List<Long> getMonopatinesConMasDeXViajes(Integer cantidadViajes, Integer anio);
+
+    // Requerimiento e) y h)
+    List<ReporteUsuarioDTO.UsuarioActivo> getUsuariosMasActivos(
+            LocalDateTime fechaDesde,
+            LocalDateTime fechaHasta,
+            String tipoCuenta
+    );
+
+    ReporteUsuarioDTO.UsuarioActivo getUsoDeUsuario(
+            Long idUsuario,
+            LocalDateTime fechaDesde,
+            LocalDateTime fechaHasta
+    );
 }

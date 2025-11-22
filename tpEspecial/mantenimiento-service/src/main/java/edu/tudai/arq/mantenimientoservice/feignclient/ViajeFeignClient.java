@@ -20,8 +20,7 @@ public interface ViajeFeignClient {
             Long idMonopatin,
             String fechaHoraInicio,
             String fechaHoraFin,
-            Long idParadaInicio,
-            Long idParadaFin,
+            String idParadaFin,
             Double kilometrosRecorridos,
             String estado,
             Double costoTotal

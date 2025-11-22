@@ -2,7 +2,6 @@ package edu.tudai.arq.mantenimientoservice.service.interfaces;
 
 import edu.tudai.arq.mantenimientoservice.dto.MantenimientoDTO;
 import edu.tudai.arq.mantenimientoservice.dto.ReporteOperacionDTO;
-import edu.tudai.arq.mantenimientoservice.dto.ReporteUsoDTO;
 
 import java.util.List;
 
@@ -25,8 +24,6 @@ public interface MantenimientoService {
     List<MantenimientoDTO.Response> findFinalizados();
 
     // ==================== REPORTES ====================
-
-    List<ReporteUsoDTO.Response> generarReporteUso(boolean incluirPausas);
 
     ReporteOperacionDTO operativosVsMantenimiento();
 }

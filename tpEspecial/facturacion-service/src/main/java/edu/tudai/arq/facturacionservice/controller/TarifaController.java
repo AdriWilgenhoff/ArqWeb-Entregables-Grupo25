@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/tarifas")
 @Validated
-@Tag(name = "Tarifas", description = "API para gestión de tarifas del sistema de monopatines")
+@Tag(name = "Tarifas", description = "API para gestión de tarifas del sistema de monopatines.")
 public class TarifaController {
 
     private final TarifaService service;
@@ -28,52 +28,94 @@ public class TarifaController {
         this.service = service;
     }
 
-    // TODO: JWT - Requiere rol ADMIN - Definir precio / Ajuste de precios - Requerimiento f)
-    @Operation(summary = "Crear una nueva tarifa", description = "Permite definir tarifas de tres tipos: NORMAL (uso regular), PAUSA (durante pausas de hasta 15 min) y PAUSA_EXTENDIDA (pausas mayores a 15 min).")
-    @ApiResponse(responseCode = "201", description = "Tarifa creada exitosamente", content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
-    @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content(schema = @Schema(implementation = ApiError.class)))
-    @ApiResponse(responseCode = "409", description = "Ya existe una tarifa activa del mismo tipo sin fecha de fin. Debe editar la existente antes de crear una nueva.", content = @Content(schema = @Schema(implementation = ApiError.class)))
     @PostMapping
+    @Operation(
+            summary = "Crear una nueva tarifa (Requerimiento f)",
+            description = "Requiere rol ADMINISTRADOR. Permite definir tarifas de tres tipos:\n" +
+                    "- NORMAL: precio por KILÓMETRO recorrido (ej: $50/km)\n" +
+                    "- PAUSA: precio por MINUTO de pausa normal (≤15 min, ej: $5/min)\n" +
+                    "- PAUSA_EXTENDIDA: precio por MINUTO de pausa extendida (>15 min, solo excedente, ej: $10/min)\n" +
+                    "El campo 'precioPorMinuto' se interpreta según el tipo de tarifa. Acceso: http://localhost:8080/api/v1/tarifas"
+    )
+    @ApiResponse(responseCode = "201", description = "Tarifa creada exitosamente",
+            content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
+    @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
+    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
+    @ApiResponse(responseCode = "409", description = "Ya existe una tarifa activa del mismo tipo sin fecha de fin",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
     public ResponseEntity<TarifaDTO.Response> create(@Valid @RequestBody TarifaDTO.Create in) {
         var out = service.create(in);
         return ResponseEntity.status(HttpStatus.CREATED).body(out);
     }
 
-    @Operation(summary = "Actualizar una tarifa existente", description = "Permite realizar ajuste de precios estableciendo nuevas tarifas con fecha de vigencia futura.")
-    @ApiResponse(responseCode = "200", description = "Tarifa actualizada exitosamente", content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
-    @ApiResponse(responseCode = "404", description = "Tarifa no encontrada", content = @Content(schema = @Schema(implementation = ApiError.class)))
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Actualizar una tarifa existente (Requerimiento f - Ajuste de precios)",
+            description = "Requiere rol ADMINISTRADOR. Permite realizar ajuste de precios estableciendo nuevas tarifas con fecha de vigencia futura. Acceso: http://localhost:8080/api/v1/tarifas/{id}"
+    )
+    @ApiResponse(responseCode = "200", description = "Tarifa actualizada exitosamente",
+            content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
+    @ApiResponse(responseCode = "404", description = "Tarifa no encontrada",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
+    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
     public ResponseEntity<TarifaDTO.Response> update(@PathVariable Long id, @Valid @RequestBody TarifaDTO.Update in) {
         return ResponseEntity.ok(service.update(id, in));
     }
 
-    @Operation(summary = "Eliminar una tarifa", description = "Elimina una tarifa del sistema.")
-    @ApiResponse(responseCode = "204", description = "Tarifa eliminada exitosamente")
-    @ApiResponse(responseCode = "404", description = "Tarifa no encontrada", content = @Content(schema = @Schema(implementation = ApiError.class)))
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Eliminar una tarifa",
+            description = "Requiere rol ADMINISTRADOR. Elimina una tarifa del sistema. Acceso: http://localhost:8080/api/v1/tarifas/{id}"
+    )
+    @ApiResponse(responseCode = "204", description = "Tarifa eliminada exitosamente")
+    @ApiResponse(responseCode = "404", description = "Tarifa no encontrada",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
+    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Buscar tarifa por ID", description = "Obtiene los detalles de una tarifa específica.")
-    @ApiResponse(responseCode = "200", description = "Tarifa encontrada", content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
-    @ApiResponse(responseCode = "404", description = "Tarifa no encontrada", content = @Content(schema = @Schema(implementation = ApiError.class)))
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Buscar tarifa por ID",
+            description = "Requiere rol ADMINISTRADOR. Obtiene los detalles de una tarifa específica. Acceso: http://localhost:8080/api/v1/tarifas/{id}"
+    )
+    @ApiResponse(responseCode = "200", description = "Tarifa encontrada",
+            content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
+    @ApiResponse(responseCode = "404", description = "Tarifa no encontrada",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
+    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
     public ResponseEntity<TarifaDTO.Response> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @Operation(summary = "Listar todas las tarifas", description = "Obtiene todas las tarifas registradas en el sistema (activas e inactivas).")
-    @ApiResponse(responseCode = "200", description = "Lista de todas las tarifas", content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
     @GetMapping
+    @Operation(
+            summary = "Listar todas las tarifas",
+            description = "Requiere rol ADMINISTRADOR. Obtiene todas las tarifas registradas en el sistema (activas e inactivas). Acceso: http://localhost:8080/api/v1/tarifas"
+    )
+    @ApiResponse(responseCode = "200", description = "Lista de todas las tarifas",
+            content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
+    @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
+    @ApiResponse(responseCode = "403", description = "No autorizado - Requiere rol ADMINISTRADOR")
     public ResponseEntity<List<TarifaDTO.Response>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @Operation(summary = "Listar tarifas activas", description = "Obtiene solo las tarifas actualmente vigentes.")
-    @ApiResponse(responseCode = "200", description = "Lista de tarifas activas", content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
     @GetMapping("/activas")
+    @Operation(
+            summary = "Listar tarifas activas",
+            description = "Accesible para usuarios autenticados. Obtiene solo las tarifas actualmente vigentes. Útil para calcular costos de viajes. Acceso: http://localhost:8080/api/v1/tarifas/activas"
+    )
+    @ApiResponse(responseCode = "200", description = "Lista de tarifas activas",
+            content = @Content(schema = @Schema(implementation = TarifaDTO.Response.class)))
+    @ApiResponse(responseCode = "401", description = "No autenticado - Token requerido")
     public ResponseEntity<List<TarifaDTO.Response>> findActivas() {
         return ResponseEntity.ok(service.findActivas());
     }
