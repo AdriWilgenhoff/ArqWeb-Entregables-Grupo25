@@ -45,22 +45,12 @@ public class Tarifa {
         this.fechaVigenciaDesde = fechaVigenciaDesde;
     }
 
-    /**
-     * Verifica si la tarifa está vigente en una fecha específica.
-     * @param fecha la fecha a verificar
-     * @return true si la tarifa está vigente en esa fecha
-     */
     public boolean estaVigenteEn(LocalDate fecha) {
         boolean despuesDeFechaDesde = !fecha.isBefore(fechaVigenciaDesde);
         boolean antesDeFechaHasta = fechaVigenciaHasta == null || !fecha.isAfter(fechaVigenciaHasta);
         return despuesDeFechaDesde && antesDeFechaHasta;
     }
 
-
-    /**
-     * Verifica si esta tarifa es "abierta" (sin fecha de fin).
-     * @return true si no tiene fecha de fin de vigencia
-     */
     public boolean esAbierta() {
         return fechaVigenciaHasta == null;
     }

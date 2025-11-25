@@ -168,9 +168,6 @@ public class ChatService {
         return sql;
     }
 
-    /**
-     * Genera una respuesta en lenguaje natural a partir de los resultados SQL
-     */
     private String generarRespuestaNatural(String preguntaOriginal, String sqlEjecutado, List<Object[]> resultados) {
         try {
             String resultadosFormateados = formatearResultados(resultados);
@@ -237,12 +234,6 @@ public class ChatService {
         }
     }
 
-    /**
-     * Normaliza los resultados de JPA a formato uniforme List<Object[]>
-     * JPA puede retornar:
-     * - Valores escalares (Long, Double, String, etc.) para consultas con 1 columna
-     * - Object[] para consultas con múltiples columnas
-     */
     private List<Object[]> normalizarResultados(List<Object> resultadosRaw) {
         List<Object[]> resultadosNormalizados = new ArrayList<>();
 
@@ -257,9 +248,6 @@ public class ChatService {
         return resultadosNormalizados;
     }
 
-    /**
-     * Formatea los resultados SQL a un string legible
-     */
     private String formatearResultados(List<Object[]> resultados) {
         if (resultados == null || resultados.isEmpty()) {
             return "No se encontraron resultados";

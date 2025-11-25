@@ -98,19 +98,11 @@ public class Viaje {
         this.estado = EstadoViaje.EN_CURSO;
     }
 
-    /**
-     * Calcula el tiempo total del viaje en minutos.
-     * Si el viaje aún no ha finalizado, calcula hasta el momento actual.
-     */
     public long calcularTiempoTotal() {
         LocalDateTime fin = (this.fechaHoraFin != null) ? this.fechaHoraFin : LocalDateTime.now();
         return Duration.between(this.fechaHoraInicio, fin).toMinutes();
     }
 
-    /**
-     * Calcula el tiempo total pausado en minutos.
-     * Suma la duración de todas las pausas finalizadas.
-     */
     public long calcularTiempoPausado() {
         return pausas.stream()
                 .filter(p -> p.getHoraFin() != null)
@@ -118,10 +110,6 @@ public class Viaje {
                 .sum();
     }
 
-    /**
-     * Calcula el tiempo en pausas extendidas (>15 minutos) en minutos.
-     * Solo cuenta el tiempo de las pausas marcadas como extendidas.
-     */
     public long calcularTiempoPausaExtendida() {
         long tiempoTotal = 0;
         for (Pausa pausa : pausas) {
@@ -133,11 +121,7 @@ public class Viaje {
         return tiempoTotal;
     }
 
-    /**
-     * Calcula el tiempo en pausas normales (≤15 minutos) en minutos.
-     * Solo cuenta el tiempo de las pausas NO marcadas como extendidas.
-     */
-    public long calcularTiempoPausaNormal() {
+     public long calcularTiempoPausaNormal() {
         long tiempoTotal = 0;
         for (Pausa pausa : pausas) {
             if (pausa.getHoraFin() != null && !pausa.getExtendida()) {
@@ -148,9 +132,6 @@ public class Viaje {
         return tiempoTotal;
     }
 
-    /**
-     * Calcula el tiempo sin pausas (tiempo activo) en minutos.
-     */
     public long calcularTiempoSinPausas() {
         return calcularTiempoTotal() - calcularTiempoPausado();
     }
