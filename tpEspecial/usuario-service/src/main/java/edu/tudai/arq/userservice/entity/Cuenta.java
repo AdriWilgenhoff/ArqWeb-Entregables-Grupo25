@@ -38,8 +38,6 @@ public class Cuenta {
     @Column(name = "id_cuenta_mercado_pago", nullable = false, length = 100)
     private String idCuentaMercadoPago;
 
-    // ==================== CAMPOS PREMIUM ====================
-
     @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_cuenta", nullable = false)
@@ -53,10 +51,9 @@ public class Cuenta {
     @Column(name = "kilometros_disponibles", nullable = false)
     private Double kilometrosDisponibles;
 
-    // Constantes para cuentas premium
     public static final Double MONTO_PREMIUM_MENSUAL = 500.0;
     public static final Double LIMITE_KM_GRATIS = 100.0;
-    public static final Double DESCUENTO_PREMIUM = 0.5; // 50% de descuento
+    public static final Double DESCUENTO_PREMIUM = 0.5;
 
     @ManyToMany(mappedBy = "cuentas", fetch = FetchType.LAZY)
     private List<Usuario> usuarios;
@@ -103,13 +100,11 @@ public class Cuenta {
 
     public boolean descontarSaldo(Double monto) {
         if (monto > 0) {
-            this.saldo -= monto; // Permite saldo negativo (deuda)
+            this.saldo -= monto;
             return true;
         }
         return false;
     }
-
-    // ==================== MÉTODOS PREMIUM ====================
 
     public boolean isPremium() {
         return tipoCuenta == TipoCuenta.PREMIUM;
@@ -119,8 +114,7 @@ public class Cuenta {
         if (!isPremium() || fechaUltimoPagoPremium == null) {
             return false;
         }
-        // Necesita renovación si pasó más de un mes desde el último pago
-        LocalDate inicioMesActual = LocalDate.now().withDayOfMonth(1);
+       LocalDate inicioMesActual = LocalDate.now().withDayOfMonth(1);
         return fechaUltimoPagoPremium.isBefore(inicioMesActual);
     }
 
@@ -133,11 +127,6 @@ public class Cuenta {
         return isPremium() && kilometrosDisponibles > 0;
     }
 
-    /**
-     * Usa kilómetros gratis disponibles.
-     * @param km kilómetros a usar
-     * @return kilómetros que se usaron gratis (puede ser menos si no hay suficientes)
-     */
     public Double usarKilometrosGratis(Double km) {
         if (!isPremium() || km == null || km <= 0) {
             return 0.0;
